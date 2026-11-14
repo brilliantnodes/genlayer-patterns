@@ -1,0 +1,10 @@
+{
+  "url": "https://rigsettle.brilliantnodes.com/demo/quillmoor/rig-dark/",
+  "source_name": "Quillmoor Pool",
+  "series_name": "rig-dark",
+  "value_label": "accepted hashrate (pool-side)",
+  "unit_family": "hashrate",
+  "slot_minutes": 1,
+  "unit_label": "",
+  "tolerance_bp": 100
+}

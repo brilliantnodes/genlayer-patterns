@@ -1,0 +1,61 @@
+{
+  "name": "Launch claim: no premine",
+  "pages": [
+    "announcement",
+    "explorer"
+  ],
+  "facts": [
+    {
+      "key": "claims_no_premine",
+      "question": "Does the announcement state that the coin has no premine?",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "page": "announcement"
+    },
+    {
+      "key": "early_allocation",
+      "question": "Does the explorer page show coins paid in the genesis block or block 1 to founders, developers, a treasury or insiders, beyond the ordinary mining reward?",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "page": "explorer"
+    },
+    {
+      "key": "block1_shown",
+      "question": "Does the explorer page show the outputs of block 1?",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "page": "explorer"
+    }
+  ],
+  "rules": [
+    {
+      "id": "R0_NOT_CLAIMED",
+      "when": {
+        "claims_no_premine": "no"
+      },
+      "verdict": "not_claimed"
+    },
+    {
+      "id": "R1_EARLY_ALLOCATION",
+      "when": {
+        "early_allocation": "yes"
+      },
+      "verdict": "contradicted"
+    },
+    {
+      "id": "R2_CLEAN_BLOCK1",
+      "when": {
+        "block1_shown": "yes",
+        "early_allocation": "no"
+      },
+      "verdict": "supported"
+    }
+  ],
+  "default_verdict": "undetermined"
+}

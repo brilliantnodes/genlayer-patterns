@@ -1,0 +1,9 @@
+{
+  "template_file": "template-launch-no-premine.json",
+  "subject": "Examplecoin (fictional): no premine",
+  "urls": [
+    "https://checker.brilliantnodes.com/examples/examplecoin-announcement.html",
+    "https://checker.brilliantnodes.com/examples/examplecoin-explorer-block1.html"
+  ],
+  "expected": "contradicted"
+}

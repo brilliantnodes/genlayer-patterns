@@ -1,0 +1,9 @@
+{
+  "template_file": "template-launch-no-premine.json",
+  "subject": "Controlcoin (fictional): no premine",
+  "urls": [
+    "https://checker.brilliantnodes.com/examples/controlcoin-announcement.html",
+    "https://checker.brilliantnodes.com/examples/controlcoin-explorer-block1.html"
+  ],
+  "expected": "supported"
+}

@@ -1,0 +1,9 @@
+{
+  "template_file": "template-launch-no-premine.json",
+  "subject": "Controlcoin (fictional) with a missing explorer page",
+  "urls": [
+    "https://checker.brilliantnodes.com/examples/controlcoin-announcement.html",
+    "https://checker.brilliantnodes.com/examples/no-such-page.html"
+  ],
+  "expected": "undetermined"
+}

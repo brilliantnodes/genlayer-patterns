@@ -1,0 +1,50 @@
+[
+ {
+  "tx": "0x90b71a9a9eaea073031480dfbbbe27e85208a809c906d47ef709f7521c727ea6",
+  "reading": "1",
+  "meter": "1",
+  "kind": "READ",
+  "reason": "",
+  "agree": 3
+ },
+ {
+  "tx": "0xfcbdfaff84ea8648273e8444ed9a98c06d4aa5b660f917b40a6cc29a5c5a5b19",
+  "reading": "2",
+  "meter": "2",
+  "kind": "READ",
+  "reason": "",
+  "agree": 3
+ },
+ {
+  "tx": "0x3a1f2a4d8ce4a8a1d9f0ff90cb8c25856cfbeb14cc5aab405b7e9c4860afab2f",
+  "reading": "3",
+  "meter": "3",
+  "kind": "READ",
+  "reason": "",
+  "agree": 3
+ },
+ {
+  "tx": "0xbdcc31828076af8235c6f85c7bb1e7b6c1a89a79cf66bd2f67f7609948585397",
+  "reading": "4",
+  "meter": "4",
+  "kind": "NOT_LISTED",
+  "reason": "",
+  "agree": 3
+ },
+ {
+  "tx": "0xbdfeb0b8567d9be596c08f543ac4f127646124f7f32b791126cf38e8adf97597",
+  "reading": "5",
+  "meter": "5",
+  "kind": "READ",
+  "reason": "",
+  "agree": 3
+ },
+ {
+  "tx": "0xba5e0b752be771ee86a82cd968a4314cd7d866c481d28658ee208d5b68911b03",
+  "reading": "6",
+  "meter": "5",
+  "kind": "NO_READING",
+  "reason": "N1_PAGE_DARK",
+  "agree": 3
+ }
+]

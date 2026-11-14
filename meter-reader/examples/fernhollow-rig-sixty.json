@@ -1,0 +1,10 @@
+{
+  "url": "https://rigsettle.brilliantnodes.com/demo/fernhollow/rig-sixty/",
+  "source_name": "Fernhollow Pool",
+  "series_name": "rig-sixty",
+  "value_label": "accepted hashrate (pool-side)",
+  "unit_family": "hashrate",
+  "slot_minutes": 1,
+  "unit_label": "",
+  "tolerance_bp": 100
+}

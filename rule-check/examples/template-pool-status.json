@@ -1,0 +1,42 @@
+{
+  "name": "Pool status: mining outage reported",
+  "pages": [
+    "status_page"
+  ],
+  "facts": [
+    {
+      "key": "mining_incident",
+      "question": "Does the status page list an incident in which mining or stratum connections were affected?",
+      "options": [
+        "yes",
+        "no"
+      ]
+    },
+    {
+      "key": "website_only_incident",
+      "question": "Does the status page list an incident that it says affected only the website or dashboard, not mining?",
+      "options": [
+        "yes",
+        "no"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1_MINING_AFFECTED",
+      "when": {
+        "mining_incident": "yes"
+      },
+      "verdict": "mining_outage_reported"
+    },
+    {
+      "id": "R2_WEBSITE_ONLY",
+      "when": {
+        "mining_incident": "no",
+        "website_only_incident": "yes"
+      },
+      "verdict": "website_only"
+    }
+  ],
+  "default_verdict": "no_incident_reported"
+}

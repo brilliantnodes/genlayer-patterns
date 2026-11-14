@@ -1,0 +1,83 @@
+[
+ {
+  "file": "check-examplecoin",
+  "tx": "0x5b6453b5165087f900ecf00dc6d66686b91a5c596ff190fa8dcb76dc3082fa09",
+  "check": "1",
+  "template": "1",
+  "verdict": "contradicted",
+  "rule": "R1_EARLY_ALLOCATION",
+  "deciding": {
+   "early_allocation": "yes"
+  },
+  "answers": {
+   "block1_shown": "yes",
+   "claims_no_premine": "yes",
+   "early_allocation": "yes"
+  },
+  "read": [
+   true,
+   true
+  ],
+  "agree": 3
+ },
+ {
+  "file": "check-controlcoin",
+  "tx": "0xd1347c21d79cef4771b06fbd01cd9918f62fad4085c531e7e4d29d3a2fe6f648",
+  "check": "2",
+  "template": "1",
+  "verdict": "supported",
+  "rule": "R2_CLEAN_BLOCK1",
+  "deciding": {
+   "block1_shown": "yes",
+   "early_allocation": "no"
+  },
+  "answers": {
+   "block1_shown": "yes",
+   "claims_no_premine": "yes",
+   "early_allocation": "no"
+  },
+  "read": [
+   true,
+   true
+  ],
+  "agree": 3
+ },
+ {
+  "file": "check-missing-explorer",
+  "tx": "0x4a797a09ce0fa6ae70243c593325c3e12a101d0c3dc31dc886b597fe231c8354",
+  "check": "3",
+  "template": "1",
+  "verdict": "undetermined",
+  "rule": "DEFAULT",
+  "deciding": {},
+  "answers": {
+   "block1_shown": "unclear",
+   "claims_no_premine": "yes",
+   "early_allocation": "unclear"
+  },
+  "read": [
+   true,
+   false
+  ],
+  "agree": 3
+ },
+ {
+  "file": "check-saltmarsh-status",
+  "tx": "0x3734c848a0bb93919f15acb7c470e76d77f2e994f78d13fa6fe30bb1444b2d15",
+  "check": "4",
+  "template": "2",
+  "verdict": "mining_outage_reported",
+  "rule": "R1_MINING_AFFECTED",
+  "deciding": {
+   "mining_incident": "yes"
+  },
+  "answers": {
+   "mining_incident": "yes",
+   "website_only_incident": "yes"
+  },
+  "read": [
+   true
+  ],
+  "agree": 3
+ }
+]

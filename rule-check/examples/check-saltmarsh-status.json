@@ -1,0 +1,8 @@
+{
+  "template_file": "template-pool-status.json",
+  "subject": "Saltmarsh Pool (fictional) status",
+  "urls": [
+    "https://rigsettle.brilliantnodes.com/demo/saltmarsh-status/"
+  ],
+  "expected": "mining_outage_reported"
+}
