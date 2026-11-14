@@ -4,7 +4,7 @@ Reusable GenLayer Intelligent Contracts built on one idea: **validators copy fac
 
 | Contract | What it does | Studio address |
 |---|---|---|
-| [MeterReader](meter-reader/) | Turns one finished window of a public per-interval statistics table (hashrate per minute, messages per minute, ...) into an on-chain reading: every slot stored (missing slots kept as missing), validators agree slot by slot within a stated tolerance, plus a capped delivery share for consumers. | [`0xF85B…776a`](https://explorer-studio.genlayer.com/address/0xF85Bc3858068958C8682b2fbB5f668FBc867776a) |
+| [MeterReader](meter-reader/) | Turns one finished window of a public per-interval statistics table (hashrate per minute, messages per minute, ...) into an on-chain reading: every slot stored (missing slots kept as missing), validators agree slot by slot within a stated tolerance, plus a capped delivery share and a per-window index for consumers. A consumer contract reads it on chain. | [`0x2976…6636`](https://explorer-studio.genlayer.com/address/0x29762f9bce4F51e01696a947D24158c9C66B6636) |
 | [RuleCheck](rule-check/) | Declarative fact rules over 1 to 3 public pages: anyone stores a template (facts with closed answer lists, plus an ordered rule table), validators settle the facts, code applies the first matching rule, and validators must agree on the facts that rule uses. | [`0x28BE…f21e`](https://explorer-studio.genlayer.com/address/0x28BEC7C9A99cd19c101fbaB1CaFe0b6e4Db3f21e) |
 
 Each folder has the contract, direct-mode tests, a command-line client, example inputs, the deployment record and a README covering the problem, the state design, why its equivalence check is shaped the way it is, failure modes, and live results with transaction links.
@@ -17,8 +17,10 @@ All examples use fictional pools, coins and services. Test GEN on GenLayer Studi
 
 ```bash
 python3 -m venv venv && venv/bin/pip install -r requirements.txt
-(cd meter-reader && PYTHONPATH=. ../venv/bin/pytest tests/direct -q)   # 119 tests
-(cd rule-check   && PYTHONPATH=. ../venv/bin/pytest tests/direct -q)   # 101 tests
+(cd meter-reader && PYTHONPATH=. ../venv/bin/pytest tests/direct -q)   # 145 tests
+(cd rule-check   && PYTHONPATH=. ../venv/bin/pytest tests/direct -q)   # 104 tests
+(cd meter-reader && PYTHONPATH=. ../venv/bin/python tools/mutate.py)   # 53 of 53 mutants caught
+(cd rule-check   && PYTHONPATH=. ../venv/bin/python tools/mutate.py)   # 45 of 45 mutants caught
 venv/bin/genvm-lint check meter-reader/contracts/meter_reader.py
 venv/bin/genvm-lint check rule-check/contracts/rule_check.py
 ```

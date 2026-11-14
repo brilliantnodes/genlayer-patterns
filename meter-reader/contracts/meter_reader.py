@@ -11,7 +11,8 @@ other contracts and people can rely on.
   1. Anyone registers a METER: the page URL, the name the page must show,
      the series (worker, node, ...), which column to copy, the unit family,
      the slot length and how far validators may differ.
-  2. After a window has fully finished, anyone asks for a READING. Every
+  2. After a window has fully finished (plus the meter's publishing lag, for
+     pages that post a slot's figure late), anyone asks for a READING. Every
      validator renders the page and its model COPIES the rows that fall in
      the window into a fixed form. It never judges anything.
   3. Plain Python turns the copy into integers in a base unit, checks every
@@ -21,7 +22,9 @@ other contracts and people can rely on.
   4. The reading is stored with every slot (a slot the page does not list is
      stored as missing). Consumers read it with get_reading, or ask
      delivery_share_bp for the capped share of a target rate, counting a
-     missing slot as zero.
+     missing slot as zero. get_window_readings finds every reading of one
+     exact window, so consumers can apply a fixed choice (the first, or the
+     latest).
 
 A reading describes what one public page showed for one finished window. It
 is not a proof about anything the page does not show.
@@ -48,6 +51,8 @@ PAGE_CHARS = 12000
 MAX_ROWS = 200
 MAX_LATEST = 50
 MAX_PER_METER = 200  # reading ids kept per meter for get_readings (all readings stay readable by id)
+MAX_FIRST_PER_WINDOW = 10  # the first reading ids kept per exact window; the latest id is always kept
+MAX_PUBLISH_LAG_MINUTES = 24 * 60
 MAX_VALUE = 10**30
 COUNT_SCALE = 10**6  # "count" meters store values in millionths
 RENDER_WAIT = "4s"  # let pages that build their tables with scripts finish
@@ -262,8 +267,9 @@ def _to_unix(iso: str) -> int:
 def _interpret(spec: dict, start: int, slots: int, ans: dict) -> dict:
     """The copied form to an outcome. Pure Python, no web, no model.
 
-    Reading opens one full slot after the window ends, so every slot in the
-    window is finished on the page for every validator.
+    Reading opens one full slot after the window ends (plus the meter's
+    publishing lag), so every slot in the window is finished and published
+    on the page for every validator.
 
     A row inside the window whose time does not sit on the slot grid, whose
     number or unit cannot be read, or that appears twice with different
@@ -495,6 +501,7 @@ class MeterReader(gl.Contract):
     meters: TreeMap[str, Meter]
     readings: TreeMap[str, Reading]
     by_meter: TreeMap[str, str]  # meter id -> JSON list of the latest reading ids
+    by_window: TreeMap[str, str]  # "meter:start:slots" -> {"first": [ids], "latest": id, "count": n}
     meter_count: u256
     reading_count: u256
 
@@ -524,6 +531,7 @@ class MeterReader(gl.Contract):
         slot_minutes: int,
         unit_label: str = "",
         tolerance_bp: int = DEFAULT_TOLERANCE_BP,
+        publish_lag_minutes: int = 0,
     ) -> dict:
         url = url.strip()
         source_name = " ".join(source_name.split())
@@ -552,6 +560,9 @@ class MeterReader(gl.Contract):
         tolerance_bp = int(tolerance_bp)
         if tolerance_bp < 0 or tolerance_bp > MAX_TOLERANCE_BP:
             raise gl.vm.UserError(f"tolerance_bp must be 0 to {MAX_TOLERANCE_BP}")
+        publish_lag_minutes = int(publish_lag_minutes)
+        if publish_lag_minutes < 0 or publish_lag_minutes > MAX_PUBLISH_LAG_MINUTES:
+            raise gl.vm.UserError(f"publish_lag_minutes must be 0 to {MAX_PUBLISH_LAG_MINUTES}")
         spec = {
             "url": url,
             "source_name": source_name,
@@ -561,6 +572,7 @@ class MeterReader(gl.Contract):
             "unit_label": unit_label,
             "slot_minutes": slot_minutes,
             "tolerance_bp": tolerance_bp,
+            "publish_lag_minutes": publish_lag_minutes,
         }
         new_id = str(int(self.meter_count) + 1)
         m = Meter(id=new_id, owner=gl.message.sender_address.as_hex, spec_json=json.dumps(spec, sort_keys=True), created_at=u256(self._now()))
@@ -579,8 +591,9 @@ class MeterReader(gl.Contract):
             raise gl.vm.UserError("window_start must be a whole UTC minute (unix seconds)")
         now = self._now()
         end = start + slots * slot
-        if now < end + slot:
-            raise gl.vm.UserError("the window must be over: reading opens one full slot after it ends, at " + _fmt(end + slot) + " UTC")
+        opens = end + slot + spec["publish_lag_minutes"] * 60
+        if now < opens:
+            raise gl.vm.UserError("the window must be over: reading opens one full slot after it ends, plus the meter's publishing lag, at " + _fmt(opens) + " UTC")
 
         def leader_fn() -> dict:
             return _read(spec, start, slots)
@@ -611,6 +624,13 @@ class MeterReader(gl.Contract):
         ids = json.loads(self.by_meter.get(meter_id) or "[]")
         ids.append(new_id)
         self.by_meter[meter_id] = json.dumps(ids[-MAX_PER_METER:])
+        key = f"{meter_id}:{start}:{slots}"
+        w = json.loads(self.by_window.get(key) or '{"first": [], "latest": "", "count": 0}')
+        if len(w["first"]) < MAX_FIRST_PER_WINDOW:
+            w["first"].append(new_id)
+        w["latest"] = new_id
+        w["count"] += 1
+        self.by_window[key] = json.dumps(w)
         return _reading_view(rd, spec)
 
     # ---- views -----------------------------------------------------------
@@ -634,6 +654,15 @@ class MeterReader(gl.Contract):
         limit = max(1, min(int(limit), MAX_LATEST))
         ids = json.loads(self.by_meter.get(meter_id) or "[]")
         return [_reading_view(self.readings[i], spec) for i in reversed(ids[-limit:])]
+
+    @gl.public.view
+    def get_window_readings(self, meter_id: str, window_start: int, slots: int) -> dict:
+        """Every reading of one exact window: the first ids (oldest first, up
+        to 10), the latest id and the count, so a consumer can apply a fixed
+        rule such as "the first READ" or "the latest reading"."""
+        self._meter(meter_id)
+        w = json.loads(self.by_window.get(f"{meter_id}:{int(window_start)}:{int(slots)}") or '{"first": [], "latest": "", "count": 0}')
+        return {"meter_id": meter_id, "window_start": int(window_start), "slots": int(slots), "first_ids": w["first"], "latest_id": w["latest"], "count": w["count"]}
 
     @gl.public.view
     def delivery_share_bp(self, reading_id: str, target_per_slot: str) -> dict:
@@ -675,6 +704,8 @@ class MeterReader(gl.Contract):
             "min_coverage_bp": MIN_COVERAGE_BP,
             "default_tolerance_bp": DEFAULT_TOLERANCE_BP,
             "max_tolerance_bp": MAX_TOLERANCE_BP,
+            "max_publish_lag_minutes": MAX_PUBLISH_LAG_MINUTES,
+            "read_opens": "one full slot after the window ends, plus the meter's publish_lag_minutes",
             "count_scale": COUNT_SCALE,
             "page_chars": PAGE_CHARS,
             "kinds": list(KINDS),

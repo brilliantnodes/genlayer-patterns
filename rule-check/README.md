@@ -77,7 +77,7 @@ The validator function:
 
 **Why rule-scoped:** the verdict depends only on the facts the matched rule reads, plus the fact that no earlier rule matched. Requiring agreement on every fact would stall consensus over facts that changed nothing, for example whether the announcement claims "no premine" when block 1 already shows a founders' allocation. Requiring only the same verdict would accept a leader that reached it for a different reason. Comparing the deciding rule's facts gives a stored record whose "why" is confirmed by every agreeing validator: the `deciding_facts` field.
 
-**Worst case:** answers to facts that the deciding rule does not use are the leader's alone. They are stored under `answers` for information, but nothing was decided by them, and `deciding_facts` shows which answers were confirmed. Notes are never compared.
+**Worst case:** answers to facts that the deciding rule does not use are the leader's alone. They are stored under `answers` for information, but nothing was decided by them, and `deciding_facts` shows which answers were confirmed. The same holds for the notes and the per-page `read` flags: both are the leader's report. For a page that a deciding fact is tied to, the flag is confirmed indirectly, because an unread page forces that fact to `unclear` and the agreed answer would differ.
 
 ## State design
 
@@ -123,13 +123,22 @@ Writing a good template:
 - Put the most decisive rule first, and keep `undetermined` (or a similar word) as the default.
 - Use `unclear` in a condition only when "the page does not say" should itself decide.
 
+## Trust model for users of a check
+
+- **Read the template before relying on its verdicts.** A template's questions are written by its author and go into the prompt. A misleading question gives misleading answers, so judge a template by its questions and rules (`get_template`). Templates are public and never change.
+- **Look at the URLs.** Whoever runs a check chooses the pages. A check record shows each page's label and URL, so a consumer should accept a verdict only for pages it expects (for example, an explorer on the project's own domain).
+- **A check is a snapshot.** If a page changes, a new check can give a new verdict. Every check is kept with its time.
+
 ## Tests
 
 ```bash
 cd rule-check
-PYTHONPATH=. ../venv/bin/pytest tests/direct -q        # 101 direct-mode tests, web and model mocked
+PYTHONPATH=. ../venv/bin/pytest tests/direct -q        # 104 direct-mode tests, web and model mocked
+PYTHONPATH=. ../venv/bin/python tools/mutate.py        # 45 of 45 mutants caught
 ../venv/bin/genvm-lint check contracts/rule_check.py
 ```
+
+`tools/mutate.py` breaks the contract on purpose, one change at a time (45 changes: rule order, answer guards, leader checks, agreement, template validation, URL filter, prompt), and confirms the tests catch every one. One change is left out because it cannot change behaviour: comparing the rule id but not the verdict, since each rule id fixes its verdict.
 
 The tests cover:
 - 37 template validation cases;
@@ -139,7 +148,8 @@ The tests cover:
 - 12 URL-list and URL-filter cases;
 - prompt content and marker forging;
 - views and caps;
-- validator agreement: unused facts ignored, the same verdict by another rule rejected, a different answer to a used fact rejected, unreadable agreeing only with unreadable, a leader error, and 19 malformed or lying leader results.
+- validator agreement: unused facts ignored, the same verdict by another rule rejected (including an earlier rule firing while the deciding fact agrees), a different answer to a used fact rejected, unreadable agreeing only with unreadable, a leader error, and 19 malformed or lying leader results;
+- the rebuild guard on its own, which is also applied to the agreed result before anything is stored.
 
 ## Limits
 

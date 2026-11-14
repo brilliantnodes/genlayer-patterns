@@ -1,50 +1,139 @@
-[
- {
-  "tx": "0x90b71a9a9eaea073031480dfbbbe27e85208a809c906d47ef709f7521c727ea6",
-  "reading": "1",
-  "meter": "1",
-  "kind": "READ",
-  "reason": "",
-  "agree": 3
- },
- {
-  "tx": "0xfcbdfaff84ea8648273e8444ed9a98c06d4aa5b660f917b40a6cc29a5c5a5b19",
-  "reading": "2",
-  "meter": "2",
-  "kind": "READ",
-  "reason": "",
-  "agree": 3
- },
- {
-  "tx": "0x3a1f2a4d8ce4a8a1d9f0ff90cb8c25856cfbeb14cc5aab405b7e9c4860afab2f",
-  "reading": "3",
-  "meter": "3",
-  "kind": "READ",
-  "reason": "",
-  "agree": 3
- },
- {
-  "tx": "0xbdcc31828076af8235c6f85c7bb1e7b6c1a89a79cf66bd2f67f7609948585397",
-  "reading": "4",
-  "meter": "4",
-  "kind": "NOT_LISTED",
-  "reason": "",
-  "agree": 3
- },
- {
-  "tx": "0xbdfeb0b8567d9be596c08f543ac4f127646124f7f32b791126cf38e8adf97597",
-  "reading": "5",
-  "meter": "5",
-  "kind": "READ",
-  "reason": "",
-  "agree": 3
- },
- {
-  "tx": "0xba5e0b752be771ee86a82cd968a4314cd7d866c481d28658ee208d5b68911b03",
-  "reading": "6",
-  "meter": "5",
-  "kind": "NO_READING",
-  "reason": "N1_PAGE_DARK",
-  "agree": 3
- }
-]
+{
+  "address": "0x29762f9bce4F51e01696a947D24158c9C66B6636",
+  "meters": [
+    {
+      "example": "fernhollow-rig-sixty",
+      "meter_id": "1",
+      "tx": "0x37cd3d43d34ff30bbfd31816c22ac715cc7ae944fd3a98dce5283b6797fcc0fb"
+    },
+    {
+      "example": "fernhollow-rig-steady",
+      "meter_id": "2",
+      "tx": "0xa939f37a78ed60dd2112eccb4d8ec7a30ad7da9f15cbe25c1f44c64031d357c9"
+    },
+    {
+      "example": "fernhollow-rig-gappy",
+      "meter_id": "3",
+      "tx": "0xcf94fe0092f7559b16725a10736608cf10d60fcabd1f563f022d079efbf61986"
+    },
+    {
+      "example": "fernhollow-rig-ghost",
+      "meter_id": "4",
+      "tx": "0x4d674d035c5b91183bd4156ccc6cf154e8a94205579170af1206c9424b179b63"
+    },
+    {
+      "example": "quillmoor-rig-dark",
+      "meter_id": "5",
+      "tx": "0xb357c8f82378f35937cbb66a244f6e567c7384a03c7b28216d9b24b556c41d32"
+    }
+  ],
+  "readings": [
+    {
+      "example": "fernhollow-rig-sixty",
+      "meter_id": "1",
+      "reading_id": "1",
+      "kind": "READ",
+      "reason": "",
+      "values": [
+        "6150000000",
+        "5820000000",
+        "6230000000",
+        "5900000000",
+        "6010000000"
+      ],
+      "agree": 3,
+      "tx": "0x56a5573483bebed78a48b502bcc1fb5dbd00c0909f20571f886b6cd8af25633e",
+      "share_bp": 6022
+    },
+    {
+      "example": "fernhollow-rig-steady",
+      "meter_id": "2",
+      "reading_id": "2",
+      "kind": "READ",
+      "reason": "",
+      "values": [
+        "10120000000",
+        "9880000000",
+        "10070000000",
+        "10000000000",
+        "10060000000"
+      ],
+      "agree": 3,
+      "tx": "0x234f516b24c748ba4ed731808b842ae7cd1371e9011979745d0a0fbc9ff88458",
+      "share_bp": 9976
+    },
+    {
+      "example": "fernhollow-rig-gappy",
+      "meter_id": "3",
+      "reading_id": "3",
+      "kind": "READ",
+      "reason": "",
+      "values": [
+        "10000000000",
+        null,
+        "10080000000",
+        "9900000000",
+        null
+      ],
+      "agree": 3,
+      "tx": "0xe7bc681a1d9bf7dd1ba0f52b15dfda6ca6a1bd240a2e48515dfed663054747c1",
+      "share_bp": 5980
+    },
+    {
+      "example": "fernhollow-rig-ghost",
+      "meter_id": "4",
+      "reading_id": "4",
+      "kind": "NOT_LISTED",
+      "reason": "",
+      "values": [],
+      "agree": 3,
+      "tx": "0x3bc4039c2ef3cdff07c9671ec36a4d9106edeb4925ef65e5032586eb7d1f72be",
+      "share_bp": 0
+    },
+    {
+      "example": "quillmoor-rig-dark",
+      "meter_id": "5",
+      "reading_id": "5",
+      "kind": "READ",
+      "reason": "",
+      "values": [
+        "10080000000",
+        "9960000000",
+        "10000000000",
+        "9980000000",
+        "10040000000"
+      ],
+      "agree": 3,
+      "tx": "0x113c450ea86794b114e197c25db7a59d129e6202ccf35be631ff58b984a888c4",
+      "share_bp": 9988
+    },
+    {
+      "example": "quillmoor-rig-dark (down period)",
+      "meter_id": "5",
+      "reading_id": "6",
+      "kind": "NO_READING",
+      "reason": "N1_PAGE_DARK",
+      "values": [],
+      "agree": 3,
+      "tx": "0xe640cc537ef51039795f2e9bea572284fc8e17dc9fe3a6686406b2bc0c331d8b"
+    }
+  ],
+  "consumer": {
+    "address": "0xdda671dF730E0fd3faFE4ED56b51B7a7Fa5529a6",
+    "deploy_tx": "0x9423155ca275ed74546f3e57c3a4402e1b7e8f61d94afe389b63927862f456f5",
+    "record_tx": "0x25c14085ba4bf49a13dbec0299d783e1a48ad74947e503ba11627f4737da678c",
+    "status": "ACCEPTED",
+    "result": {
+      "id": "1",
+      "kind": "READ",
+      "meter_id": "1",
+      "reader": "0x29762f9bce4F51e01696a947D24158c9C66B6636",
+      "reading_id": "1",
+      "rule": "S1_CAPPED_PRO_RATA",
+      "share_bp": 6022,
+      "slots": 5,
+      "target_per_slot": "10000000000",
+      "window_start": 1794677100
+    }
+  }
+}

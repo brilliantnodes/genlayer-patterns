@@ -473,3 +473,38 @@ def test_decide_and_used_facts(env, mod):
     assert mod._decide(tpl, VAGUE) == ("undetermined", "DEFAULT")
     assert mod._used_facts(tpl, "R2_CLEAN_BLOCK1") == ["block1_shown", "early_allocation"]
     assert mod._used_facts(tpl, "DEFAULT") == []
+
+
+def test_validator_rejects_an_earlier_rule_with_the_same_verdict(env):
+    # The leader's deciding fact (early_allocation) agrees, but for the
+    # validator an earlier rule fires first. Same verdict, different reason.
+    rules = [
+        {"id": "R0_ANNOUNCEMENT", "when": {"claims_no_premine": "no"}, "verdict": "contradicted"},
+        {"id": "R1_ALLOCATION", "when": {"early_allocation": "yes"}, "verdict": "contradicted"},
+    ]
+    setup_validator(env, llm(ALLOC), llm({"early_allocation": "yes", "block1_shown": "yes", "claims_no_premine": "no"}), rules=rules)
+    assert env.vm.run_validator() is False
+
+
+# The validator compares the leader's result with its own run, so a
+# malformed leader result is also rejected by the comparison. These tests
+# check the rebuild guard on its own: it is also applied to the agreed result
+# before anything is stored.
+
+
+def test_rebuild_refuses_unreadable_with_a_readable_page(env, mod):
+    tpl = make(env)
+    with pytest.raises(ValueError):
+        mod._rebuild(tpl, {"verdict": "UNREADABLE", "rule": "UNREADABLE", "answers": {}, "notes": [], "pages_read": [True, False]})
+    with pytest.raises(ValueError):
+        mod._rebuild(tpl, {"verdict": "UNREADABLE", "rule": "R1_ALLOCATION", "answers": {}, "notes": [], "pages_read": [False, False]})
+    ok = mod._rebuild(tpl, {"verdict": "UNREADABLE", "rule": "UNREADABLE", "answers": {"x": 1}, "notes": ["n"], "pages_read": [False, False]})
+    assert ok == {"verdict": "UNREADABLE", "rule": "UNREADABLE", "answers": {}, "notes": [], "pages_read": [False, False]}
+
+
+def test_rebuild_refuses_a_verdict_without_a_readable_page(env, mod):
+    # A fact with no page tie could otherwise carry a verdict with no page read.
+    tpl = make(env, pages=["status_page"], facts=[{"key": "k", "question": "Is it so?", "options": ["yes", "no"]}], rules=[{"id": "R1", "when": {"k": "yes"}, "verdict": "so"}])
+    with pytest.raises(ValueError):
+        mod._rebuild(tpl, {"verdict": "so", "rule": "R1", "answers": {"k": "yes"}, "notes": [], "pages_read": [False]})
+    assert mod._rebuild(tpl, {"verdict": "so", "rule": "R1", "answers": {"k": "yes"}, "notes": [], "pages_read": [True]})["rule"] == "R1"

@@ -73,11 +73,12 @@ def register(e, **over):
         slot_minutes=1,
         unit_label="",
         tolerance_bp=100,
+        publish_lag_minutes=0,
     )
     a.update(over)
     e.vm.sender = e.alice
     return e.c.register_meter(
-        a["url"], a["source_name"], a["series_name"], a["value_label"], a["unit_family"], a["slot_minutes"], a["unit_label"], a["tolerance_bp"]
+        a["url"], a["source_name"], a["series_name"], a["value_label"], a["unit_family"], a["slot_minutes"], a["unit_label"], a["tolerance_bp"], a["publish_lag_minutes"]
     )
 
 
@@ -111,6 +112,7 @@ def test_register_meter_stores_frozen_spec(env):
     m = register(env)
     assert m["id"] == "1" and m["owner"] == to_hex(env.alice)
     assert m["url"] == URL and m["unit_family"] == "hashrate" and m["slot_minutes"] == 1 and m["tolerance_bp"] == 100
+    assert m["publish_lag_minutes"] == 0
     assert env.c.get_meter("1") == m
     assert env.c.get_counts() == {"meters": 1, "readings": 0}
 
@@ -151,6 +153,8 @@ def test_register_trims_and_collapses_text(env):
         (dict(slot_minutes=2), "slot_minutes"),
         (dict(tolerance_bp=-1), "tolerance_bp"),
         (dict(tolerance_bp=501), "tolerance_bp"),
+        (dict(publish_lag_minutes=-1), "publish_lag_minutes"),
+        (dict(publish_lag_minutes=1441), "publish_lag_minutes"),
     ],
 )
 def test_register_refuses_bad_specs(env, over, needle):
@@ -235,7 +239,8 @@ def test_not_listed_is_a_reading_with_zero_share(env):
         (answer([6.0] * 5, utc="no"), "x", "N2_FORMAT"),
         (answer([6.0] * 5, unit="furlongs"), "x", "N2_FORMAT"),
         (answer([6.0] * 5, unit=""), "x", "N2_FORMAT"),
-        (answer(["6,28"] * 5, unit=""), "x", "N2_FORMAT"),
+        (answer(["6,28"] * 5, unit="GH/s"), "x", "N2_FORMAT"),
+        (answer(["1,23,456"] * 5, unit="H/s"), "x", "N2_FORMAT"),
         (answer(["6.0 MH/s"] * 5, unit="GH/s"), "x", "N2_FORMAT"),
         (answer([-1.0] * 5), "x", "N2_FORMAT"),
         (answer([6.0] * 5, extra=[{"slot_start_utc": hm(START), "value": 7.0, "unit": "GH/s"}]), "x", "N2_FORMAT"),
@@ -527,3 +532,80 @@ def test_validator_rejects_malformed_leader(env, bad):
 )
 def test_close(mod, a, b, tol, ok):
     assert mod._close(a, b, tol) is ok
+
+
+# The validator compares the leader's result with its own reading, so a
+# malformed leader result is also rejected by the comparison. These tests
+# check the shape guard on its own: it is the only check applied to the
+# agreed result before it is stored.
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        None,
+        "READ",
+        {"kind": "MAYBE"},
+        {"kind": "NO_READING", "reason": "TRUST_ME"},
+        {"kind": "NO_READING"},
+        {"kind": "READ"},
+        {"kind": "READ", "rows": "0:6"},
+        {"kind": "READ", "rows": [[0, 6], [1, 6], [5, 6]]},
+        {"kind": "READ", "rows": [[0, 6], [2, 6], [1, 6]]},
+        {"kind": "READ", "rows": [[0, 6], [0, 6], [1, 6]]},
+        {"kind": "READ", "rows": [[0, 6], [1, -6], [2, 6]]},
+        {"kind": "READ", "rows": [[-1, 6], [1, 6], [2, 6]]},
+        {"kind": "READ", "rows": [[0, 6], [1, 10**31], [2, 6]]},
+        {"kind": "READ", "rows": [[0, 6.5], [1, 6], [2, 6]]},
+        {"kind": "READ", "rows": [[0, False], [1, 6], [2, 6]]},
+        {"kind": "READ", "rows": [[0, 6], [1, 6]]},
+        {"kind": "READ", "rows": [[i, 6] for i in range(6)]},
+        {"kind": "NOT_LISTED", "rows": [[0, 6]]},
+        {"kind": "NOT_LISTED"},
+    ],
+)
+def test_shape_guard_refuses(mod, bad):
+    with pytest.raises(ValueError):
+        mod._check_outcome(bad, 5)
+
+
+def test_shape_guard_keeps_good_results(mod):
+    assert mod._check_outcome({"kind": "READ", "rows": [[0, 6], [2, 0], [4, 7]], "extra": 1}, 5) == {"kind": "READ", "rows": [[0, 6], [2, 0], [4, 7]]}
+    assert mod._check_outcome({"kind": "NOT_LISTED", "rows": []}, 5) == {"kind": "NOT_LISTED", "rows": []}
+    assert mod._check_outcome({"kind": "NO_READING", "reason": "C1_COVERAGE", "rows": [[0, 1]]}, 5) == {"kind": "NO_READING", "reason": "C1_COVERAGE"}
+
+
+# ------------------------------------------------------------- publishing lag and window index
+
+
+def test_publishing_lag_delays_reading(env):
+    register(env, publish_lag_minutes=3)
+    with env.vm.expect_revert("plus the meter's publishing lag"):
+        read(env, answer([6.0] * 5), at=OPEN_AT)
+    with env.vm.expect_revert("at 2026-11-14 06:19 UTC"):
+        read(env, answer([6.0] * 5), at=OPEN_AT + 180 - 1)
+    assert read(env, answer([6.0] * 5), at=OPEN_AT + 180)["kind"] == "READ"
+    assert env.c.get_meter("1")["publish_lag_minutes"] == 3
+
+
+def test_window_index_lists_every_reading_of_one_window(env, mod):
+    register(env)
+    read(env, answer([], kind="unavailable"))
+    read(env, answer([6.0] * 5))
+    read(env, answer([6.0] * 5), start=START + 60, at=OPEN_AT + 60)
+    read(env, answer([6.0] * 5), slots=4)
+    w = env.c.get_window_readings("1", START, 5)
+    assert w == {"meter_id": "1", "window_start": START, "slots": 5, "first_ids": ["1", "2"], "latest_id": "2", "count": 2}
+    assert env.c.get_window_readings("1", START + 60, 5)["first_ids"] == ["3"]
+    assert env.c.get_window_readings("1", START, 4)["first_ids"] == ["4"]
+    assert env.c.get_window_readings("1", START + 600, 5) == {"meter_id": "1", "window_start": START + 600, "slots": 5, "first_ids": [], "latest_id": "", "count": 0}
+    with env.vm.expect_revert("no such meter"):
+        env.c.get_window_readings("2", START, 5)
+
+
+def test_window_index_keeps_the_first_ten_and_the_latest(env):
+    register(env)
+    for _ in range(12):
+        read(env, answer([6.0] * 5))
+    w = env.c.get_window_readings("1", START, 5)
+    assert w["first_ids"] == [str(i) for i in range(1, 11)] and w["latest_id"] == "12" and w["count"] == 12
