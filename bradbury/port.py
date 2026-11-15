@@ -1,6 +1,6 @@
 """Make the Bradbury Phase 2 (GenVM v0.6) build of a contract written for Studio (GenVM v0.2).
 
-    python3 port.py <source.py> <out.py>
+    python3 port.py <source.py> <out.py> [--pack]
 
 Rewrites, in the direction of GenLayer Foundation's own Studio/Bradbury targets
 (genlayer-foundation/uptime, contracts/targets.json):
@@ -14,10 +14,18 @@ Then docstrings and comments are stripped and indentation shrunk, so the deploy
 fits under Bradbury's per-transaction gas cap. The script asserts that the
 output's AST equals the source's AST after applying exactly these renames, and
 that no Studio-only construct is left.
+
+--pack (for contracts still above the limit after stripping, such as RigSettle):
+the stripped code is zlib-compressed and base85-encoded inside a two-line stub
+that decompresses and executes it in the module namespace at load time. The
+script asserts the round trip is lossless; the unpacked code is the stripped
+build, which is also written next to the output as <out>.unpacked.py.
 """
 import ast
+import base64
 import re
 import sys
+import zlib
 
 RUNNER = "py-genlayer:babwp9t37jw9g4j2bccgn14g6x7x9s1f7dsmh7emvz735pz4zxa0"
 HEADER = '# { "Seq": [{"Depends": "%s"}] }\n' % RUNNER
@@ -52,7 +60,14 @@ def renamed(src: str) -> str:
     return body
 
 
-def main(src_path, out_path):
+def pack(code: str) -> str:
+    """Two-line stub that rebuilds and runs the stripped code."""
+    blob = base64.b85encode(zlib.compress(code.encode(), 9)).decode()
+    assert zlib.decompress(base64.b85decode(blob)).decode() == code, "pack round trip failed"
+    return "import base64, zlib\nexec(zlib.decompress(base64.b85decode(" + repr(blob) + ")).decode())\n"
+
+
+def main(src_path, out_path, packed=False):
     src = open(src_path).read()
     body = renamed(src)
     small = ast.unparse(strip_docstrings(ast.parse(body)))
@@ -61,9 +76,12 @@ def main(src_path, out_path):
     assert ast.dump(ast.parse(out)) == ast.dump(strip_docstrings(ast.parse(body))), "AST changed beyond the renames"
     for bad in FORBID:
         assert bad not in out, f"Studio-only construct left: {bad}"
+    if packed:
+        open(out_path[:-3] + ".unpacked.py", "w").write(out)
+        out = HEADER + pack(small + "\n")
     open(out_path, "w").write(out)
-    print(f"{src_path.split('/')[-1]}: {len(src)} -> {len(out)} bytes")
+    print(f"{src_path.split('/')[-1]}: {len(src)} -> {len(out)} bytes" + (" (packed)" if packed else ""))
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], "--pack" in sys.argv[3:])
