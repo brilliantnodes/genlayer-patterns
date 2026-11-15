@@ -1,0 +1,7 @@
+{
+  "name": "genlayer-patterns-bradbury",
+  "private": true,
+  "type": "module",
+  "description": "Bradbury Phase 2 runner. After npm install, apply the fee-estimate fix described in README.md.",
+  "dependencies": { "genlayer-js": "2.0.0-rc.2" }
+}

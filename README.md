@@ -26,7 +26,18 @@ The ideas were first used inside two Brilliant Nodes projects on GenLayer, [RigS
 | **Checking facts against a rule** | Launch Claim Checker has a fixed set of claim types (four named ones and a free-text "other claim"), a fixed form and a rule table written in its code. | **RuleCheck** takes the facts and the rule table as **data**: anyone stores a template (1 to 3 pages, up to 8 facts with closed answers, up to 16 rules) and runs it on any pages. Consensus is **rule-scoped**: validators must reach the same verdict by the same rule with the same answers to the facts that rule uses, so a fact that decided nothing cannot stall agreement. |
 | **Using the result** | Each project uses its own result internally. | Both results are made for other contracts: the two consumer examples above run live on Studio. |
 
-All examples use fictional pools, coins and services. Test GEN on GenLayer Studio only.
+## Also on Testnet Bradbury Phase 2
+
+All four contracts also run on **Bradbury Phase 2** (chain 4221, validators with real models and web access), from builds made by [`bradbury/port.py`](bradbury/port.py) for GenVM v0.6. The same tests pass on v0.6, and every live case was repeated there with 5 validators per transaction. Details and transaction links: [`bradbury/README.md`](bradbury/README.md).
+
+| Contract | Bradbury address |
+|---|---|
+| MeterReader | [`0x83eD…6ab5`](https://scan.bradbury.genlayer.com/address/0x83eDE0d5CE027E9C8e34F4bcB070540cAa0C6ab5) |
+| MeterConsumerExample | [`0x5353…43D6`](https://scan.bradbury.genlayer.com/address/0x5353245Ef648c7d4EfD6ad2d850EFF71995a43D6) |
+| RuleCheck | [`0x7525…96b4`](https://scan.bradbury.genlayer.com/address/0x7525aC6d34dd2189E290C4396d9b78f7eD1196b4) |
+| ListingGateExample | [`0x013a…c873`](https://scan.bradbury.genlayer.com/address/0x013ac1916cB3C108fA8b443DCcbdFc8F9e5Cc873) |
+
+All examples use fictional pools, coins and services. Test GEN only (Studio and Bradbury).
 
 ## Run the tests
 
@@ -41,6 +52,8 @@ venv/bin/genvm-lint check meter-reader/contracts/meter_reader.py
 venv/bin/genvm-lint check rule-check/contracts/rule_check.py
 venv/bin/genvm-lint check rule-check/examples/consumer/listing_gate_example.py
 ```
+
+The same tests against the Bradbury (GenVM v0.6) builds: see [`bradbury/README.md`](bradbury/README.md#why-a-separate-build).
 
 ## License
 

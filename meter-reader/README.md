@@ -89,7 +89,9 @@ Reading 3 shows why a missing slot counts as zero. Averaging only the listed min
 
 **Another contract relying on a reading (on chain).** [`MeterConsumerExample`](examples/consumer/meter_consumer_example.py) was deployed at [`0xdda671dF730E0fd3faFE4ED56b51B7a7Fa5529a6`](https://explorer-studio.genlayer.com/address/0xdda671dF730E0fd3faFE4ED56b51B7a7Fa5529a6), pointing at this MeterReader. Its `record_share("1", 10 GH/s)` call ([0x25c1…678c](https://explorer-studio.genlayer.com/tx/0x25c14085ba4bf49a13dbec0299d783e1a48ad74947e503ba11627f4737da678c)) read reading 1 and its share through `gl.get_contract_at(reader).view()` and stored 60.22% (S1_CAPPED_PRO_RATA). It read no web page and called no model. An escrow would use the same two calls and then pay by the share.
 
-Meters 1 to 5 were registered from [`examples/`](examples/). Deployment: [`deployment.json`](deployment.json). The first version (`0xF85Bc3858068958C8682b2fbB5f668FBc867776a`, the repository's first commit) had no publishing lag and no window index. It is superseded and not used.
+Meters 1 to 5 were registered from [`examples/`](examples/). **Also on Testnet Bradbury Phase 2:** [`0x83eD…6ab5`](https://scan.bradbury.genlayer.com/address/0x83eDE0d5CE027E9C8e34F4bcB070540cAa0C6ab5), with every live case repeated there by 5 validators (rig-gappy 59.68% with two missing slots, the dark page refused in its down period, the consumer reading on chain); see [`../bradbury/README.md`](../bradbury/README.md#meterreader-on-bradbury).
+
+Deployment: [`deployment.json`](deployment.json). The first version (`0xF85Bc3858068958C8682b2fbB5f668FBc867776a`, the repository's first commit) had no publishing lag and no window index. It is superseded and not used.
 
 ## Use it
 

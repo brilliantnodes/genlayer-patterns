@@ -104,6 +104,8 @@ The examples use fictional pages only: Examplecoin and Controlcoin are test coin
 
 Check 4's status page also lists a website-only incident, so `website_only_incident` was `yes`. That answer did not decide anything, so validators did not need to agree on it.
 
+**Also on Testnet Bradbury Phase 2:** RuleCheck [`0x7525…96b4`](https://scan.bradbury.genlayer.com/address/0x7525aC6d34dd2189E290C4396d9b78f7eD1196b4) and ListingGateExample [`0x013a…c873`](https://scan.bradbury.genlayer.com/address/0x013ac1916cB3C108fA8b443DCcbdFc8F9e5Cc873): supported, contradicted, undetermined and outage-reported checks, then ADMIT, REFUSE, RECHECK and two refused uses, each decided by 5 validators; see [`../bradbury/README.md`](../bradbury/README.md#rulecheck-and-the-consumer-gate-on-bradbury).
+
 Deployment: [`deployment.json`](deployment.json). Check inputs: [`examples/`](examples/).
 
 ## Another contract relying on a check (on chain, 15 Nov 2026)
