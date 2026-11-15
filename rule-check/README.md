@@ -2,7 +2,7 @@
 
 A reusable GenLayer Intelligent Contract for checks of the form "a few facts on one to three public pages, plus a rule everyone agreed on beforehand". Anyone writes the check once, as data: the facts to look for, each with a closed list of answers, and an ordered rule table. Anyone can then run it on concrete pages. Validators settle the facts, and plain Python applies the rules.
 
-**Live on GenLayer Studio:** [`0x28BEC7C9A99cd19c101fbaB1CaFe0b6e4Db3f21e`](https://explorer-studio.genlayer.com/address/0x28BEC7C9A99cd19c101fbaB1CaFe0b6e4Db3f21e) · contract source: [`contracts/rule_check.py`](contracts/rule_check.py) · MIT
+**Live on GenLayer Studio:** [`0x28BEC7C9A99cd19c101fbaB1CaFe0b6e4Db3f21e`](https://explorer-studio.genlayer.com/address/0x28BEC7C9A99cd19c101fbaB1CaFe0b6e4Db3f21e) · contract source: [`contracts/rule_check.py`](contracts/rule_check.py) · consumer example: [`examples/consumer/listing_gate_example.py`](examples/consumer/listing_gate_example.py) · MIT
 
 ## The problem
 
@@ -106,6 +106,35 @@ Check 4's status page also lists a website-only incident, so `website_only_incid
 
 Deployment: [`deployment.json`](deployment.json). Check inputs: [`examples/`](examples/).
 
+## Another contract relying on a check (on chain, 15 Nov 2026)
+
+[`ListingGateExample`](examples/consumer/listing_gate_example.py) is a small consumer: a fictional listing desk (Saltmarsh Exchange, which does not exist) lists a coin only when a RuleCheck check supports its "no premine" claim. It reads the stored check with `gl.get_contract_at(rule_check).view().get_check(id)`. It reads no web page and calls no model. Before it uses a check it requires:
+
+- **the pinned template.** Anyone can create templates, so a consumer that looked only at the verdict would accept "supported" from a template whose rules say anything. The gate trusts template 1 and nothing else.
+- **a recent check** (here at most 6 hours old), so an old check of a page that has since changed cannot be replayed;
+- **the expected subject**, when the caller names one;
+- **a check not used before.** One check gives one decision.
+
+The verdicts that admit and refuse are fixed at deploy. Any other verdict (the template's default, `undetermined`) gives `RECHECK`: recorded, nothing decided, and a new check may be run.
+
+Gate deployed at [`0xA10A7359fCFAe7643282994f02012b0e6C2500c4`](https://explorer-studio.genlayer.com/address/0xA10A7359fCFAe7643282994f02012b0e6C2500c4) ([deploy tx](https://explorer-studio.genlayer.com/tx/0x8e625f3ecfc85c0b2329d1b5073669a2d67c5e5999ccebadb8266af77eb0753e)), pointed at this RuleCheck. Three fresh checks were run with template 1, then given to the gate:
+
+| Check | Pages (fictional) | Verdict, rule | Validators | Check tx | Gate decision | Decision tx |
+|---|---|---|---|---|---|---|
+| 5 | Controlcoin announcement + explorer | supported, R2_CLEAN_BLOCK1 | 3 agree | [0x1296…83bf](https://explorer-studio.genlayer.com/tx/0x1296c2011b28b70211f779c89a3cdca08f85d66983d9e7902aa7338c5f5583bf) | **ADMIT** (subject named and matched) | [0x6222…68f2](https://explorer-studio.genlayer.com/tx/0x62225cea63ccfc27635fc9deae5be9a2feac8983ad2b309aa261d41a60c768f2) |
+| 6 | Examplecoin announcement + explorer | contradicted, R1_EARLY_ALLOCATION | 4 agree | [0xfa05…bbc](https://explorer-studio.genlayer.com/tx/0xfa057e642c25b0ce699321085307765de1a36ea2854413f4c03b28bb21241bbc) | **REFUSE** | [0x229f…0a4a](https://explorer-studio.genlayer.com/tx/0x229fda9c36b20826681b81823716c8587e175d4052925a0d891b7bbd32190a4a) |
+| 7 | Controlcoin announcement + a missing explorer page | undetermined, DEFAULT | 3 agree | [0xfc36…ed32](https://explorer-studio.genlayer.com/tx/0xfc367704d0a2873917ed4a090f063b9ad9fe5a3018de1da6140fb9ea633eed32) | **RECHECK** | [0xe356…7434](https://explorer-studio.genlayer.com/tx/0xe35637fd65965e2318401f31a4662561f84ddf3eb742a9fc2ca861dd24647434) |
+
+Three uses the gate refused on chain (the transaction ran and reverted with the reason shown):
+
+| Attempt | Reason returned | Transaction |
+|---|---|---|
+| check 4 (template 2, pool status) | check 4 was made with template 2; this gate accepts only template 1 | [0xba4f…00eb](https://explorer-studio.genlayer.com/tx/0xba4f6762b1f170bbf7ae5b8ceaca855c6248bf6af7c5d1138e5d3dba4b4000eb) |
+| check 2 (14 Nov) | check 2 is 10 h old; this gate accepts checks up to 6 h old | [0x27d7…4702](https://explorer-studio.genlayer.com/tx/0x27d744bd76b253d1e4fd02e9f4fcf01c93990db61c3006f61c867f8f13c94702) |
+| check 5 again | check 5 was already used for decision 1 | [0xa3d0…738c](https://explorer-studio.genlayer.com/tx/0xa3d013ee08fae6d3c504cc1f05c1c1c8518d0e9d40c5d215a7debd6c1758738c) |
+
+Every value above is in [`examples/consumer/live-runs.json`](examples/consumer/live-runs.json), written by [`tools/gate_live.py`](tools/gate_live.py). A real consumer would list a coin, release a payment or open a dispute where the gate records ADMIT or REFUSE.
+
 ## Use it
 
 ```bash
@@ -133,9 +162,11 @@ Writing a good template:
 
 ```bash
 cd rule-check
-PYTHONPATH=. ../venv/bin/pytest tests/direct -q        # 104 direct-mode tests, web and model mocked
-PYTHONPATH=. ../venv/bin/python tools/mutate.py        # 45 of 45 mutants caught
+PYTHONPATH=. ../venv/bin/pytest tests/direct -q        # 132 direct-mode tests (104 RuleCheck, 28 gate), web and model mocked
+PYTHONPATH=. ../venv/bin/python tools/mutate.py        # 45 of 45 RuleCheck mutants caught
+PYTHONPATH=. ../venv/bin/python tools/mutate_gate.py   # 20 of 20 gate mutants caught
 ../venv/bin/genvm-lint check contracts/rule_check.py
+../venv/bin/genvm-lint check examples/consumer/listing_gate_example.py
 ```
 
 `tools/mutate.py` breaks the contract on purpose, one change at a time (45 changes: rule order, answer guards, leader checks, agreement, template validation, URL filter, prompt), and confirms the tests catch every one. One change is left out because it cannot change behaviour: comparing the rule id but not the verdict, since each rule id fixes its verdict.
@@ -149,7 +180,8 @@ The tests cover:
 - prompt content and marker forging;
 - views and caps;
 - validator agreement: unused facts ignored, the same verdict by another rule rejected (including an earlier rule firing while the deciding fact agrees), a different answer to a used fact rejected, unreadable agreeing only with unreadable, a leader error, and 19 malformed or lying leader results;
-- the rebuild guard on its own, which is also applied to the agreed result before anything is stored.
+- the rebuild guard on its own, which is also applied to the agreed result before anything is stored;
+- the consumer gate: its configuration checks, the pinned template, subject, age limit (inclusive, with 5 minutes of clock skew allowed), unreadable times and verdicts outside its lists. The direct VM cannot make cross-contract calls, so `decide()` itself is proven live above; `tools/mutate_gate.py` breaks the gate 20 ways and the tests catch each one.
 
 ## Limits
 

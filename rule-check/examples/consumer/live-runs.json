@@ -1,0 +1,126 @@
+{
+  "rule_check": "0x28BEC7C9A99cd19c101fbaB1CaFe0b6e4Db3f21e",
+  "template_id": "1",
+  "checks": [
+    {
+      "example": "check-controlcoin",
+      "tx": "0x1296c2011b28b70211f779c89a3cdca08f85d66983d9e7902aa7338c5f5583bf",
+      "check_id": "5",
+      "verdict": "supported",
+      "rule": "R2_CLEAN_BLOCK1",
+      "subject": "Controlcoin (fictional): no premine",
+      "agree": 3,
+      "status": "ACCEPTED"
+    },
+    {
+      "example": "check-examplecoin",
+      "tx": "0xfa057e642c25b0ce699321085307765de1a36ea2854413f4c03b28bb21241bbc",
+      "check_id": "6",
+      "verdict": "contradicted",
+      "rule": "R1_EARLY_ALLOCATION",
+      "subject": "Examplecoin (fictional): no premine",
+      "agree": 4,
+      "status": "ACCEPTED"
+    },
+    {
+      "example": "check-missing-explorer",
+      "tx": "0xfc367704d0a2873917ed4a090f063b9ad9fe5a3018de1da6140fb9ea633eed32",
+      "check_id": "7",
+      "verdict": "undetermined",
+      "rule": "DEFAULT",
+      "subject": "Controlcoin (fictional) with a missing explorer page",
+      "agree": 3,
+      "status": "ACCEPTED"
+    }
+  ],
+  "gate": {
+    "address": "0xA10A7359fCFAe7643282994f02012b0e6C2500c4",
+    "deploy_tx": "0x8e625f3ecfc85c0b2329d1b5073669a2d67c5e5999ccebadb8266af77eb0753e",
+    "status": "ACCEPTED",
+    "config": {
+      "admit": [
+        "supported"
+      ],
+      "max_age_hours": 6,
+      "refuse": [
+        "contradicted"
+      ],
+      "rule_check": "0x28BEC7C9A99cd19c101fbaB1CaFe0b6e4Db3f21e",
+      "template_id": "1"
+    }
+  },
+  "decisions": [
+    {
+      "example": "check-controlcoin",
+      "check_id": "5",
+      "expected": "ADMIT",
+      "decision": "ADMIT",
+      "verdict": "supported",
+      "rule": "R2_CLEAN_BLOCK1",
+      "deciding_facts": {
+        "block1_shown": "yes",
+        "early_allocation": "no"
+      },
+      "tx": "0x62225cea63ccfc27635fc9deae5be9a2feac8983ad2b309aa261d41a60c768f2",
+      "status": "ACCEPTED",
+      "execution": "SUCCESS"
+    },
+    {
+      "example": "check-examplecoin",
+      "check_id": "6",
+      "expected": "REFUSE",
+      "decision": "REFUSE",
+      "verdict": "contradicted",
+      "rule": "R1_EARLY_ALLOCATION",
+      "deciding_facts": {
+        "early_allocation": "yes"
+      },
+      "tx": "0x229fda9c36b20826681b81823716c8587e175d4052925a0d891b7bbd32190a4a",
+      "status": "ACCEPTED",
+      "execution": "SUCCESS"
+    },
+    {
+      "example": "check-missing-explorer",
+      "check_id": "7",
+      "expected": "RECHECK",
+      "decision": "RECHECK",
+      "verdict": "undetermined",
+      "rule": "DEFAULT",
+      "deciding_facts": {},
+      "tx": "0xe35637fd65965e2318401f31a4662561f84ddf3eb742a9fc2ca861dd24647434",
+      "status": "ACCEPTED",
+      "execution": "SUCCESS"
+    }
+  ],
+  "refused": [
+    {
+      "case": "check from template 2 (pool status)",
+      "check_id": "4",
+      "tx": "0xba4f6762b1f170bbf7ae5b8ceaca855c6248bf6af7c5d1138e5d3dba4b4000eb",
+      "status": "ACCEPTED",
+      "execution": "ERROR",
+      "result": "check 4 was made with template 2; this gate accepts only template 1"
+    },
+    {
+      "case": "check older than 6 hours (check 2, 14 Nov)",
+      "check_id": "2",
+      "tx": "0x27d744bd76b253d1e4fd02e9f4fcf01c93990db61c3006f61c867f8f13c94702",
+      "status": "ACCEPTED",
+      "execution": "ERROR",
+      "result": "check 2 is 10 h old; this gate accepts checks up to 6 h old"
+    },
+    {
+      "case": "same check used twice",
+      "check_id": "5",
+      "tx": "0xa3d013ee08fae6d3c504cc1f05c1c1c8518d0e9d40c5d215a7debd6c1758738c",
+      "status": "ACCEPTED",
+      "execution": "ERROR",
+      "result": "check 5 was already used for decision 1"
+    }
+  ],
+  "count": 3,
+  "rule_check_counts": {
+    "checks": 7,
+    "templates": 2
+  }
+}
