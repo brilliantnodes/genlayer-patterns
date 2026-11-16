@@ -6,5 +6,6 @@
   "unit_family": "hashrate",
   "slot_minutes": 1,
   "unit_label": "",
-  "tolerance_bp": 100
+  "resolution": 1,
+  "read_within_minutes": 60
 }

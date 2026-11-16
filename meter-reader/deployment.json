@@ -1,6 +1,6 @@
 {
   "network": "studionet",
-  "address": "0x29762f9bce4F51e01696a947D24158c9C66B6636",
-  "deploy_tx": "0xe6cf0dba04a723761553222c289b455125c8e0f0a4da30d3e2cc49bfe0be8e41",
+  "address": "0xa0FE27774c2f1F0d35bd83dA806cFB1F85F4209C",
+  "deploy_tx": "0x4cb327ffe29e57e0903b1049feea4c705505e025b0e663e3a8bbb4dfe9dba65c",
   "status": "ACCEPTED"
 }

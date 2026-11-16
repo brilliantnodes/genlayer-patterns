@@ -123,7 +123,8 @@ def deploy():
 def register_args(spec: dict) -> list:
     return [
         spec["url"], spec["source_name"], spec["series_name"], spec["value_label"], spec["unit_family"],
-        int(spec["slot_minutes"]), spec.get("unit_label", ""), int(spec.get("tolerance_bp", 100)), int(spec.get("publish_lag_minutes", 0)),
+        int(spec["slot_minutes"]), spec.get("unit_label", ""), int(spec.get("resolution", 1)), int(spec.get("publish_lag_minutes", 0)),
+        int(spec.get("read_within_minutes", 60)),
     ]
 
 

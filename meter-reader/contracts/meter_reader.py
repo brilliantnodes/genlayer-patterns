@@ -10,21 +10,38 @@ other contracts and people can rely on.
 
   1. Anyone registers a METER: the page URL, the name the page must show,
      the series (worker, node, ...), which column to copy, the unit family,
-     the slot length and how far validators may differ.
+     the slot length and the resolution every value is rounded down to.
   2. After a window has fully finished (plus the meter's publishing lag, for
      pages that post a slot's figure late), anyone asks for a READING. Every
      validator renders the page and its model COPIES the rows that fall in
      the window into a fixed form. It never judges anything.
-  3. Plain Python turns the copy into integers in a base unit, checks every
-     row against the window, and decides the outcome kind. Validators accept
-     the leader's reading only if the outcome kind, the set of listed slots
-     and every slot value agree within the meter's tolerance.
+  3. Plain Python turns the copy into integers in a base unit, rounds each
+     down to the meter's resolution, checks every row against the window,
+     and decides the outcome kind. Validators accept the leader's reading
+     only if the outcome kind, the set of listed slots and EVERY stored value
+     are exactly equal to their own. So every accepted reading of a page
+     stores the same numbers, and anything computed from it (such as
+     delivery_share_bp) gives the same result. A reading whose copies differ
+     gets no agreement and can be requested again; it is never stored.
   4. The reading is stored with every slot (a slot the page does not list is
-     stored as missing). Consumers read it with get_reading, or ask
-     delivery_share_bp for the capped share of a target rate, counting a
-     missing slot as zero. get_window_readings finds every reading of one
-     exact window, so consumers can apply a fixed choice (the first, or the
-     latest).
+     stored as missing). The FIRST conclusive reading (READ or NOT_LISTED)
+     of a window becomes that window's official reading, and the window
+     cannot be read again; a NO_READING leaves it open for another try.
+     Reading is possible only during the meter's read period: from one slot
+     after the window ends (plus the publishing lag) for read_within_minutes
+     (default 60). So one window has one answer, taken while the page still
+     shows the window: nobody can re-read it later and pick another result,
+     and nobody can hold the first read back until old rows have scrolled
+     off or the series has been dropped.
+
+     Stated plainly: within the read period, whoever reads first fixes the
+     moment of the official reading. Anyone, including either party to a
+     deal, may read as soon as the period opens. After the period closes
+     with no conclusive reading, the window has none; a consumer applies
+     its own default.
+  5. Consumers use get_window_reading or window_share_bp (the capped share
+     of a target rate, counting a missing slot as zero) for an agreed meter
+     and window. delivery_share_bp gives the same figure for a reading id.
 
 A reading describes what one public page showed for one finished window. It
 is not a proof about anything the page does not show.
@@ -38,8 +55,7 @@ from genlayer import *
 # ----------------------------------------------------------------- rules
 
 BP = 10000
-DEFAULT_TOLERANCE_BP = 100  # validators may differ by 1% on each slot
-MAX_TOLERANCE_BP = 500
+DEFAULT_RESOLUTION = 1  # exact base units; a meter may choose a coarser step
 MIN_COVERAGE_BP = 5000  # at least half the window's slots must be listed
 SLOT_CHOICES = (1, 5, 10, 15, 30, 60)
 MAX_SLOTS = 96
@@ -53,6 +69,8 @@ MAX_LATEST = 50
 MAX_PER_METER = 200  # reading ids kept per meter for get_readings (all readings stay readable by id)
 MAX_FIRST_PER_WINDOW = 10  # the first reading ids kept per exact window; the latest id is always kept
 MAX_PUBLISH_LAG_MINUTES = 24 * 60
+DEFAULT_READ_WITHIN_MINUTES = 60  # the read period after reading opens
+MAX_READ_WITHIN_MINUTES = 24 * 60
 MAX_VALUE = 10**30
 COUNT_SCALE = 10**6  # "count" meters store values in millionths
 RENDER_WAIT = "4s"  # let pages that build their tables with scripts finish
@@ -164,53 +182,93 @@ def _parse_minute(text) -> int | None:
     return int(d.timestamp())
 
 
-def _parse_number(s: str) -> float | None:
-    """'6.28', '1,234.5' or '12,345' to a float. A comma that is not a
-    thousands separator ('6,28') is ambiguous and refused."""
+DIGITS = "0123456789"
+
+
+def _exact(s: str) -> tuple | None:
+    """A plain decimal ('6.28', '.5', '1.5e3') to (digits, scale) meaning
+    digits / 10**scale, exactly. No floats: binary floating point turns
+    0.009 EH/s into 8999999999999999 H/s, which rounding down would then
+    make a whole resolution step too low."""
+    s = s.strip().lower()
+    if len(s) > 60:
+        return None
+    exp = 0
+    if "e" in s:
+        s, e = s.split("e", 1)
+        sign = -1 if e.startswith("-") else 1
+        e = e[1:] if e[:1] in ("+", "-") else e
+        if e == "" or len(e) > 3 or any(c not in DIGITS for c in e):
+            return None
+        exp = sign * int(e)
+    whole, dot, frac = s.partition(".")
+    if "." in frac or (whole == "" and frac == ""):
+        return None
+    if any(c not in DIGITS for c in whole + frac):
+        return None
+    num = int((whole or "0") + frac)
+    scale = len(frac) - exp
+    if scale < 0:
+        num, scale = num * 10 ** (-scale), 0
+    if scale > 60:
+        return None
+    return num, scale
+
+
+def _parse_number(s: str) -> tuple | None:
+    """'6.28', '1,234.5' or '12,345' to an exact (digits, scale). A comma
+    that is not a thousands separator ('6,28', '1.234,5') is ambiguous and
+    refused."""
     s = s.strip()
     if s == "":
         return None
     if "," in s:
-        groups = s.split(".", 1)[0].split(",")
-        if not (groups[0].isdigit() and 1 <= len(groups[0]) <= 3 and all(g.isdigit() and len(g) == 3 for g in groups[1:])):
+        whole, _, frac = s.partition(".")
+        groups = whole.split(",")
+        if "," in frac or not (groups[0] != "" and all(c in DIGITS for c in groups[0]) and len(groups[0]) <= 3 and all(len(g) == 3 and all(c in DIGITS for c in g) for g in groups[1:])):
             return None
         s = s.replace(",", "")
-    try:
-        return float(s)
-    except ValueError:
-        return None
+    return _exact(s)
 
 
 def _split_value(value) -> tuple:
-    """A copied value to (number, unit text written after it), or (None, '')."""
+    """A copied value to (exact number, unit text written after it), or
+    (None, ''). A JSON number arrives as a float; repr gives back the
+    shortest decimal that is that float, which is the digits the model wrote."""
     if value is None or isinstance(value, bool):
         return None, ""
-    if isinstance(value, (int, float)):
-        return float(value), ""
+    if isinstance(value, int):
+        return (_exact(str(value)) if value >= 0 else None), ""
+    if isinstance(value, float):
+        return (_exact(repr(value)) if value == value and value >= 0 else None), ""
     s = str(value).strip()
     j = 0
-    while j < len(s) and (s[j].isdigit() or s[j] in ".,"):
+    while j < len(s) and (s[j] in DIGITS or s[j] in ".,"):
         j += 1
     return _parse_number(s[:j]), s[j:].strip()
 
 
 def _to_base(spec: dict, value, unit) -> int | None:
     """A copied number and unit to a whole number in the meter's base unit:
-    hashes per second for "hashrate", millionths for "count". None if the
-    number or unit cannot be read or does not fit the meter."""
+    hashes per second for "hashrate", millionths for "count", rounded down,
+    with integer arithmetic only. None if the number or unit cannot be read
+    or does not fit the meter."""
     v, rest = _split_value(value)
-    if v is None or v != v or v < 0 or v > 1e24:
+    if v is None:
+        return None
+    num, scale = v
+    if num > 10**24 * 10**scale:
         return None
     given = _norm_unit(unit)
     if given and _norm_unit(rest) and given != _norm_unit(rest):
         return None  # the value and the unit field disagree
     u = given or _norm_unit(rest)
-    if v == 0 and u == "":
+    if num == 0 and u == "":
         return 0  # a row shown as "-" or "offline" is copied as a bare 0
     if spec["unit_family"] == "count":
         if u != _norm_unit(spec["unit_label"]):
             return None
-        out = int(round(v * COUNT_SCALE))
+        mult = COUNT_SCALE
     else:
         if u.endswith("/s"):
             u = u[:-2]
@@ -221,7 +279,7 @@ def _to_base(spec: dict, value, unit) -> int | None:
         mult = HASH_UNITS.get(u)
         if mult is None:
             return None
-        out = int(round(v * mult))
+    out = num * mult // 10**scale
     return out if out <= MAX_VALUE else None
 
 
@@ -273,8 +331,10 @@ def _interpret(spec: dict, start: int, slots: int, ans: dict) -> dict:
 
     A row inside the window whose time does not sit on the slot grid, whose
     number or unit cannot be read, or that appears twice with different
-    values makes the reading invalid (N2): guessing would move money for
-    whoever relies on it. A slot with no row is stored as missing.
+    values (compared before rounding) makes the reading invalid (N2):
+    guessing would move money for whoever relies on it. A slot with no row
+    is stored as missing. Values are rounded down to the meter's resolution
+    last.
     """
     kind = str(ans.get("page_kind", "")).strip().lower()
     on_page = str(ans.get("source_name_on_page", "")).strip().lower()
@@ -307,12 +367,23 @@ def _interpret(spec: dict, start: int, slots: int, ans: dict) -> dict:
         seen[idx] = v
     if len(seen) * BP < MIN_COVERAGE_BP * slots:
         return {"kind": "NO_READING", "reason": "C1_COVERAGE"}
-    return {"kind": "READ", "rows": [[i, seen[i]] for i in sorted(seen)]}
+    return {"kind": "READ", "rows": [[i, _round_down(seen[i], spec)] for i in sorted(seen)]}
 
 
-def _check_outcome(r, slots: int) -> dict:
+def _resolution(spec: dict) -> int:
+    return int(spec.get("resolution", DEFAULT_RESOLUTION))
+
+
+def _round_down(v: int, spec: dict) -> int:
+    """Every stored value is a whole multiple of the meter's resolution."""
+    res = _resolution(spec)
+    return (v // res) * res
+
+
+def _check_outcome(r, slots: int, spec: dict) -> dict:
     """Validate an outcome that came from another node. Raises if malformed,
     so a bad leader result is rejected, never trusted."""
+    res = _resolution(spec)
     if not isinstance(r, dict) or r.get("kind") not in KINDS:
         raise ValueError("bad kind")
     if r["kind"] == "NO_READING":
@@ -329,7 +400,7 @@ def _check_outcome(r, slots: int) -> dict:
         i, v = row
         if isinstance(i, bool) or isinstance(v, bool) or not isinstance(i, int) or not isinstance(v, int):
             raise ValueError("bad row types")
-        if i <= last or i < 0 or i >= slots or v < 0 or v > MAX_VALUE:
+        if i <= last or i < 0 or i >= slots or v < 0 or v > MAX_VALUE or v % res != 0:
             raise ValueError("bad row values")
         last = i
         out.append([i, v])
@@ -342,23 +413,18 @@ def _check_outcome(r, slots: int) -> dict:
     return {"kind": "READ", "rows": out}
 
 
-def _close(a: int, b: int, tol_bp: int) -> bool:
-    """Relative closeness: |a - b| <= tol_bp of the larger value."""
-    return abs(a - b) * BP <= tol_bp * max(a, b)
-
-
-def _same_outcome(spec: dict, a: dict, b: dict) -> bool:
-    """What validators must agree on: the outcome kind and reason, the exact
-    set of listed slots, and every slot value within the meter's tolerance.
-    A leader can therefore shift each stored value by at most the tolerance."""
+def _same_outcome(a: dict, b: dict) -> bool:
+    """What validators must agree on: the outcome kind and reason, and for a
+    reading the exact set of listed slots with exactly the same value in each
+    (after rounding down to the meter's resolution). Nothing is tolerated, so
+    the leader cannot move any stored value, and every figure derived from an
+    accepted reading, including delivery_share_bp for any target, is the same
+    for every validator that accepted it."""
     if a["kind"] != b["kind"]:
         return False
     if a["kind"] == "NO_READING":
         return a["reason"] == b["reason"]
-    if [i for i, _ in a["rows"]] != [i for i, _ in b["rows"]]:
-        return False
-    tol = spec["tolerance_bp"]
-    return all(_close(x[1], y[1], tol) for x, y in zip(a["rows"], b["rows"]))
+    return a["rows"] == b["rows"]
 
 
 def _summary(slots: int, outcome: dict) -> dict:
@@ -497,11 +563,25 @@ def _reading_view(rd: Reading, spec: dict) -> dict:
     }
 
 
+def _share_of(rd: Reading, spec: dict, target_per_slot) -> dict:
+    outcome = json.loads(rd.outcome_json)
+    if outcome["kind"] == "NO_READING":
+        raise gl.vm.UserError("this reading has no numbers: " + outcome["reason"])
+    s = str(target_per_slot).strip()
+    if s == "" or any(c not in DIGITS for c in s) or len(s) > 31 or int(s) <= 0:
+        raise gl.vm.UserError("target_per_slot must be a positive whole number in the base unit")
+    if int(s) % _resolution(spec) != 0:
+        # Stored values are multiples of the resolution, so a target between
+        # two steps could never be met in full.
+        raise gl.vm.UserError("target_per_slot must be a whole multiple of the meter's resolution (" + str(_resolution(spec)) + ")")
+    return {"reading_id": rd.id, "target_per_slot": s, **_delivery_share(int(rd.slots), outcome, int(s))}
+
+
 class MeterReader(gl.Contract):
     meters: TreeMap[str, Meter]
     readings: TreeMap[str, Reading]
     by_meter: TreeMap[str, str]  # meter id -> JSON list of the latest reading ids
-    by_window: TreeMap[str, str]  # "meter:start:slots" -> {"first": [ids], "latest": id, "count": n}
+    by_window: TreeMap[str, str]  # "meter:start:slots" -> {"official": id, "first": [ids], "latest": id, "count": n}
     meter_count: u256
     reading_count: u256
 
@@ -530,8 +610,9 @@ class MeterReader(gl.Contract):
         unit_family: str,
         slot_minutes: int,
         unit_label: str = "",
-        tolerance_bp: int = DEFAULT_TOLERANCE_BP,
+        resolution: int = DEFAULT_RESOLUTION,
         publish_lag_minutes: int = 0,
+        read_within_minutes: int = DEFAULT_READ_WITHIN_MINUTES,
     ) -> dict:
         url = url.strip()
         source_name = " ".join(source_name.split())
@@ -557,9 +638,12 @@ class MeterReader(gl.Contract):
         slot_minutes = int(slot_minutes)
         if slot_minutes not in SLOT_CHOICES:
             raise gl.vm.UserError("slot_minutes must be one of: " + ", ".join(str(s) for s in SLOT_CHOICES))
-        tolerance_bp = int(tolerance_bp)
-        if tolerance_bp < 0 or tolerance_bp > MAX_TOLERANCE_BP:
-            raise gl.vm.UserError(f"tolerance_bp must be 0 to {MAX_TOLERANCE_BP}")
+        resolution = int(resolution)
+        if resolution < 1 or resolution > MAX_VALUE:
+            raise gl.vm.UserError("resolution must be a whole number of base units, at least 1")
+        read_within_minutes = int(read_within_minutes)
+        if read_within_minutes < 5 or read_within_minutes > MAX_READ_WITHIN_MINUTES:
+            raise gl.vm.UserError(f"read_within_minutes must be 5 to {MAX_READ_WITHIN_MINUTES}")
         publish_lag_minutes = int(publish_lag_minutes)
         if publish_lag_minutes < 0 or publish_lag_minutes > MAX_PUBLISH_LAG_MINUTES:
             raise gl.vm.UserError(f"publish_lag_minutes must be 0 to {MAX_PUBLISH_LAG_MINUTES}")
@@ -571,8 +655,9 @@ class MeterReader(gl.Contract):
             "unit_family": unit_family,
             "unit_label": unit_label,
             "slot_minutes": slot_minutes,
-            "tolerance_bp": tolerance_bp,
+            "resolution": resolution,
             "publish_lag_minutes": publish_lag_minutes,
+            "read_within_minutes": read_within_minutes,
         }
         new_id = str(int(self.meter_count) + 1)
         m = Meter(id=new_id, owner=gl.message.sender_address.as_hex, spec_json=json.dumps(spec, sort_keys=True), created_at=u256(self._now()))
@@ -587,13 +672,20 @@ class MeterReader(gl.Contract):
         slot = spec["slot_minutes"] * 60
         if slots < MIN_SLOTS or slots > MAX_SLOTS:
             raise gl.vm.UserError(f"slots must be {MIN_SLOTS} to {MAX_SLOTS}")
-        if start <= 0 or start % 60 != 0:
-            raise gl.vm.UserError("window_start must be a whole UTC minute (unix seconds)")
+        if start <= 0 or start % slot != 0:
+            raise gl.vm.UserError("window_start must be on the meter's slot grid (a multiple of slot_minutes, unix seconds)")
+        key = f"{meter_id}:{start}:{slots}"
+        w = json.loads(self.by_window.get(key) or '{"first": [], "latest": "", "count": 0}')
+        if w.get("official"):
+            raise gl.vm.UserError("this window already has its official reading #" + w["official"] + "; a window is read conclusively once (see get_window_reading)")
         now = self._now()
         end = start + slots * slot
         opens = end + slot + spec["publish_lag_minutes"] * 60
         if now < opens:
             raise gl.vm.UserError("the window must be over: reading opens one full slot after it ends, plus the meter's publishing lag, at " + _fmt(opens) + " UTC")
+        closes = opens + spec.get("read_within_minutes", DEFAULT_READ_WITHIN_MINUTES) * 60
+        if now >= closes:
+            raise gl.vm.UserError("the read period for this window closed at " + _fmt(closes) + " UTC")
 
         def leader_fn() -> dict:
             return _read(spec, start, slots)
@@ -602,13 +694,13 @@ class MeterReader(gl.Contract):
             if not isinstance(leader_result, gl.vm.Return):
                 return False
             try:
-                leader = _check_outcome(leader_result.calldata, slots)
+                leader = _check_outcome(leader_result.calldata, slots, spec)
             except Exception:
                 return False
             mine = _read(spec, start, slots)
-            return _same_outcome(spec, leader, mine)
+            return _same_outcome(leader, mine)
 
-        outcome = _check_outcome(gl.vm.run_nondet_unsafe(leader_fn, validator_fn), slots)
+        outcome = _check_outcome(gl.vm.run_nondet_unsafe(leader_fn, validator_fn), slots, spec)
         new_id = str(int(self.reading_count) + 1)
         rd = Reading(
             id=new_id,
@@ -624,12 +716,12 @@ class MeterReader(gl.Contract):
         ids = json.loads(self.by_meter.get(meter_id) or "[]")
         ids.append(new_id)
         self.by_meter[meter_id] = json.dumps(ids[-MAX_PER_METER:])
-        key = f"{meter_id}:{start}:{slots}"
-        w = json.loads(self.by_window.get(key) or '{"first": [], "latest": "", "count": 0}')
         if len(w["first"]) < MAX_FIRST_PER_WINDOW:
             w["first"].append(new_id)
         w["latest"] = new_id
         w["count"] += 1
+        if outcome["kind"] in ("READ", "NOT_LISTED"):
+            w["official"] = new_id  # the first conclusive reading; later reads are refused above
         self.by_window[key] = json.dumps(w)
         return _reading_view(rd, spec)
 
@@ -657,12 +749,34 @@ class MeterReader(gl.Contract):
 
     @gl.public.view
     def get_window_readings(self, meter_id: str, window_start: int, slots: int) -> dict:
-        """Every reading of one exact window: the first ids (oldest first, up
-        to 10), the latest id and the count, so a consumer can apply a fixed
-        rule such as "the first READ" or "the latest reading"."""
+        """The readings of one exact window: the official id ("" until a
+        conclusive reading exists), the first ids (oldest first, up to 10,
+        including NO_READING attempts), the latest id and the count."""
         self._meter(meter_id)
         w = json.loads(self.by_window.get(f"{meter_id}:{int(window_start)}:{int(slots)}") or '{"first": [], "latest": "", "count": 0}')
-        return {"meter_id": meter_id, "window_start": int(window_start), "slots": int(slots), "first_ids": w["first"], "latest_id": w["latest"], "count": w["count"]}
+        return {"meter_id": meter_id, "window_start": int(window_start), "slots": int(slots), "official_id": w.get("official", ""), "first_ids": w["first"], "latest_id": w["latest"], "count": w["count"]}
+
+    def _official(self, meter_id: str, window_start: int, slots: int) -> Reading:
+        self._meter(meter_id)
+        w = json.loads(self.by_window.get(f"{meter_id}:{int(window_start)}:{int(slots)}") or "{}")
+        if not w.get("official"):
+            raise gl.vm.UserError("this window has no conclusive reading yet")
+        return self.readings[w["official"]]
+
+    @gl.public.view
+    def get_window_reading(self, meter_id: str, window_start: int, slots: int) -> dict:
+        """The official reading of one window: its first READ or NOT_LISTED."""
+        rd = self._official(meter_id, window_start, slots)
+        _, spec = self._meter(meter_id)
+        return _reading_view(rd, spec)
+
+    @gl.public.view
+    def window_share_bp(self, meter_id: str, window_start: int, slots: int, target_per_slot: str) -> dict:
+        """Capped share of a target per slot from the window's official
+        reading. This is what a consumer that agreed a meter, a window and a
+        target in advance should pay by: it has exactly one answer."""
+        _, spec = self._meter(meter_id)
+        return _share_of(self._official(meter_id, window_start, slots), spec, target_per_slot)
 
     @gl.public.view
     def delivery_share_bp(self, reading_id: str, target_per_slot: str) -> dict:
@@ -671,13 +785,7 @@ class MeterReader(gl.Contract):
         if reading_id not in self.readings:
             raise gl.vm.UserError("no such reading")
         rd = self.readings[reading_id]
-        outcome = json.loads(rd.outcome_json)
-        if outcome["kind"] == "NO_READING":
-            raise gl.vm.UserError("this reading has no numbers: " + outcome["reason"])
-        s = str(target_per_slot).strip()
-        if not s.isdigit() or len(s) > 31 or int(s) <= 0:
-            raise gl.vm.UserError("target_per_slot must be a positive whole number in the base unit")
-        return {"reading_id": reading_id, "target_per_slot": s, **_delivery_share(int(rd.slots), outcome, int(s))}
+        return _share_of(rd, json.loads(self.meters[rd.meter_id].spec_json), target_per_slot)
 
     @gl.public.view
     def get_counts(self) -> dict:
@@ -702,10 +810,14 @@ class MeterReader(gl.Contract):
             "slot_choices": list(SLOT_CHOICES),
             "max_slots": MAX_SLOTS,
             "min_coverage_bp": MIN_COVERAGE_BP,
-            "default_tolerance_bp": DEFAULT_TOLERANCE_BP,
-            "max_tolerance_bp": MAX_TOLERANCE_BP,
+            "agreement": "exact: same kind and reason, same listed slots, same value in every slot after rounding down to the meter's resolution",
+            "official_reading": "the first READ or NOT_LISTED of a window; the window cannot be read again after it",
+            "default_resolution": DEFAULT_RESOLUTION,
             "max_publish_lag_minutes": MAX_PUBLISH_LAG_MINUTES,
             "read_opens": "one full slot after the window ends, plus the meter's publish_lag_minutes",
+            "read_closes": "read_within_minutes after reading opens (default 60); whoever reads first in that period fixes the moment of the official reading",
+            "default_read_within_minutes": DEFAULT_READ_WITHIN_MINUTES,
+            "max_read_within_minutes": MAX_READ_WITHIN_MINUTES,
             "count_scale": COUNT_SCALE,
             "page_chars": PAGE_CHARS,
             "kinds": list(KINDS),

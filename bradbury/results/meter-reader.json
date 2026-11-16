@@ -1,59 +1,59 @@
 {
   "network": "testnet-bradbury-phase-2",
   "chain_id": 4221,
-  "build": "meter_reader.v6.py",
+  "build": "build/meter_reader.py",
   "meters": [
     {
-      "tx": "0x48f2169cdf3db30b4988a100fd12464c4535b9fb7043212c4b00407c22c15312",
+      "tx": "0xc79141699d151e4361db593709db3ac1e053ae2bfcf150efcf3524160632ef9b",
+      "result": "MAJORITY_AGREE",
+      "execution": "FINISHED_WITH_RETURN",
+      "votes_revealed": "5",
+      "validators": "5",
+      "secs": 32,
+      "error": null,
+      "meter_id": "1",
+      "example": "fernhollow-rig-sixty"
+    },
+    {
+      "tx": "0xf866fb438964dfe2a45af2c115d628fa8c347312d72f7e0cf67669d64200c08c",
       "result": "MAJORITY_AGREE",
       "execution": "FINISHED_WITH_RETURN",
       "votes_revealed": "5",
       "validators": "5",
       "secs": 38,
       "error": null,
-      "meter_id": "1",
-      "example": "fernhollow-rig-sixty"
-    },
-    {
-      "tx": "0x6a6f75f505276bbef3eccf66e57d5cd915bac4197fd02083839d0e42120050c2",
-      "result": "MAJORITY_AGREE",
-      "execution": "FINISHED_WITH_RETURN",
-      "votes_revealed": "5",
-      "validators": "5",
-      "secs": 31,
-      "error": null,
       "meter_id": "2",
       "example": "fernhollow-rig-steady"
     },
     {
-      "tx": "0x7cf47f4f847f9717533021bc25010b5bd71498c38a65020fe96261daa4ea0e72",
+      "tx": "0x3c1fd430837d29e09168894a9051a0a14d695e626e84c27ba7b93ee2ff155797",
       "result": "MAJORITY_AGREE",
       "execution": "FINISHED_WITH_RETURN",
       "votes_revealed": "5",
       "validators": "5",
-      "secs": 31,
+      "secs": 38,
       "error": null,
       "meter_id": "3",
       "example": "fernhollow-rig-gappy"
     },
     {
-      "tx": "0x5fbbbce3f21c9d465136530df1a771c181c879a41939b8e57cb9b57fd31bf6d8",
+      "tx": "0x32bcfdf1b0fc69795d1ebcc4a89697cd033e3aedbe75ea58f08f8b797122f372",
       "result": "MAJORITY_AGREE",
       "execution": "FINISHED_WITH_RETURN",
       "votes_revealed": "5",
       "validators": "5",
-      "secs": 31,
+      "secs": 24,
       "error": null,
       "meter_id": "4",
       "example": "fernhollow-rig-ghost"
     },
     {
-      "tx": "0xdf5a05fc34da80434f49166daad0cb812277fe6c1ad0620c32b459fcf9e32980",
+      "tx": "0x9f32b88ed41de6405e5384c2adb3e3ba8700c145dd2ddedf4f71d864c5f69374",
       "result": "MAJORITY_AGREE",
       "execution": "FINISHED_WITH_RETURN",
       "votes_revealed": "5",
       "validators": "5",
-      "secs": 31,
+      "secs": 24,
       "error": null,
       "meter_id": "5",
       "example": "quillmoor-rig-dark"
@@ -61,51 +61,53 @@
   ],
   "readings": [
     {
-      "tx": "0xf10bbafa041c4a52a5db174eb8bd64bd5886623b021810597012f75c960895a5",
+      "tx": "0x1108c20f297f81249aef713d9bbb8305f3aeed11bdc829df3fb6ddda60dba540",
       "result": "MAJORITY_AGREE",
       "execution": "FINISHED_WITH_RETURN",
       "votes_revealed": "5",
       "validators": "5",
-      "secs": 64,
+      "secs": 57,
       "error": null,
       "example": "fernhollow-rig-sixty",
       "meter_id": "1",
       "reading_id": "1",
+      "window_start": 1794819660,
       "kind": "READ",
       "reason": "",
       "values": [
-        "6050000000",
-        "5740000000",
-        "5890000000",
-        "5820000000",
-        "5860000000"
+        "5850000000",
+        "6250000000",
+        "5970000000",
+        "6110000000",
+        "6170000000"
       ],
-      "share_bp": 5872
+      "share_bp": 6070
     },
     {
-      "tx": "0x4bdf0de9f94eb0e5c583178fd8e36ff882c0f85b26d11aea1cfce64a2affed61",
+      "tx": "0x8a301ff5dcc2d1383e75a0cf86fedbce1ac25b18473c8226a7c4f208ea8b7d15",
       "result": "MAJORITY_AGREE",
       "execution": "FINISHED_WITH_RETURN",
       "votes_revealed": "5",
       "validators": "5",
-      "secs": 210,
+      "secs": 44,
       "error": null,
       "example": "fernhollow-rig-steady",
       "meter_id": "2",
       "reading_id": "2",
+      "window_start": 1794819720,
       "kind": "READ",
       "reason": "",
       "values": [
-        "10190000000",
-        "10110000000",
-        "10110000000",
-        "10100000000",
-        "10030000000"
+        "9890000000",
+        "10030000000",
+        "9970000000",
+        "9920000000",
+        "10050000000"
       ],
-      "share_bp": 10000
+      "share_bp": 9956
     },
     {
-      "tx": "0x265d119a46e8ea914865f53efa9471a88386cf1e3bee445be3f7a0002c066008",
+      "tx": "0x2ff168d3908e7f6a5d6efcfb2d0038d8da3cb5bd53cd70770367ccebae600bc2",
       "result": "IDLE",
       "execution": "NOT_VOTED",
       "votes_revealed": "0",
@@ -115,85 +117,122 @@
       "example": "fernhollow-rig-gappy",
       "meter_id": "3",
       "reading_id": "3",
+      "window_start": 1794819780,
       "kind": "READ",
       "reason": "",
       "values": [
         null,
-        "9940000000",
+        "10060000000",
+        "10030000000",
         null,
-        "10020000000",
-        "9900000000"
+        "9960000000"
       ],
-      "share_bp": 5968
+      "share_bp": 5992
     },
     {
-      "tx": "0xaf6f1ee81698b18e1d313ab0a7e8f6089b0354ae4d64e346bd7fbc13454f8630",
+      "tx": "0x0efddedef3d50451c8a11e4d7f765794b23c314dc9675e0253654192200f9c70",
       "result": "MAJORITY_AGREE",
       "execution": "FINISHED_WITH_RETURN",
       "votes_revealed": "5",
       "validators": "5",
-      "secs": 104,
+      "secs": 51,
       "error": null,
       "example": "fernhollow-rig-ghost",
       "meter_id": "4",
       "reading_id": "4",
+      "window_start": 1794819900,
       "kind": "NOT_LISTED",
       "reason": "",
       "values": [],
       "share_bp": 0
     },
     {
-      "tx": "0x4f7d6fef528c784170c4397d84d4d4f21990bf9c2f0d4e8007ba33e3abcfd9fa",
+      "tx": "0x120addd328c31ad7ebb65776428f964b97f1937666f7d5875e4e99b5c698a68e",
       "result": "MAJORITY_AGREE",
       "execution": "FINISHED_WITH_RETURN",
       "votes_revealed": "5",
       "validators": "5",
-      "secs": 84,
+      "secs": 104,
       "error": null,
       "example": "quillmoor-rig-dark",
       "meter_id": "5",
       "reading_id": "5",
+      "window_start": 1794819960,
       "kind": "READ",
       "reason": "",
       "values": [
-        "9990000000",
-        "10090000000",
         "9980000000",
-        "9940000000",
+        "9930000000",
+        "10010000000",
+        "9980000000",
         "9920000000"
       ],
-      "share_bp": 9966
+      "share_bp": 9962
     },
     {
-      "tx": "0x2b3034fdc821e4150a01e02d318e665c1f8e4f68572bbb57d25e554131febf40",
+      "tx": "0x27661fee205e1a88e089c441c1a8901f429e15390995e926eadf659a9ebae8bd",
       "result": "MAJORITY_AGREE",
       "execution": "FINISHED_WITH_RETURN",
       "votes_revealed": "5",
       "validators": "5",
-      "secs": 213,
+      "secs": 71,
       "error": null,
       "example": "quillmoor-rig-dark (down period)",
       "meter_id": "5",
       "reading_id": "6",
+      "window_start": 1794820200,
       "kind": "NO_READING",
       "reason": "N1_PAGE_DARK",
       "values": []
     }
   ],
   "consumer": {
-    "address": "0x5353245Ef648c7d4EfD6ad2d850EFF71995a43D6",
+    "address": "0xF6140a94a74fFf9937AB660031E14370944AB0d0",
     "deploy": {
-      "tx": "0x7a5c0f2a402ae4a2c3942082909aa0f1b5e2fe979401c30ea7aecc0f543bc75f",
+      "tx": "0xa75a274e2af0dd4d3344b90882e1b9c81a88e8bdb7e304c63e2b193f13206240",
       "result": "MAJORITY_AGREE",
       "execution": "FINISHED_WITH_RETURN",
       "votes_revealed": "5",
       "validators": "5",
-      "secs": 31,
+      "secs": 37,
       "error": null,
-      "address": "0x5353245Ef648c7d4EfD6ad2d850EFF71995a43D6"
+      "address": "0xF6140a94a74fFf9937AB660031E14370944AB0d0"
     },
-    "record": {
-      "tx": "0xd4a0c4aacafe5d4beea9960b4813a72319009ea933c35f01d33a9ebbd78e4739",
+    "create": {
+      "tx": "0x9b82d413e085c80f2e8384adbdb988c06bfa8a816b71951c5aff436e80f1f021",
+      "result": "MAJORITY_AGREE",
+      "execution": "FINISHED_WITH_RETURN",
+      "votes_revealed": "5",
+      "validators": "5",
+      "secs": 44,
+      "error": null
+    },
+    "window_start": 1794820980,
+    "reading": {
+      "tx": "0x7ae3ee550877f64755e409abf0ea9247b7eea1535d1629457ad1827bdd7e25ca",
+      "result": "MAJORITY_AGREE",
+      "execution": "FINISHED_WITH_RETURN",
+      "votes_revealed": "5",
+      "validators": "5",
+      "secs": 53,
+      "error": null,
+      "example": "consumer window (rig-sixty)",
+      "meter_id": "1",
+      "reading_id": "7",
+      "window_start": 1794820980,
+      "kind": "READ",
+      "reason": "",
+      "values": [
+        "5700000000",
+        "6190000000",
+        "6000000000",
+        "6290000000",
+        "5990000000"
+      ],
+      "share_bp": 6034
+    },
+    "settle": {
+      "tx": "0x267607a96f8b08e546018ded8b883406018de22b819221900f8ffae7123beba7",
       "result": "MAJORITY_AGREE",
       "execution": "FINISHED_WITH_RETURN",
       "votes_revealed": "5",
@@ -201,34 +240,77 @@
       "secs": 31,
       "error": null
     },
-    "count": 1,
-    "record_1": {
+    "job_1": {
       "id": "1",
-      "kind": "READ",
+      "meter": {
+        "created_at": 1794819838,
+        "id": "1",
+        "owner": "0x6ce1cEE581B0057C0ff313d015eCa5936DEacD2B",
+        "publish_lag_minutes": 0,
+        "read_within_minutes": 60,
+        "resolution": 1,
+        "series_name": "rig-sixty",
+        "slot_minutes": 1,
+        "source_name": "Fernhollow Pool",
+        "unit_family": "hashrate",
+        "unit_label": "",
+        "url": "https://rigsettle.brilliantnodes.com/demo/fernhollow/rig-sixty/",
+        "value_label": "accepted hashrate (pool-side)"
+      },
       "meter_id": "1",
-      "reader": "0x83eDE0d5CE027E9C8e34F4bcB070540cAa0C6ab5",
-      "reading_id": "1",
+      "read_closes": 1794824940,
+      "read_opens": 1794821340,
+      "reader": "0x286A160029D89b2C9fA6e1cEe0f31A954Eb329B4",
+      "reading_id": "7",
       "rule": "S1_CAPPED_PRO_RATA",
-      "share_bp": 5872,
+      "share_bp": 6034,
       "slots": 5,
+      "state": "SETTLED",
       "target_per_slot": "10000000000",
-      "window_start": 1794760260
+      "window_start": 1794820980
+    },
+    "window_share": {
+      "reading_id": "7",
+      "rule": "S1_CAPPED_PRO_RATA",
+      "share_bp": 6034,
+      "target_per_slot": "10000000000"
     }
   },
-  "address": "0x83eDE0d5CE027E9C8e34F4bcB070540cAa0C6ab5",
+  "address": "0x286A160029D89b2C9fA6e1cEe0f31A954Eb329B4",
   "deploy": {
-    "tx": "0xe39f6640a16a9a1cbc0cf15a7a6d83615427e263b4d695130510d73e4d5385ba",
+    "tx": "0x4e88df9f88e0e1856cd1acf317b3330ea0b62831d52969e137a8bf9ae500407d",
     "result": "MAJORITY_AGREE",
     "execution": "FINISHED_WITH_RETURN",
     "votes_revealed": "5",
     "validators": "5",
-    "secs": 36,
+    "secs": 35,
     "error": null,
-    "address": "0x83eDE0d5CE027E9C8e34F4bcB070540cAa0C6ab5"
+    "address": "0x286A160029D89b2C9fA6e1cEe0f31A954Eb329B4"
+  },
+  "reread": {
+    "tx": "0xa73b407f9b882c3b264693b902d2559f27b29f23bbde5b348d6f1ceba71d9976",
+    "result": "MAJORITY_AGREE",
+    "execution": "FINISHED_WITH_ERROR",
+    "votes_revealed": "5",
+    "validators": "5",
+    "secs": 37,
+    "error": null,
+    "readings_after": 6,
+    "readings_before": 6,
+    "window_readings": {
+      "count": 1,
+      "first_ids": [
+        "1"
+      ],
+      "latest_id": "1",
+      "meter_id": "1",
+      "official_id": "1",
+      "slots": 5,
+      "window_start": 1794819660
+    }
   },
   "counts": {
     "meters": 5,
-    "readings": 6
-  },
-  "note": "reading ids and values rebuilt from get_readings on chain (a lagging get_counts read right after a write had recorded the wrong id for the gappy row)"
+    "readings": 7
+  }
 }
