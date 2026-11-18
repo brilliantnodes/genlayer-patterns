@@ -10,6 +10,8 @@ Rewrites, in the direction of GenLayer Foundation's own Studio/Bradbury targets
   gl.vm.run_nondet_unsafe -> gl.vm.run_nondet
   gl.message_raw[         -> gl.message.raw[
   gl.get_contract_at(     -> gl.contract.get_at(
+  from genlayer.py.public_abi import StorageType -> from genlayer.vm.public_abi import StorageView
+  StorageType.LATEST_FINAL                       -> StorageView.LATEST_FINALIZED
 Then docstrings and comments are stripped and indentation shrunk, so the deploy
 fits under Bradbury's per-transaction gas cap. The script asserts that the
 output's AST equals the source's AST after applying exactly these renames, and
@@ -35,8 +37,10 @@ RENAMES = [
     (r"\bgl\.vm\.run_nondet_unsafe\(", "gl.vm.run_nondet("),
     (r"\bgl\.message_raw\[", "gl.message.raw["),
     (r"\bgl\.get_contract_at\(", "gl.contract.get_at("),
+    (r"^from genlayer\.py\.public_abi import StorageType$", "from genlayer.vm.public_abi import StorageView"),
+    (r"\bStorageType\.LATEST_FINAL\b", "StorageView.LATEST_FINALIZED"),
 ]
-FORBID = ["from genlayer import *", "gl.Contract)", "run_nondet_unsafe", "message_raw", "get_contract_at", "py-genlayer:1jb45"]
+FORBID = ["from genlayer import *", "gl.Contract)", "run_nondet_unsafe", "message_raw", "get_contract_at", "py-genlayer:1jb45", "StorageType", "genlayer.py.public_abi"]
 
 
 def strip_docstrings(tree):
@@ -56,7 +60,7 @@ def renamed(src: str) -> str:
     assert n == 1, f"expected one star import, found {n}"
     body = body.replace("from genlayer import *\n", IMPORTS)
     for pat, rep in RENAMES:
-        body = re.sub(pat, rep, body)
+        body = re.sub(pat, rep, body, flags=re.M)
     return body
 
 

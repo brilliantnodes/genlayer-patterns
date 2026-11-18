@@ -21,11 +21,16 @@ def outcome(s):
             return base + f" · missing {r['missing']}"
         if "error" in r:
             return base + " · " + r["error"]
-        if "deal" in r and isinstance(r["deal"], dict) and r["deal"].get("result"):
-            d = r["deal"]["result"]
-            return base + f" · {d['status']}: seller {int(d['to_seller']) / 1e18:g} GEN, buyer {int(d['to_buyer']) / 1e18:g} GEN"
-        if "deal" in r:
-            return base + " · escrowed " + str(int(r["deal"]["amount"]) / 1e18) + " GEN"
+        if "deal" in r and isinstance(r["deal"], dict):
+            deal, d = r["deal"], r["deal"].get("result") or {}
+            st = deal.get("state")
+            if st == "SETTLED":
+                return base + f" · {d['status']}: seller {int(d['to_seller']) / 1e18:g} GEN, buyer {int(d['to_buyer']) / 1e18:g} GEN"
+            if st in ("CANCELLED", "EXPIRED"):
+                return base + f" · {st}: buyer credited {int(d['to_buyer']) / 1e18:g} GEN"
+            if st == "OPEN":
+                return base + " · accepted by the seller: OPEN"
+            return base + f" · offered, {int(deal['amount']) / 1e18:g} GEN escrowed"
         if "amount" in r:
             return base + f" · withdrew {int(r['amount']) / 1e18:g} GEN"
         if r.get("id") and r.get("digest"):

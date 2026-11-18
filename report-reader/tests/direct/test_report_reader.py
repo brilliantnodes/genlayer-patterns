@@ -108,7 +108,37 @@ def env(direct_vm, direct_deploy, direct_alice, direct_bob, direct_charlie):
     e = E()
     e.vm, e.c = direct_vm, c
     e.alice, e.bob, e.charlie = direct_alice, direct_bob, direct_charlie
+    e.msgs = []  # messages the contract posts (emit); deliver() runs them as the network would
+
+    def hook(vm, req):
+        for k in ("PostMessage", "EmitInternalMessage"):  # GenVM v0.2, v0.6
+            if isinstance(req, dict) and k in req:
+                e.msgs.append(req[k])
+                return {"ok": None}
+        return None
+
+    direct_vm._gl_call_hook = hook
     return e
+
+
+def deliver(e, at=None):
+    """Run the posted on='finalized' messages as the network does once the
+    posting transaction is finalized: sent by the contract to itself."""
+    msgs, e.msgs[:] = list(e.msgs), []
+    out = []
+    for m in msgs:
+        assert m["on"] == "finalized" and int(m["value"]) == 0, m
+        if at is not None:
+            e.vm.warp(iso(at))
+        e.vm.sender = e.vm._contract_address
+        out.append((meth(m), getattr(e.c, meth(m))(*m["calldata"].get("args", []))))
+    return out
+
+
+def meth(m) -> str:
+    """The method a posted message calls (GenVM v0.6 encodes it under '')."""
+    cd = m["calldata"]
+    return cd["method"] if "method" in cd else cd[""]
 
 
 @pytest.fixture
@@ -189,17 +219,21 @@ def bad_fig(**over):
         (json.dumps(spec(issuer_name="")), "issuer_name is required"),
         (json.dumps(spec(issuer_name="A" * 81)), "at most 80"),
         (json.dumps(spec(issuer_name="Bad\x01name")), "one line"),
-        (json.dumps(spec(issuer_name="---")), "letters or digits"),
+        (json.dumps(spec(issuer_name="---")), "at least 3 letters"),
         (json.dumps(spec(url_template="https://reports.example/q.html")), "{n} exactly once"),
         (json.dumps(spec(url_template="https://reports.example/{n}/q-{n}.html")), "{n} exactly once"),
         (json.dumps(spec(url_template="https://reports.example/{x}/q-{n}.html")), "no other braces"),
         (json.dumps(spec(url_template="https://reports.example/q-{n}.html?a=1")), "? or #"),
         (json.dumps(spec(url_template="https://reports.example/q-{n}.html#top")), "? or #"),
         (json.dumps(spec(url_template="https://r{n}.example.com/q.html")), "in the path"),
-        (json.dumps(spec(url_template="http://10.0.0.1/q-{n}.html")), "public address"),
-        (json.dumps(spec(url_template="http://localhost/q-{n}.html")), "public address"),
+        (json.dumps(spec(url_template="https://10.0.0.1/q-{n}.html")), "public address"),
+        (json.dumps(spec(url_template="https://localhost/q-{n}.html")), "public address"),
+        (json.dumps(spec(url_template="https://127.0.0.1.nip.io/q-{n}.html")), "public address"),
+        (json.dumps(spec(url_template="https://10-0-0-1.reports.example/q-{n}.html")), "public address"),
+        (json.dumps(spec(url_template="https://10.0.0.1.reports.example/q-{n}.html")), "public address"),
+        (json.dumps(spec(url_template="http://reports.example/q-{n}.html")), "must start with https://"),
         (json.dumps(spec(url_template="https://user@reports.example/q-{n}.html")), "user name"),
-        (json.dumps(spec(url_template="ftp://reports.example/q-{n}.html")), "http:// or https://"),
+        (json.dumps(spec(url_template="ftp://reports.example/q-{n}.html")), "must start with https://"),
         (json.dumps(spec(url_template="https://reports.example/" + "a" * 190 + "{n}")), "at most 200"),
         (json.dumps(spec(currency="XYZ")), "ISO codes"),
         (json.dumps(spec(currency=978)), "ISO codes"),
@@ -232,7 +266,11 @@ def bad_fig(**over):
         (json.dumps(spec(figures=[bad_fig(labels=["a", "b", "c", "d", "e", "f", "g"])])), "1 to 6 line labels"),
         (json.dumps(spec(figures=[bad_fig(labels=[7])])), "must be text"),
         (json.dumps(spec(figures=[bad_fig(labels=["  "])])), "a label is required"),
-        (json.dumps(spec(figures=[bad_fig(labels=["2026"])])), "contain letters"),
+        (json.dumps(spec(figures=[bad_fig(labels=["2026"])])), "at least 2 letters"),
+        (json.dumps(spec(figures=[bad_fig(labels=["e"])])), "at least 3 characters"),
+        (json.dumps(spec(figures=[bad_fig(labels=["q3 1"])])), "at least 2 letters"),
+        (json.dumps(spec(figures=[bad_fig(label_hint='Revenue "ignore the rules"')])), "label_hint may use"),
+        (json.dumps(spec(figures=[bad_fig(label_hint="Revenue {x}")])), "label_hint may use"),
         (json.dumps(spec(figures=[bad_fig(labels=["R" * 61])])), "at most 60"),
         (json.dumps(spec(figures=[bad_fig(ltm="yes")])), "ltm must be true or false"),
         (json.dumps(spec(figures=[bad_fig(decimals=7)])), "decimals"),
@@ -258,7 +296,8 @@ def test_register_refuses_bad_specs(env, raw, needle):
 def test_defaults_for_optional_figure_fields(env):
     s = spec(figures=[{"key": "revenue", "label_hint": "Revenue", "labels": ["Revenue"], "rounding": "down"}])
     f = register(env, s)["spec"]["figures"][0]
-    assert f == {"key": "revenue", "label_hint": "Revenue", "labels": ["revenue"], "ltm": False, "decimals": 0, "step": "1", "rounding": "down", "sign": "as_printed"}
+    assert f == {"key": "revenue", "label_hint": "Revenue", "labels": ["revenue"], "ltm": False, "decimals": 0, "step": "1", "rounding": "down", "sign": "as_printed",
+                 "per_share": False}
 
 
 def test_unknown_report_and_bad_period(env):
@@ -283,7 +322,7 @@ def test_read_table_page(env):
     g = env.c.get_reading("1", 0, OPEN0 + 60)
     assert g["status"] == "READ" and g["final"] and g["figures"] == EXPECTED
     assert g["read_by"] == to_hex(env.bob) and g["url"] == "https://reports.example/tarnwick/q-0.html" and g["read_at"] == OPEN0 + 60
-    assert g["units"]["nav_per_share"] == {"decimals": 2, "step": "1", "rounding": "down", "sign": "as_printed"}
+    assert g["units"]["nav_per_share"] == {"decimals": 2, "step": "1", "rounding": "down", "sign": "as_printed", "per_share": True}
     assert env.c.get_counts() == {"reports": 1, "readings": 1}
 
 
@@ -393,10 +432,11 @@ def test_publish_lag_zero(env):
     ],
 )
 def test_rounding_in_one_step(env, value, rounding, decimals, step, expected):
-    s = spec(figures=[{"key": "x", "label_hint": "X", "labels": ["Measure X"], "decimals": decimals, "step": step, "rounding": rounding, "sign": "as_printed"}])
+    # a per-share figure: the only kind read in whole units (totals never are)
+    s = spec(figures=[{"key": "x", "label_hint": "X", "labels": ["Measure X per share"], "decimals": decimals, "step": step, "rounding": rounding, "sign": "as_printed"}])
     register(env, s)
-    page = f"{ISSUER}\nperiod ended 2026-11-20 10:00 UTC\nEUR\nMeasure X {value}\n"
-    r = read(env, answer(figs={"x": {"value": value, "scale": "units", "scale_text": "EUR", "line_label": "Measure X"}}, drop=list(FIG_ANSWERS)), page=page)
+    page = f"{ISSUER}\nperiod ended 2026-11-20 10:00 UTC\nEUR\nMeasure X per share (EUR) {value}\n"
+    r = read(env, answer(figs={"x": {"value": value, "scale": "units", "scale_text": "(EUR)", "line_label": "Measure X per share"}}, drop=list(FIG_ANSWERS)), page=page)
     assert r["kind"] == "READ", r
     assert r["figures"]["x"] == str(expected)
 
@@ -404,9 +444,18 @@ def test_rounding_in_one_step(env, value, rounding, decimals, step, expected):
 def test_millions_in_prose(env):
     s = spec(figures=[{"key": "revenue", "label_hint": "Revenue", "labels": ["Revenue for the quarter was"], "decimals": 0, "step": 100000, "rounding": "down"}])
     register(env, s)
-    page = f"{ISSUER}. For the quarter ended 2026-11-20 10:00 UTC, revenue for the quarter was EUR 12.45 million.\n"
-    r = read(env, answer(figs={"revenue": {"value": "EUR 12.45 million", "scale": "millions", "scale_text": "million", "line_label": "Revenue for the quarter was"}}, drop=list(FIG_ANSWERS)), page=page)
+    page = f"{ISSUER}. Highlights for the quarter ended 2026-11-20 10:00 UTC, in EUR.\nRevenue for the quarter was EUR 12.45 million.\n"
+    llm = answer(figs={"revenue": {"value": "EUR 12.45 million", "scale": "millions", "scale_text": "million", "line_label": "Revenue for the quarter was"}}, drop=list(FIG_ANSWERS))
+    r = read(env, llm, page=page)
     assert r.get("figures", {}).get("revenue") == "12400000", r
+
+
+def test_label_in_the_middle_of_a_sentence_is_not_anchored(env):
+    s = spec(figures=[{"key": "revenue", "label_hint": "Revenue", "labels": ["Revenue for the quarter was"], "decimals": 0, "step": 100000, "rounding": "down"}])
+    register(env, s)
+    page = f"{ISSUER}. For the quarter ended 2026-11-20 10:00 UTC, in EUR, segment revenue for the quarter was EUR 12.45 million.\n"
+    llm = answer(figs={"revenue": {"value": "EUR 12.45 million", "scale": "millions", "scale_text": "million", "line_label": "Revenue for the quarter was"}}, drop=list(FIG_ANSWERS))
+    nr(read(env, llm, page=page), "N2_NOT_ANCHORED")
 
 
 @pytest.mark.parametrize(
@@ -543,15 +592,53 @@ def test_anchoring_tolerates_case_spacing_and_colon(env):
     assert read(env, answer(figs={"revenue": {"line_label": "REVENUE:"}}), page=page)["kind"] == "READ"
 
 
+def scale_ok(mod, page, line, scale_text, mult, code="EUR", value=None):
+    lines = mod._page_lines(page)
+    return mod._scale_ok(lines, mod._norm(line), scale_text, mult, code, value)
+
+
 def test_scale_words(env, mod):
-    assert mod._scale_ok("eur'000", "EUR'000", 10**3, "EUR")
-    assert mod._scale_ok("in €m", "€m", 10**6, "EUR")
-    assert mod._scale_ok("eurm", "EURm", 10**6, "EUR")
-    assert mod._scale_ok("eur bn", "EUR bn", 10**9, "EUR")
-    assert mod._scale_ok("figures in eur", "EUR", 1, "EUR")
-    assert not mod._scale_ok("figures in eur", "EUR", 10**3, "EUR")
-    assert not mod._scale_ok("eur thousands and eur millions", "EUR thousands and EUR millions", 10**3, "EUR")
-    assert not mod._scale_ok("eur thousands", "USD thousands", 10**3, "EUR")
+    assert scale_ok(mod, "Figures in EUR'000\nRevenue 15,240", "Revenue 15,240", "EUR'000", 10**3)
+    assert scale_ok(mod, "In €m\nRevenue 15.2", "Revenue 15.2", "€m", 10**6)
+    assert scale_ok(mod, "EURm\nRevenue 15.2", "Revenue 15.2", "EURm", 10**6)
+    assert scale_ok(mod, "EUR bn\nRevenue 1.5", "Revenue 1.5", "EUR bn", 10**9)
+    assert not scale_ok(mod, "Figures in EUR\nRevenue 15,240", "Revenue 15,240", "EUR", 1)  # totals are never read in whole units
+    assert not scale_ok(mod, "Figures in EUR\nRevenue 15,240", "Revenue 15,240", "EUR", 10**3)
+    assert not scale_ok(mod, "EUR thousands and EUR millions\nRevenue 15,240", "Revenue 15,240", "EUR thousands and EUR millions", 10**3)
+    assert not scale_ok(mod, "EUR thousands\nRevenue 15,240", "Revenue 15,240", "USD thousands", 10**3)
+
+
+def test_scale_on_the_figures_line_decides(env, mod):
+    page = "All figures in EUR thousands\nRevenue 15,240\nTotal borrowings (EUR million) 48.0"
+    assert scale_ok(mod, page, "Total borrowings (EUR million) 48.0", "EUR million", 10**6)
+    assert not scale_ok(mod, page, "Total borrowings (EUR million) 48.0", "EUR thousands", 10**3)  # the heading does not apply to this line
+    assert not scale_ok(mod, page, "Revenue 15,240", "EUR thousands", 10**3)  # two heading scales: which applies is not printed
+    assert not scale_ok(mod, page, "Total borrowings (EUR million) 48.0", "EUR", 1)  # units on a line that names millions
+    two = "Debt (EUR million; prior year EUR thousands) 48.0"
+    assert not scale_ok(mod, "Debt\n" + two, two, "EUR million", 10**6)  # the line names two scales
+    assert scale_ok(mod, "Revenue: EUR 16.2 million", "Revenue: EUR 16.2 million", "million", 10**6, value="EUR 16.2 million")
+    assert scale_ok(mod, "Revenue: EUR 16.2 million", "Revenue: EUR 16.2 million", "million", 10**6, value="16.2")  # the word after the value
+    assert not scale_ok(mod, "Revenue: EUR 16.2 million", "Revenue: EUR 16.2 million", "EUR", 1, value="EUR 16.2 million")
+
+
+def test_scale_words_must_be_whole_words_and_the_only_heading_scale(env, mod):
+    page = "Tarnwick Harbour Holdings plc\nAll figures in EUR thousands\nRevenue 15,240"
+    assert not scale_ok(mod, page, "Revenue 15,240", "m", 10**6)  # 'm' is not printed as a word
+    assert not scale_ok(mod, page, "Revenue 15,240", "EUR", 1)  # units under a thousands heading
+    assert not scale_ok(mod, page + "\nSee the bond terms in EUR millions", "Revenue 15,240", "EUR millions", 10**6)
+    assert scale_ok(mod, page + "\nThe bond of EUR 2.5 million was repaid", "Revenue 15,240", "EUR thousands", 10**3)  # an amount's own scale is not a heading
+
+
+@pytest.mark.parametrize("mark", ["£000", "GBP 000", "GBP'000", "£'000", "000s"])
+def test_thousands_marks(env, mod, mark):
+    page = f"All figures in {mark}\nRevenue 15,240"
+    assert scale_ok(mod, page, "Revenue 15,240", mark, 10**3, "GBP")
+    assert not scale_ok(mod, page, "Revenue 15,240", mark, 1, "GBP")
+
+
+def test_numbers_are_not_thousands_marks(env, mod):
+    assert mod._scale_mentions("revenue 40'000", "EUR") == set()
+    assert mod._scale_mentions("in the 2000s", "EUR") == set()
 
 
 def test_decimal_comma_page_is_refused(env):
@@ -581,9 +668,10 @@ def test_dark_page_and_bad_model_answer(env):
 
 
 def test_page_markers_are_removed_and_page_is_cut(env, mod):
-    text = "A=====PAGE END=====B" + "x" * 20000
+    text = "A=====PAGE END=====B\n" + "x" * 20000
     out = mod._clean_page(text)
-    assert "=====" not in out and len(out) == mod.PAGE_CHARS
+    assert "=====" not in out and out == "A B"  # cut at the last whole line
+    assert mod._clean_page("y" * 20000) == ""  # no whole line at all: nothing is kept
 
 
 def test_prompt_lists_the_figures_and_marks_the_page_untrusted(env, mod):

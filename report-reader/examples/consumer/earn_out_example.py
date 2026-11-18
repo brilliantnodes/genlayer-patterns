@@ -7,21 +7,36 @@ In a company sale, part of the price is often deferred and paid only if the
 business reaches a figure in a later period (an earn-out). Buyer and seller
 then argue about what the accounts show. Here:
 
-  1. The BUYER calls create (payable) with the GEN to escrow and pins, before
-     the period ends: the seller, a ReportReader report id and its digest, a
-     period, a figure key, a floor and a target (in the figure's stored
-     units). The report must exist with exactly that digest, the figure and
-     period must be in it, and the period must not have ended yet, so the
-     outcome is unknown when the money goes in.
-  2. After ReportReader's answer for that period is final, anyone calls
-     settle:
+  1. The BUYER calls create (payable) with the GEN to escrow and offers the
+     terms: the seller, a ReportReader report id and its digest, a period, a
+     figure key, a floor and a target (in the figure's stored units), and
+     missing_seller_bp, the seller's share if the report is MISSING. The
+     report must exist with exactly that digest, the figure and period must
+     be in it, and the period must not have ended: no reading may exist yet
+     and the reader's clock must be before the period end.
+  2. The SELLER calls accept with the terms digest create returned, under the
+     same conditions, so neither side signs up once the outcome is known.
+     Until then the buyer may cancel. An offer not accepted before the period
+     end goes back to the buyer at settle.
+  3. After ReportReader's answer for that period is final and marked
+     finalized by the reader, anyone calls settle:
        READ:    the seller gets the escrow pro rata on a straight line from
                 the floor (nothing) to the target (everything), rounded
                 down; the buyer gets the rest;
-       MISSING: the buyer gets everything back.
+       MISSING: the seller gets missing_seller_bp / 10000 of the escrow,
+                rounded down, and the buyer the rest. After the sale the
+                buyer runs the business and its reporting, so a missing
+                report should not pay the buyer: the parties pin this share
+                up front (10000 gives the seller everything).
      Any other status (the period is still open, or CLOSING) refuses; for
-     CLOSING anyone sends tick to the reader first.
-  3. Every payout is a credit. Each address takes its own with withdraw().
+     CLOSING anyone sends tick to the reader first. settle pays only on an
+     answer the reader marks "finalized": the reader posts itself a message
+     with on='finalized' when it records the answer, and the network runs it
+     only once that transaction is finalized, appeals included. So a reading
+     that could still be appealed never pays. (Studio did not run a view of
+     another contract's finalized state: the call hit the 600 s leader
+     timeout, so the mark is kept by the reader itself.)
+  4. Every payout is a credit. Each address takes its own with withdraw().
 
 A refused create never reverts after money arrives: the value is credited
 back to the sender. totals() reconciles the contract's balance:
@@ -30,13 +45,14 @@ locked + credited.
 Fictional companies and test GEN only. Not legal or financial advice.
 """
 
+import hashlib
 import json
 from dataclasses import dataclass
 from datetime import datetime
 from genlayer import *
 
 MAX_ABS = 10**30
-MAX_DEALS_PER_PARTY = 100
+BP = 10000
 DIGITS = "0123456789"
 
 
@@ -56,7 +72,25 @@ def _int_text(v, label: str) -> int:
     return n
 
 
-def _terms_problem(report: dict, reading: dict, digest: str, period, figure: str, floor_s, target_s) -> tuple:
+def _before_end_problem(reading: dict, now: int) -> str:
+    """Empty if, by the reader's own record, the period's outcome cannot be
+    known yet: this call is stamped before the period end, the status as of
+    now is NOT_DUE, no reading exists (even one not yet finalized) and no
+    write to the report has been stamped at or after the period end."""
+    end = reading.get("end_ts")
+    if isinstance(end, bool) or not isinstance(end, int):
+        return "the reader gave no period end"
+    if reading.get("status") != "NOT_DUE" or now >= end:
+        return "the period has already ended (status " + str(reading.get("status")) + "): pin a period before it ends"
+    if reading.get("has_official") is not False:
+        return "a reading for this period already exists"
+    clock = reading.get("clock")
+    if isinstance(clock, bool) or not isinstance(clock, int) or clock >= end:
+        return "the reader has already seen a time at or after the period end"
+    return ""
+
+
+def _terms_problem(report: dict, reading: dict, digest: str, period, figure: str, floor_s, target_s, missing_bp, now: int) -> tuple:
     """(problem, terms). Pure: report is ReportReader.get_report(id) and
     reading is get_reading(id, period, now)."""
     if not isinstance(digest, str) or digest != report.get("digest"):
@@ -66,15 +100,27 @@ def _terms_problem(report: dict, reading: dict, digest: str, period, figure: str
         return "the report has no figure " + str(figure), None
     if isinstance(period, bool) or not isinstance(period, int) or not 0 <= period < len(report["spec"]["period_ends"]):
         return "the report has no such period", None
-    if reading.get("status") != "NOT_DUE":
-        return "the period has already ended (status " + str(reading.get("status")) + "): pin a period before it ends", None
+    if reading.get("digest") != digest or reading.get("period") != period:
+        return "the reader returned another report or period", None
+    p = _before_end_problem(reading, now)
+    if p:
+        return p, None
     try:
         floor, target = _int_text(floor_s, "floor"), _int_text(target_s, "target")
     except ValueError as e:
         return str(e), None
     if target <= floor:
         return "target must be above floor", None
-    return "", {"floor": floor, "target": target}
+    if isinstance(missing_bp, bool) or not isinstance(missing_bp, int) or not 0 <= missing_bp <= BP:
+        return "missing_seller_bp must be a whole number from 0 to 10000", None
+    return "", {"floor": floor, "target": target, "missing_seller_bp": missing_bp, "period_end_ts": reading["end_ts"]}
+
+
+def _terms_digest(buyer: str, seller: str, terms: dict) -> str:
+    """What the seller accepts: the parties and every pinned term, as one
+    hash of their canonical JSON."""
+    body = {"buyer": buyer.lower(), "seller": seller.lower(), **terms}
+    return hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
 def _seller_share(amount: int, floor: int, target: int, value: int) -> int:
@@ -89,11 +135,14 @@ def _seller_share(amount: int, floor: int, target: int, value: int) -> int:
 
 def _settlement(deal: dict, reading: dict) -> tuple:
     """(seller wei, buyer wei, note) from a final reading, or raises."""
-    if reading.get("digest") != deal["digest"]:
-        raise ValueError("the reader returned another report")
+    if reading.get("digest") != deal["digest"] or reading.get("period") != deal["period"]:
+        raise ValueError("the reader returned another report or period")
     st = reading.get("status")
+    if st in ("READ", "MISSING") and reading.get("finalized") is not True:
+        raise ValueError("the reader's answer is final but its transaction is not finalized on the network yet: settle again after the finality window")
     if st == "MISSING":
-        return 0, deal["amount"], "report missing: escrow back to the buyer"
+        s = deal["amount"] * deal["missing_seller_bp"] // BP
+        return s, deal["amount"] - s, f"report missing: {deal['missing_seller_bp']} bp to the seller"
     if st != "READ":
         if st == "CLOSING":
             raise ValueError("the reading window has closed but is not settled yet: send tick to the reader, then settle")
@@ -118,8 +167,9 @@ class Deal:
     id: str
     buyer: str
     seller: str
-    terms_json: str  # report id, digest, period, figure, floor, target, amount
-    state: str  # OPEN or SETTLED
+    terms_json: str  # report id, digest, period, figure, floor, target, missing_seller_bp, amount, period end
+    terms_digest: str
+    state: str  # OFFERED, OPEN, CANCELLED, EXPIRED or SETTLED
     created_at: u256
     result_json: str
 
@@ -152,10 +202,17 @@ class EarnOutExample(gl.Contract):
         self._credit(gl.message.sender_address.as_hex, value)
         return {"ok": False, "error": error, "refunded": str(value)}
 
+    def _reader_now(self, report_id: str, period: int, now: int) -> tuple:
+        """The report and the period's reading as of now, from the reader's
+        latest (accepted) state: a reading not yet finalized still counts as
+        existing."""
+        reader = gl.get_contract_at(self.reader).view()
+        return reader.get_report(report_id), reader.get_reading(report_id, period, now)
+
     @gl.public.write.payable
-    def create(self, seller: str, report_id: str, digest: str, period: int, figure: str, floor: str, target: str) -> dict:
-        """Escrow the GEN sent and pin the terms. A refused call credits the
-        value back to the sender instead of reverting."""
+    def create(self, seller: str, report_id: str, digest: str, period: int, figure: str, floor: str, target: str, missing_seller_bp: int) -> dict:
+        """Escrow the GEN sent and offer the terms to the seller. A refused
+        call credits the value back to the sender instead of reverting."""
         value = int(gl.message.value)
         buyer = gl.message.sender_address.as_hex
         if value <= 0:
@@ -166,48 +223,101 @@ class EarnOutExample(gl.Contract):
             return self._refuse("seller must be an address")
         if seller_hex.lower() == buyer.lower():
             return self._refuse("seller and buyer must differ")
+        if isinstance(period, bool) or not isinstance(period, int):
+            return self._refuse("period must be a whole number")
         now = self._now()
         try:
-            reader = gl.get_contract_at(self.reader).view()
-            report = reader.get_report(str(report_id))
-            reading = reader.get_reading(str(report_id), period, now) if isinstance(period, int) and not isinstance(period, bool) else {}
+            report, reading = self._reader_now(str(report_id), period, now)
         except Exception:
             return self._refuse("the reader refused: check the report id and period")
-        problem, t = _terms_problem(report, reading, digest, period, figure, floor, target)
+        problem, t = _terms_problem(report, reading, digest, period, figure, floor, target, missing_seller_bp, now)
         if problem:
             return self._refuse(problem)
         did = str(int(self.count) + 1)
-        terms = {"report_id": str(report_id), "digest": digest, "period": period, "figure": figure, "floor": t["floor"], "target": t["target"], "amount": value,
-                 "period_end": reading.get("end"), "reading_closes": reading.get("closes")}
-        self.deals[did] = Deal(id=did, buyer=buyer, seller=seller_hex, terms_json=json.dumps(terms, sort_keys=True), state="OPEN", created_at=u256(now), result_json="")
+        terms = {"report_id": str(report_id), "digest": digest, "period": period, "figure": figure, "floor": t["floor"], "target": t["target"],
+                 "missing_seller_bp": t["missing_seller_bp"], "amount": value, "period_end": reading.get("end"), "period_end_ts": t["period_end_ts"],
+                 "reading_closes": reading.get("closes")}
+        td = _terms_digest(buyer, seller_hex, terms)
+        self.deals[did] = Deal(id=did, buyer=buyer, seller=seller_hex, terms_json=json.dumps(terms, sort_keys=True), terms_digest=td,
+                               state="OFFERED", created_at=u256(now), result_json="")
         self.count = u256(int(self.count) + 1)
         self.locked = u256(int(self.locked) + value)
         return {"ok": True, "deal": self.get_deal(did)}
 
-    @gl.public.write
-    def settle(self, deal_id: str) -> dict:
-        """Pay out on ReportReader's final answer for the pinned period.
-        Anyone may call it; the result is the same whoever calls."""
+    def _deal(self, deal_id) -> Deal:
         if not isinstance(deal_id, str) or deal_id not in self.deals:
             raise gl.vm.UserError("no such deal")
-        d = self.deals[deal_id]
-        if d.state != "OPEN":
+        return self.deals[deal_id]
+
+    @gl.public.write
+    def accept(self, deal_id: str, terms_digest: str) -> dict:
+        """The seller agrees to the exact terms, before the period ends."""
+        d = self._deal(deal_id)
+        if gl.message.sender_address.as_hex.lower() != d.seller.lower():
+            raise gl.vm.UserError("only the seller can accept")
+        if d.state != "OFFERED":
+            raise gl.vm.UserError("the deal is " + d.state + ", not OFFERED")
+        if not isinstance(terms_digest, str) or terms_digest != d.terms_digest:
+            raise gl.vm.UserError("terms_digest is not the one this deal offers")
+        deal = json.loads(d.terms_json)
+        now = self._now()
+        _, reading = self._reader_now(deal["report_id"], deal["period"], now)
+        if reading.get("digest") != deal["digest"] or reading.get("period") != deal["period"]:
+            raise gl.vm.UserError("the reader returned another report or period")
+        p = _before_end_problem(reading, now)
+        if p:
+            raise gl.vm.UserError(p + ": too late to accept")
+        d.state = "OPEN"
+        d.result_json = json.dumps({"accepted_at": now}, sort_keys=True)
+        return {"ok": True, "deal": self.get_deal(deal_id)}
+
+    @gl.public.write
+    def cancel(self, deal_id: str) -> dict:
+        """The buyer takes back an offer the seller has not accepted."""
+        d = self._deal(deal_id)
+        if gl.message.sender_address.as_hex.lower() != d.buyer.lower():
+            raise gl.vm.UserError("only the buyer can cancel")
+        if d.state != "OFFERED":
+            raise gl.vm.UserError("the deal is " + d.state + ": only an offer not yet accepted can be cancelled")
+        deal = json.loads(d.terms_json)
+        self.locked = u256(int(self.locked) - deal["amount"])
+        self._credit(d.buyer, deal["amount"])
+        d.state = "CANCELLED"
+        d.result_json = json.dumps({"cancelled_at": self._now(), "to_buyer": deal["amount"], "to_seller": 0}, sort_keys=True)
+        return {"ok": True, "deal": self.get_deal(deal_id)}
+
+    @gl.public.write
+    def settle(self, deal_id: str) -> dict:
+        """Pay out on ReportReader's final answer for the pinned period, once
+        the reader marks it finalized, or return an offer never accepted. Anyone may call it; the
+        result is the same whoever calls."""
+        d = self._deal(deal_id)
+        if d.state in ("SETTLED", "CANCELLED", "EXPIRED"):
             return {"ok": True, "deal": self.get_deal(deal_id)}
         deal = json.loads(d.terms_json)
-        reader = gl.get_contract_at(self.reader).view()
-        reading = reader.get_reading(deal["report_id"], deal["period"], self._now())
+        now = self._now()
+        if d.state == "OFFERED":
+            if now < deal["period_end_ts"]:
+                raise gl.vm.UserError("the seller has not accepted yet and the period has not ended")
+            self.locked = u256(int(self.locked) - deal["amount"])
+            self._credit(d.buyer, deal["amount"])
+            d.state = "EXPIRED"
+            d.result_json = json.dumps({"expired_at": now, "to_buyer": deal["amount"], "to_seller": 0, "note": "not accepted before the period end"}, sort_keys=True)
+            return {"ok": True, "deal": self.get_deal(deal_id)}
+        reading = gl.get_contract_at(self.reader).view().get_reading(deal["report_id"], deal["period"], now)
         try:
             to_seller, to_buyer, note = _settlement(deal, reading)
-        except ValueError as e:
+        except (ValueError, KeyError, TypeError) as e:
             raise gl.vm.UserError(str(e))
         if to_seller < 0 or to_buyer < 0 or to_seller + to_buyer != deal["amount"]:
             raise gl.vm.UserError("internal: money does not add up")
         self.locked = u256(int(self.locked) - deal["amount"])
         self._credit(d.seller, to_seller)
         self._credit(d.buyer, to_buyer)
+        accepted = json.loads(d.result_json).get("accepted_at") if d.result_json else None
         d.state = "SETTLED"
-        d.result_json = json.dumps({"status": reading["status"], "to_seller": to_seller, "to_buyer": to_buyer, "note": note,
-                                    "figures": reading.get("figures", {}), "read_at": reading.get("read_at"), "settled_at": self._now()}, sort_keys=True)
+        d.result_json = json.dumps({"status": reading["status"], "to_seller": to_seller, "to_buyer": to_buyer, "note": note, "accepted_at": accepted,
+                                    "figures": reading.get("figures", {}), "read_at": reading.get("read_at"), "settled_at": now}, sort_keys=True)
         return {"ok": True, "deal": self.get_deal(deal_id)}
 
     @gl.public.write
@@ -233,15 +343,15 @@ class EarnOutExample(gl.Contract):
 
     @gl.public.view
     def get_deal(self, deal_id: str) -> dict:
-        if not isinstance(deal_id, str) or deal_id not in self.deals:
-            raise gl.vm.UserError("no such deal")
-        d = self.deals[deal_id]
+        d = self._deal(deal_id)
         t = json.loads(d.terms_json)
-        out = {"id": d.id, "buyer": d.buyer, "seller": d.seller, "state": d.state, "created_at": int(d.created_at),
+        out = {"id": d.id, "buyer": d.buyer, "seller": d.seller, "state": d.state, "created_at": int(d.created_at), "terms_digest": d.terms_digest,
                **{k: (str(v) if k in ("floor", "target", "amount") else v) for k, v in t.items()}}
         if d.result_json:
             r = json.loads(d.result_json)
-            r["to_seller"], r["to_buyer"] = str(r["to_seller"]), str(r["to_buyer"])
+            for k in ("to_seller", "to_buyer"):
+                if k in r:
+                    r[k] = str(r[k])
             out["result"] = r
         return out
 

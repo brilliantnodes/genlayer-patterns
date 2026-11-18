@@ -10,14 +10,21 @@ The pages must already be live at
 
 Timeline (lag 5 min, window 30 min; Tarnwick's period n ends at E0 + 15n min):
   before E0     deploy, register six reports, a read before the window
-                (refused), two earn-outs and one refused earn-out
+                (refused); four earn-out offers (the seller accepts 1 and 2,
+                a stranger's accept is refused, the buyer cancels 4) and one
+                refused offer (wrong digest)
   E0 + 5        period 0 of all six read; a second read of Tarnwick 0
-                (refused); an earn-out pinned too late (refused); earn-out 1
-                settled
-  E0 + 20       Tarnwick period 1 read: not published
+                (refused); an offer pinned too late (refused); the seller's
+                late accept of offer 3 (refused); settle earn-out 1 sent at
+                once (refused while the reading is not yet marked finalized),
+                then again once the reader's confirm_read message has run;
+                offer 3 expires back to the buyer
+  E0 + 20       Tarnwick period 1 read: not published; settle 2 too early
   E0 + 35       Tarnwick period 2 read; a read of a closed one-period report
-  E0 + 50       tick settles Tarnwick period 1 as MISSING; earn-out 2
-                settled (buyer refunded); withdrawals; totals reconciled
+  E0 + 50       tick settles Tarnwick period 1 as MISSING; once its
+                confirm_clock message has run, earn-out 2 settles with the
+                pinned missing share (all of it to the seller); withdrawals;
+                totals reconciled
 
 Studio: three throwaway accounts funded from Studio's faucet. Bradbury: two
 test wallets whose key files are in BRADBURY_KEY_DIR (never printed). Every
@@ -79,12 +86,30 @@ if not BB:
 
     ACCTS = {}
 
+    def _keep_key(role, a):
+        """Keep this throwaway Studio key outside the repo (never printed or
+        committed), so a run cut short by a restart can still be finished by
+        hand: withdrawals need the parties' own keys."""
+        d = Path(os.environ.get("LIVE_KEY_DIR", "/home/claude/keys"))
+        d.mkdir(parents=True, exist_ok=True)
+        f = d / f"studio-{Path(REC_PATH).stem}.json"
+        keys = json.loads(f.read_text()) if f.exists() else {}
+        keys[role] = a.key.hex() if hasattr(a.key, "hex") else str(a.key)
+        f.write_text(json.dumps(keys))
+        os.chmod(f, 0o600)
+
     def make_accounts():
         for role in ("alice", "bob", "carol"):
             a = create_account()
             c = create_client(chain=studionet, account=a)
-            c.provider.make_request(method="sim_fundAccount", params=[a.address, 100 * G])
+            for i in range(8):
+                try:
+                    c.provider.make_request(method="sim_fundAccount", params=[a.address, 100 * G])
+                    break
+                except Exception:
+                    time.sleep(10)
             ACCTS[role] = (c, a)
+            _keep_key(role, a)
             REC["accounts"][role] = a.address
 
     def _wait(c, tx):
@@ -126,12 +151,36 @@ if not BB:
 
     def view(addr, fn, fargs):
         c, a = ACCTS["carol"]
-        return c.read_contract(address=addr, function_name=fn, args=fargs)
+        for i in range(8):  # a view has no side effect, so retrying after a gateway error (502/520) is safe
+            try:
+                return c.read_contract(address=addr, function_name=fn, args=fargs)
+            except Exception:
+                if i == 7:
+                    raise
+                time.sleep(10)
+
+    def wait_final(tx):
+        """Block until a transaction is FINALIZED (Studio's finality window)."""
+        c, a = ACCTS["carol"]
+        t0 = time.time()
+        while time.time() - t0 < 1800:
+            try:
+                c.wait_for_transaction_receipt(transaction_hash=tx, status=TransactionStatus.FINALIZED, interval=5000, retries=60)
+                return round(time.time() - t0)
+            except Exception:
+                time.sleep(5)
+        raise RuntimeError(f"{tx} not finalized")
 
     def balance(addr):
         c, a = ACCTS["carol"]
-        r = c.provider.make_request(method="eth_getBalance", params=[addr, "latest"])
-        return int(r["result"], 16)
+        for i in range(8):
+            try:
+                r = c.provider.make_request(method="eth_getBalance", params=[addr, "latest"])
+                return int(r["result"], 16)
+            except Exception:
+                if i == 7:
+                    raise
+                time.sleep(10)
 else:
     JS = ROOT / "tools" / "bradbury"
     KEY_DIR = os.environ.get("BRADBURY_KEY_DIR", "/home/claude/keys")
@@ -200,6 +249,11 @@ else:
         o = _node("alice", "balance", addr, timeout=120)
         return int(o[-1]["result"])
 
+    def wait_final(tx):
+        t0 = time.time()
+        _wait_h(tx, final=True)
+        return round(time.time() - t0)
+
 
 def step(case, role, addr, fn, fargs, value=0, expect=None, **kw):
     log(f"{case}: {fn}{tuple(fargs)} from {role}" + (f" value {value}" if value else ""))
@@ -232,6 +286,19 @@ def reports():
         out[slug] = {"issuer_name": "Ostravelle Fibre SA", "url_template": url_t(slug), "currency": "EUR", "period_ends": [t(0)],
                      "publish_lag_minutes": LAG, "read_window_minutes": WIN, "figures": base_figs}
     return out
+
+
+def wait_mark(reader, rid, period, t0):
+    """Poll the reader until its answer for the period is marked finalized
+    (its own on='finalized' message has run). Returns seconds since t0."""
+    while time.time() - t0 < 1800:
+        try:
+            if view(reader, "get_reading", [rid, period, int(time.time())]).get("finalized") is True:
+                return round(time.time() - t0)
+        except Exception:
+            pass
+        time.sleep(5)
+    raise RuntimeError(f"report {rid} period {period} never marked finalized")
 
 
 def main():
@@ -274,21 +341,46 @@ def main():
     step("read before the window opens (refused)", "carol", reader, "read", [A, 0], expect="error: window opens at E0+5")
     bob = REC["accounts"]["bob"]
     v1, v2 = (10 * G, 5 * G) if not BB else (G // 10, G // 20)
-    step("earn-out 1: revenue, floor 10,000,000, target 20,000,000", "alice", consumer, "create", [bob, A, dA, 0, "revenue", "10000000", "20000000"], value=v1)
-    step("earn-out 2: LTM EBITDA of period 1", "alice", consumer, "create", [bob, A, dA, 1, "ltm_ebitda", "0", "5000000"], value=v2)
-    step("earn-out refused: wrong digest (value credited back)", "alice", consumer, "create", [bob, A, "00" * 32, 0, "revenue", "1", "2"], value=v2 // 5)
+
+    def offer(case, period, figure, floor, target, missing_bp, value, digest=None):
+        return step(case, "alice", consumer, "create", [bob, A, digest or dA, period, figure, floor, target, missing_bp], value=value)
+
+    def terms_digest(did):
+        return view(consumer, "get_deal", [did])["terms_digest"]
+
+    offer("offer 1: revenue, floor 10,000,000, target 20,000,000, missing share 50%", 0, "revenue", "10000000", "20000000", 5000, v1)
+    step("accept of offer 1 by a stranger (refused)", "carol", consumer, "accept", ["1", terms_digest("1")], expect="error: only the seller")
+    step("seller accepts offer 1", "bob", consumer, "accept", ["1", terms_digest("1")], expect="OPEN")
+    offer("offer 2: LTM EBITDA of period 1, missing share 100% (the buyer runs the reporting)", 1, "ltm_ebitda", "0", "5000000", 10000, v2)
+    step("seller accepts offer 2", "bob", consumer, "accept", ["2", terms_digest("2")], expect="OPEN")
+    offer("offer 3: never accepted before the period end", 0, "revenue", "10000000", "20000000", 0, v2 // 5)
+    offer("offer 4: cancelled by the buyer", 0, "revenue", "10000000", "20000000", 0, v2 // 5)
+    step("buyer cancels offer 4", "alice", consumer, "cancel", ["4"], expect="CANCELLED, buyer credited")
+    offer("offer refused: wrong digest (value credited back)", 0, "revenue", "1", "2", 0, v2 // 5, digest="00" * 32)
     REC["deals"] = {"count_after_setup": view(consumer, "totals", [])}
     save()
 
     until(E0 + LAG * 60 + 20)
-    step("Tarnwick period 0: table page", "carol", reader, "read", [A, 0], expect="READ")
-    for slug, exp in (("ostravelle-draft", "NO_READING N3_NOT_FINAL"), ("ostravelle-adjusted", "NO_READING N2_LABEL"),
+    tx_read0, _ = step("Tarnwick period 0: table page", "carol", reader, "read", [A, 0], expect="READ")
+    t_read0 = time.time()
+    step("settle earn-out 1 at once (refused unless the reading is already marked finalized)", "carol", consumer, "settle", ["1"],
+         expect="error: not finalized on the network yet")
+    for slug, exp in (("ostravelle-draft", "NO_READING N3_NOT_FINAL"), ("ostravelle-adjusted", "NO_READING N2_LABEL or N2_NOT_ANCHORED"),
                       ("ostravelle-comma", "NO_READING N2_FORMAT"), ("ostravelle-injection", "READ with the table's figures"),
                       ("ostravelle-old", "NO_READING N1_WRONG_PAGE or N2_WRONG_PERIOD")):
         step(f"{slug} period 0", "carol", reader, "read", [ids[slug], 0], expect=exp)
     step("Tarnwick period 0 read again (refused: one official reading)", "carol", reader, "read", [A, 0], expect="error")
-    step("earn-out pinned after the period ended (refused, value credited back)", "alice", consumer, "create", [bob, A, dA, 0, "revenue", "1", "2"], value=v2 // 5)
-    step("settle earn-out 1", "carol", consumer, "settle", ["1"], expect="seller paid on the straight line")
+    offer("offer pinned after the period ended (refused, value credited back)", 0, "revenue", "1", "2", 0, v2 // 5)
+    step("seller accepts offer 3 after the period end (refused)", "bob", consumer, "accept", ["3", terms_digest("3")], expect="error: too late to accept")
+    if tx_read0:
+        secs = wait_final(tx_read0)
+        REC["finality"] = {"tarnwick_0_read_finalized_after_s": secs}
+        log(f"  period 0 reading finalized after {secs} s")
+    secs = wait_mark(reader, A, 0, t_read0)
+    REC.setdefault("finality", {})["tarnwick_0_marked_finalized_after_s"] = secs
+    log(f"  period 0 reading marked finalized by the reader {secs} s after the read was accepted")
+    step("settle earn-out 1 (reading marked finalized)", "carol", consumer, "settle", ["1"], expect="seller paid on the straight line")
+    step("settle offer 3 (never accepted: back to the buyer)", "carol", consumer, "settle", ["3"], expect="EXPIRED, buyer credited")
 
     until(E0 + (15 + LAG) * 60 + 20)
     step("Tarnwick period 1: not yet published", "carol", reader, "read", [A, 1], expect="NOT_PUBLISHED")
@@ -299,8 +391,16 @@ def main():
     step("ostravelle-draft read after its window closed", "carol", reader, "read", [ids["ostravelle-draft"], 0], expect="CLOSED, MISSING")
 
     until(E0 + (15 + LAG + WIN) * 60 + 20)
-    step("tick Tarnwick: period 1 settles as MISSING", "carol", reader, "tick", [A], expect="missing [1]")
-    step("settle earn-out 2 (report missing: buyer refunded)", "carol", consumer, "settle", ["2"], expect="buyer refunded")
+    tx_tick, _ = step("tick Tarnwick: period 1 settles as MISSING", "carol", reader, "tick", [A], expect="missing [1]")
+    t_tick = time.time()
+    if tx_tick:
+        secs = wait_final(tx_tick)
+        REC.setdefault("finality", {})["tick_finalized_after_s"] = secs
+        log(f"  tick finalized after {secs} s")
+    secs = wait_mark(reader, A, 1, t_tick)
+    REC.setdefault("finality", {})["tarnwick_1_missing_marked_finalized_after_s"] = secs
+    log(f"  period 1 MISSING marked finalized {secs} s after the tick was accepted")
+    step("settle earn-out 2 (report missing: the pinned 100% to the seller)", "carol", consumer, "settle", ["2"], expect="seller gets everything")
 
     acc = REC["accounts"]
     for role in ("bob", "alice"):
@@ -316,7 +416,7 @@ def main():
         for i in range(n):
             final["readings"][f"{slug}:{i}"] = view(reader, "get_reading", [rid, i, int(time.time())])
             final["readings"][f"{slug}:{i}"]["attempts_kept"] = view(reader, "get_attempts", [rid, i])["kept"]
-    for did in ("1", "2"):
+    for did in ("1", "2", "3", "4"):
         final["deals"][did] = view(consumer, "get_deal", [did])
     final["claimable"] = {r: view(consumer, "get_claimable", [a]) for r, a in acc.items()}
     REC["final"] = final

@@ -23,6 +23,7 @@ MAX_WINDOW_MINUTES = 90 * 1440
 MAX_LAG_MINUTES = 200 * 1440
 MAX_AHEAD_SECONDS = 5 * 366 * 86400
 MAX_ATTEMPTS_KEPT = 20
+HINT_CHARS = " ,.()-/'&%:"
 ANCHOR_CHARS = 160
 PAGE_CHARS = 12000
 RENDER_WAIT = '2s'
@@ -30,15 +31,17 @@ KINDS = ('READ', 'NOT_PUBLISHED', 'NO_READING')
 NO_READING_REASONS = ('N1_PAGE_DARK', 'N1_WRONG_PAGE', 'N2_WRONG_PERIOD', 'N2_CURRENCY', 'N2_FORMAT', 'N2_FIGURE_MISSING', 'N2_CONFLICT', 'N2_NOT_LTM', 'N2_LABEL', 'N2_NOT_ANCHORED', 'N2_UNITS_MISSING', 'N2_FINANCE_LABEL', 'N3_NOT_FINAL')
 ROUNDINGS = ('down', 'up')
 SIGN_RULES = ('as_printed', 'magnitude', 'finance_cost')
-SPEC_KEYS = ('issuer_name', 'url_template', 'currency', 'period_ends', 'publish_lag_minutes', 'read_window_minutes', 'figures')
-FIGURE_KEYS = ('key', 'label_hint', 'labels', 'ltm', 'decimals', 'step', 'rounding', 'sign')
+SPEC_KEYS = ('issuer_name', 'url_template', 'page_urls', 'currency', 'period_ends', 'publish_lag_minutes', 'read_window_minutes', 'figures')
+FIGURE_KEYS = ('key', 'label_hint', 'labels', 'ltm', 'decimals', 'step', 'rounding', 'sign', 'per_share')
 SCALES = {'units': 1, 'thousands': 10 ** 3, 'millions': 10 ** 6, 'billions': 10 ** 9}
 PAGE_BEGIN = '=====PAGE BEGIN====='
 PAGE_END = '=====PAGE END====='
 DIGITS = '0123456789'
+MINUS_GLYPHS = ('−', '–', '‒', '—', '―', '﹣', '－', '‐', '‑', '﹘', '⸺', '⸻', '⁃', '˗', '➖')
+SUPERSCRIPTS = '¹²³⁰⁴⁵⁶⁷⁸⁹'
 KEY_CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789_'
 CURRENCY_SYMBOLS = {'EUR': '€', 'USD': '$', 'GBP': '£', 'JPY': '¥', 'CHF': 'CHF'}
-SCALE_WORDS = {10 ** 3: ('thousands', 'thousand', 'k'), 10 ** 6: ('millions', 'million', 'mn', 'm', 'mm'), 10 ** 9: ('billions', 'billion', 'bn')}
+SCALE_WORDS = {10 ** 3: ('thousands', 'thousand', 'k', 'tsd', 'tausend', 'milliers'), 10 ** 6: ('millions', 'million', 'mn', 'm', 'mm', 'mill'), 10 ** 9: ('billions', 'billion', 'bn')}
 ISO_CODES = ('EUR', 'USD', 'GBP', 'JPY', 'CHF', 'CNY', 'CAD', 'AUD', 'NZD', 'SEK', 'NOK', 'DKK', 'PLN', 'CZK', 'HUF', 'RON', 'BGN', 'TRY', 'RUB', 'INR', 'BRL', 'MXN', 'ZAR', 'SGD', 'HKD', 'KRW', 'AED', 'SAR', 'QAR', 'KWD', 'BHD', 'OMR', 'ILS', 'EGP', 'THB', 'MYR', 'IDR', 'PHP', 'TWD', 'ARS', 'CLP', 'COP', 'PEN', 'NGN', 'KES', 'UAH', 'ISK', 'VND')
 SYMBOLS = ('$', '£', '¥', '€', '₹', '₩', '₽', '₺', '₦', '₪', '₫', '฿', '₣', '₱')
 
@@ -51,7 +54,8 @@ def _host_of(url: str) -> str:
  if rest.startswith('['):
   return rest.split(']', 1)[0].strip('[').lower()
  return rest.split(':', 1)[0].lower()
-PRIVATE_SUFFIXES = ('.localhost', '.local', '.internal', '.lan', '.home', '.arpa', '.corp', '.intranet')
+PRIVATE_SUFFIXES = ('.localhost', '.localdomain', '.local', '.internal', '.lan', '.home', '.arpa', '.corp', '.intranet')
+WILDCARD_DNS = ('nip.io', 'sslip.io', 'xip.io', 'nip.direct', 'localtest.me', 'lvh.me', 'vcap.me', 'traefik.me', 'local.gd', 'localhost.direct', 'lacolhost.com', '1u.ms', 'rbndr.us', 'lock.cmpxchg8b.com', 'rebind.network', 'rebind.it')
 
 def _is_private_host(host: str) -> bool:
  host = host.rstrip('.')
@@ -62,6 +66,13 @@ def _is_private_host(host: str) -> bool:
   return True
  if host.endswith(PRIVATE_SUFFIXES):
   return True
+ if any((host == w or host.endswith('.' + w) for w in WILDCARD_DNS)):
+  return True
+ if not all((c in DIGITS for c in labels[-1])):
+  if any((all((c in DIGITS for c in lab)) for lab in labels[:-1])):
+   return True
+  if any((lab.count('-') >= 3 and all((c in DIGITS or c == '-' for c in lab)) for lab in labels)):
+   return True
  if labels[-1] != '' and all((c in DIGITS for c in labels[-1])):
   if len(labels) != 4 or not all((lab != '' and all((c in DIGITS for c in lab)) and (str(int(lab)) == lab) and (int(lab) <= 255) for lab in labels)):
    return True
@@ -78,8 +89,8 @@ def _is_private_host(host: str) -> bool:
 def _url_problem(url: str) -> str:
  if len(url) == 0 or len(url) > MAX_URL_LEN:
   return f'url must be 1 to {MAX_URL_LEN} characters'
- if not (url.startswith('https://') or url.startswith('http://')):
-  return 'url must start with http:// or https://'
+ if not url.startswith('https://'):
+  return 'url must start with https://'
  if any((c.isspace() or ord(c) < 32 for c in url)):
   return 'url must not contain spaces'
  if '\\' in url:
@@ -216,11 +227,15 @@ def _signed(value, currency: str, mult: int=1) -> tuple | None:
  if value is None or isinstance(value, bool) or isinstance(value, float):
   return None
  s = str(value)
- s = _strip_code(s.replace('−', '-'), currency)
+ for d in MINUS_GLYPHS:
+  s = s.replace(d, '-')
+ s = _strip_code(s.strip(), currency)
  neg = False
  if s.startswith('(') and s.endswith(')'):
   neg, s = (True, _strip_code(s[1:-1], currency))
  elif s.startswith('-'):
+  if s[1:2] == ' ':
+   return None
   neg, s = (True, _strip_code(s[1:], currency))
  s = _strip_scale_word(s, mult)
  if s is None:
@@ -265,7 +280,12 @@ def _clean_page(text) -> str:
   text = bytes(text).decode('utf-8', errors='replace')
  text = str(text or '')
  text = text.replace(PAGE_BEGIN, ' ').replace(PAGE_END, ' ').replace('=====', ' ')
- return text[:PAGE_CHARS]
+ if len(text) > PAGE_CHARS:
+  text = text[:PAGE_CHARS]
+  text = text[:text.rindex('\n')] if '\n' in text else ''
+  while text and (text[-1] in DIGITS or text[-1] in ".,'"):
+   text = text[:-1]
+ return text
 
 def _yes(v) -> bool:
  return str(v).strip().lower() in ('yes', 'true', '1')
@@ -278,7 +298,11 @@ def _name_words(v) -> str:
  return ' '.join(out.split())
 
 def _norm(v) -> str:
- s = str(v or '').replace('\xa0', ' ').replace('\u202f', ' ').replace('−', '-').replace('–', '-')
+ s = str(v or '').replace('\xa0', ' ').replace('\u202f', ' ')
+ for c in SUPERSCRIPTS:
+  s = s.replace(c, ' ')
+ for d in MINUS_GLYPHS:
+  s = s.replace(d, '-')
  return ' '.join(s.split()).lower()
 
 def _norm_label(v) -> str:
@@ -292,6 +316,8 @@ def _currency_matches(text, code: str) -> bool:
  own = CURRENCY_SYMBOLS.get(code, '')
  if any((sym in raw and sym != own for sym in SYMBOLS)):
   return False
+ if raw.strip() != '' and raw.strip() == UNIQUE_SYMBOLS.get(code):
+  return True
  toks, cur = ([], '')
  for ch in raw.upper():
   if 'A' <= ch <= 'Z':
@@ -314,9 +340,50 @@ def _currency_matches(text, code: str) -> bool:
    return False
  return True
 
+def _drop_note_refs(s: str) -> str:
+ out, i, n = ([], 0, len(s))
+ while i < n:
+  if s.startswith('note', i) and (i == 0 or not s[i - 1].isalnum()):
+   j = i + 4
+   if j < n and s[j] == 's':
+    j += 1
+   k = j
+   while k < n and s[k] == ' ':
+    k += 1
+   if j < n and (not s[j].isalnum()) and (k < n) and (s[k] in DIGITS):
+    while True:
+     g = k
+     while k < n and s[k] in DIGITS and (k - g < 3):
+      k += 1
+     if k < n and s[k] == '.' and (k + 1 < n) and (s[k + 1] in DIGITS):
+      k += 2
+      while k < n and s[k] in DIGITS:
+       k += 1
+     m = k
+     while m < n and s[m] == ' ':
+      m += 1
+     if m < n and s[m] in ',&-':
+      m += 1
+     elif s.startswith('and', m):
+      m += 3
+     else:
+      break
+     while m < n and s[m] == ' ':
+      m += 1
+     if m < n and s[m] in DIGITS:
+      k = m
+     else:
+      break
+    out.append(' ')
+    i = k
+    continue
+  out.append(s[i])
+  i += 1
+ return ''.join(out)
+
 def _decimal_comma_page(page: str) -> bool:
  runs, cur = ([], '')
- for ch in page + ' ':
+ for ch in _drop_note_refs(str(page or '').lower()) + ' ':
   if ch in DIGITS or (ch in '.,' and cur != ''):
    cur += ch
   else:
@@ -334,61 +401,561 @@ def _decimal_comma_page(page: str) -> bool:
   if len(parts) >= 3 and all((len(x) == 3 and all((c in DIGITS for c in x)) for x in parts[1:])):
    return True
  return False
+MONTHS = ('january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december')
+LINK_WORDS = ('was', 'were', 'is', 'are', 'of', 'at', 'to', 'in', 'for', 'the', 'quarter', 'period', 'rose', 'fell', 'grew', 'increased', 'decreased', 'declined', 'reached', 'amounted', 'totalled', 'totaled', 'stood', 'came', 'up', 'down', 'by', 'reported', 'remained', 'ended', 'closed')
+LTM_WORDS = ('ltm', 'ttm', 'last twelve months', 'trailing twelve months', 'last 12 months', 'trailing 12 months')
+CHANGE_WORDS = ('by', 'up', 'down', 'rose', 'fell', 'grew', 'increased', 'decreased', 'declined')
+LIST_MARKS = '|:;•·*#>'
+THOUSANDS_MARKS = ("'000", '’000', '£000', '€000', '$000', '¥000', '000s', "000's")
 
-def _number_edge_ok(page: str, start: int, end: int) -> bool:
- if start > 0 and page[start - 1] in DIGITS + '.,':
-  return False
- if end < len(page):
-  nxt = page[end]
-  if nxt in DIGITS:
-   return False
-  if nxt in '.,' and end + 1 < len(page) and (page[end + 1] in DIGITS):
-   return False
- return True
-
-def _anchored(page_n: str, label_n: str, value) -> bool:
- value_n = _norm(value)
- if label_n == '' or value_n == '' or (not any((c in DIGITS for c in value_n))):
-  return False
- i = page_n.find(label_n)
- while i >= 0:
-  lo = i + len(label_n)
-  window = page_n[lo:lo + ANCHOR_CHARS + len(value_n)]
-  j = window.find(value_n)
-  while j >= 0 and j <= ANCHOR_CHARS:
-   if _number_edge_ok(page_n, lo + j, lo + j + len(value_n)):
-    return True
-   j = window.find(value_n, j + 1)
-  i = page_n.find(label_n, i + 1)
- return False
-
-def _scale_tokens(text: str, code: str) -> list:
- s = _norm(text).replace('’', "'")
+def _page_lines(page) -> list:
  out = []
- if "'000" in s or '000s' in s:
-  out.append('thousands')
- cur = ''
- for ch in s + ' ':
-  if 'a' <= ch <= 'z':
-   cur += ch
-  else:
-   if cur:
-    low_code = code.lower()
-    if cur != low_code and cur.startswith(low_code):
-     cur = cur[len(low_code):]
-    out.append(cur)
-   cur = ''
+ for line in str(page or '').replace('\r', '\n').split('\n'):
+  for c in SUPERSCRIPTS:
+   line = line.replace(c, ' ')
+  out.append(_norm(line.replace('\t', ' | ')))
  return out
 
-def _scale_ok(page_n: str, scale_text, mult: int, code: str) -> bool:
- st = _norm(scale_text)
- if st == '' or st not in page_n:
+def _phrase_on_page(text_n: str, phrase_n: str) -> bool:
+ if phrase_n == '':
   return False
- toks = _scale_tokens(st, code)
- named = {m for m, words in SCALE_WORDS.items() if any((t in words for t in toks))}
+ i = text_n.find(phrase_n)
+ while i >= 0:
+  a, b = (i, i + len(phrase_n))
+  if (a == 0 or not text_n[a - 1].isalnum() or (not phrase_n[0].isalnum())) and (b == len(text_n) or not text_n[b].isalnum() or (not phrase_n[-1].isalnum())):
+   return True
+  i = text_n.find(phrase_n, i + 1)
+ return False
+
+def _bare_on_line(text_n: str, phrase_n: str) -> bool:
+ i = text_n.find(phrase_n) if phrase_n != '' else -1
+ while i >= 0:
+  a, b = (i, i + len(phrase_n))
+  if (a == 0 or not text_n[a - 1].isalnum() or (not phrase_n[0].isalnum())) and (b == len(text_n) or not text_n[b].isalpha()) and (b == len(text_n) or not text_n[b].isalnum() or (not phrase_n[-1].isalnum())):
+   return True
+  i = text_n.find(phrase_n, i + 1)
+ return False
+
+def _currency_words(code: str) -> tuple:
+ low = code.lower()
+ return (low, low + 'm', low + 'k', low + 'mn', low + 'mm', low + 'bn') + (('euro', 'euros') if code == 'EUR' else ())
+
+def _starts_phrase(line: str, a: int) -> bool:
+ lead = line[:a].rstrip()
+ if lead == '':
+  return True
+ if lead[-1] in LIST_MARKS:
+  return True
+ if lead[-1] == '-' and a > 0 and (line[a - 1] == ' ') and (len(lead) == 1 or lead[-2] == ' '):
+  return True
+ word = lead.split(' ')[-1]
+ if lead[-1] in '.)' and len(word) <= 4 and word[:-1].isalnum() and (len(lead) == len(word) or lead[-len(word) - 1] in ' |'):
+  return True
+ return False
+
+def _between_ok(text: str, code: str) -> bool:
+ s = text
+ own = CURRENCY_SYMBOLS.get(code, '')
+ if any((sym in s and sym != own for sym in SYMBOLS)):
+  return False
+ for m in THOUSANDS_MARKS:
+  s = s.replace(m, ' ')
+ s = _drop_note_refs(s)
+ for c in 'abcdefghijklmnopqrstuvwxyz':
+  s = s.replace(f'({c})', ' ')
+ toks = [t for t in s.replace(':', ' ').split() if t not in _currency_words(code) and t not in SYMBOLS]
+ if toks and toks[-1] in ('-', '|-', '-|', '…', '...', '..', '*', '.', '|*', '|.'):
+  return False
+ cur = set(_currency_words(code))
+ scale = {w for words in SCALE_WORDS.values() for w in words}
+ last = ''
+ i, n = (0, len(s))
+ while i < n:
+  ch = s[i]
+  if 'a' <= ch <= 'z':
+   j = i
+   while j < n and 'a' <= s[j] <= 'z':
+    j += 1
+   w = s[i:j]
+   if w not in LINK_WORDS and w not in cur and (w not in scale):
+    return False
+   if w in LINK_WORDS:
+    last = w
+   i = j
+  elif ch in DIGITS:
+   j = i
+   while j < n and (s[j] in DIGITS or (s[j] in '.,' and j + 1 < n and (s[j + 1] in DIGITS))):
+    j += 1
+   k = j
+   while k < n and s[k] == ' ':
+    k += 1
+   if k >= n or s[k] != '%':
+    return False
+   last = '%'
+   i = k + 1
+  elif ch.isalpha():
+   return False
+  else:
+   i += 1
+ return last not in CHANGE_WORDS
+BEFORE_OK = ' |:;*•·)]%='
+
+def _sign_across_currency(line: str, a: int, code: str) -> bool:
+ marks = sorted(set(_currency_words(code) + SYMBOLS + (CURRENCY_SYMBOLS.get(code, ''),)) - {''}, key=len, reverse=True)
+ k, crossed = (a, False)
+ while True:
+  while k > 0 and line[k - 1] == ' ':
+   k -= 1
+  for m in marks:
+   if line[:k].endswith(m) and (not m[0].isalnum() or k - len(m) == 0 or (not line[k - len(m) - 1].isalnum())):
+    k, crossed = (k - len(m), True)
+    break
+  else:
+   break
+ if k > 0 and (not line[k - 1].isalnum()) and (line[k - 1] not in BEFORE_OK):
+  return True
+ return crossed and k > 0 and (line[k - 1] in '(-')
+
+def _value_edges_ok(line: str, a: int, b: int, value_n: str, code: str='') -> bool:
+ before = line[a - 1] if a > 0 else ''
+ before2 = line[a - 2] if a > 1 else ''
+ after = line[b] if b < len(line) else ''
+ after2 = line[b + 1] if b + 1 < len(line) else ''
+ if before and (before.isalnum() or before in ".,'"):
+  return False
+ if before in ('(', '-') and (not value_n.startswith(('(', '-'))):
+  return False
+ if code and (not value_n.startswith(('(', '-'))) and _sign_across_currency(line, a, code):
+  return False
+ if before in ('/', ':') and before2 != '' and (before2 in DIGITS):
+  return False
+ if after and (after.isalnum() or after == '%'):
+  return False
+ if after in ('.', ',', "'", '-', '/', ':') and after2 != '' and (after2 in DIGITS):
+  return False
+ if after == ')' and (not value_n.endswith(')')):
+  return False
+ if after == '-' and (not value_n.endswith('-')):
+  return False
+ if after == ' ' and value_n[-1] in DIGITS and (',' not in value_n) and ('.' not in value_n) and line[b + 1:b + 4].isdigit() and (len(line[b + 1:b + 4]) == 3) and (b + 4 >= len(line) or line[b + 4] not in DIGITS):
+  return False
+ return True
+AFTER_CHANGE = ('higher', 'lower', 'more', 'less', 'above', 'below', 'ahead', 'behind', 'better', 'worse', 'short', 'greater', 'larger', 'smaller', 'bigger')
+CHANGE_NOUNS = ('up', 'down', 'increase', 'decrease', 'increased', 'decreased', 'rise', 'fall', 'growth', 'decline', 'improvement', 'gain', 'drop', 'change', 'yoy')
+VERSUS_WORDS = ('on', 'from', 'against', 'versus', 'vs', 'compared', 'over', 'than')
+SKIP_AFTER = ('or', 'a', 'an', 'of', 'by', 'year', 'yoy', 'the', 'prior', 'last', 'previous', 'period', 'quarter', 'years')
+
+def _is_pct(toks: list, k: int) -> int:
+ t = toks[k]
+ if t.endswith('%') and t[:1] in DIGITS:
+  return 1
+ if t[:1] in DIGITS and k + 1 < len(toks):
+  if toks[k + 1] in ('%', 'percent', 'pct'):
+   return 2
+  if toks[k + 1] == 'per' and toks[k + 2:k + 3] == ['cent']:
+   return 3
+ return 0
+MODIFIERS = ('year', 'on', 'over', 'quarter', 'like', 'for', 'yoy', 'qoq', 'annual', 'annualised', 'annualized', 'organic', 'sequential')
+
+def _is_year(t: str) -> bool:
+ return len(t) == 4 and t.isdigit() and (t[:2] in ('19', '20'))
+
+def _change_after(rest: str) -> bool:
+ stop = len(rest)
+ for m in ('. ', ';'):
+  i = rest.find(m)
+  if 0 <= i < stop:
+   stop = i
+ raw = rest[:stop].lower().replace(' - ', ' , ')
+ toks = []
+
+ def keep(i: int, ch: str) -> bool:
+  return ch == '.' and 0 < i < len(raw) - 1 and (raw[i - 1] in DIGITS) and (raw[i + 1] in DIGITS)
+ for ch_tok in ''.join((ch if ch.isalnum() or ch == '%' or keep(i, ch) else ' ' + ch + ' ' if ch in ',()' else ' ' for i, ch in enumerate(raw))).split():
+  toks.append(ch_tok)
+ scale = {w for words in SCALE_WORDS.values() for w in words} | set(OWN_SCALE_WORDS)
+ k = 0
+ if k < len(toks) and toks[k] in scale:
+  k += 1
+
+ def change_word(j: int) -> int:
+  while j < len(toks) and toks[j] in MODIFIERS:
+   j += 1
+  if j < len(toks) and (toks[j] in AFTER_CHANGE or toks[j] in CHANGE_NOUNS):
+   return j + 1
+  return -1
+ if change_word(k) >= 0:
+  return True
+ if k < len(toks) and toks[k] == '(':
+  while k < len(toks) and toks[k] != ')':
+   k += 1
+  k += 1
+  if change_word(k) >= 0:
+   return True
+ comma = k < len(toks) and toks[k] == ','
+ if comma:
+  k += 1
+ if k < len(toks) and toks[k] == 'or':
+  j = k + 1
+  n = _is_pct(toks, j) if j < len(toks) else 0
+  if n:
+   j += n
+   while j < len(toks) and toks[j] == ',':
+    j += 1
+   if change_word(j) >= 0:
+    return True
+  return False
+ if comma:
+  j = k + (1 if k < len(toks) and toks[k] in ('a', 'an') else 0)
+  if j < len(toks) and _is_pct(toks, j):
+   return False
+  e = change_word(j)
+  if e < 0:
+   return False
+  while e < len(toks) and toks[e] in ('of', 'by'):
+   e += 1
+  if e < len(toks) and (_is_pct(toks, e) or (toks[e][:1] in DIGITS and (not _is_year(toks[e])))):
+   return False
+  if e < len(toks) and toks[e] in VERSUS_WORDS:
+   j = e + 1
+   while j < len(toks) and j <= e + 4 and (toks[j][:1] not in DIGITS) and (toks[j] not in ('at', 'to', ',')):
+    j += 1
+   if j < len(toks) and toks[j][:1] in DIGITS and (not _is_pct(toks, j)) and (not _is_year(toks[j])):
+    return False
+  return True
+ return False
+
+def _anchored(lines: list, label_n: str, value, code: str) -> str | None:
+ a = _anchor_at(lines, label_n, value, code)
+ return a[0] if a else None
+
+def _anchor_at(lines: list, label_n: str, value, code: str):
+ value_n = _norm(value)
+ if label_n == '' or value_n == '' or (not any((c in DIGITS for c in value_n))):
+  return None
+ for line in lines:
+  i = line.find(label_n)
+  while i >= 0:
+   b = i + len(label_n)
+   if _starts_phrase(line, i) and (b == len(line) or not line[b].isalnum() or (not label_n[-1].isalnum())):
+    window = line[b:b + ANCHOR_CHARS + len(value_n)]
+    j = window.find(value_n)
+    while 0 <= j <= ANCHOR_CHARS:
+     btw = window[:j]
+     btw = btw[1:] if btw.startswith('*') else btw
+     if _value_edges_ok(line, b + j, b + j + len(value_n), value_n, code) and _between_ok(btw, code) and (not _change_after(line[b + j + len(value_n):])):
+      return (line, b + j)
+     j = window.find(value_n, j + 1)
+   i = line.find(label_n, i + 1)
+ return None
+
+def _scale_mentions(text: str, code: str) -> set:
+ s = _norm(text).replace('’', "'")
+ low = code.lower()
+ out = set()
+ for m in THOUSANDS_MARKS + (low + ' 000', low + '000'):
+  i = s.find(m)
+  while i >= 0:
+   prev = s[i - 1] if i > 0 else ' '
+   nxt = s[i + len(m)] if i + len(m) < len(s) else ' '
+   if prev not in DIGITS and prev not in '.,' and (nxt not in DIGITS):
+    out.add(10 ** 3)
+   i = s.find(m, i + 1)
+ i, n = (0, len(s))
+ while i < n:
+  if 'a' <= s[i] <= 'z':
+   j = i
+   while j < n and 'a' <= s[j] <= 'z':
+    j += 1
+   tok = s[i:j]
+   if tok in ('t' + low, 'k' + low):
+    out.add(10 ** 3)
+   if tok in ('m' + low, 'mio', 'mln'):
+    out.add(10 ** 6)
+   if tok in ('bln', 'mrd'):
+    out.add(10 ** 9)
+   if tok == 'tsd':
+    out.add(10 ** 3)
+   if tok != low and tok.startswith(low):
+    tok = tok[len(low):]
+   for mult, words in SCALE_WORDS.items():
+    if tok in words:
+     out.add(mult)
+   i = j
+  else:
+   i += 1
+ return out
+SINGLE_SCALES = ('m', 'k', 'mm', 'mn')
+MONEY_NOUNS = ('dollars', 'dollar', 'euros', 'euro', 'pounds', 'sterling', 'yen', 'francs', 'franc', 'kroner', 'kronor', 'krone', 'krona', 'rand', 'rupees', 'rupee', 'reais', 'real', 'pesos', 'peso', 'yuan', 'renminbi', 'won', 'zloty', 'forint', 'koruna', 'lei', 'dinars', 'dirhams', 'riyals', 'shekels', 'zlotys', 'forints', 'ringgit', 'baht', 'u', 'us', 'usd', 'eur', 'gbp')
+SUBUNIT_WORDS = ('cent', 'cents', 'pence', 'penny', 'ct', 'cts', 'eurocent', 'eurocents', 'cps', 'fils', 'halala', 'halalas', 'halalah', 'baisa', 'baisas', 'paise', 'paisa', 'kopeck', 'kopecks', 'kopek', 'kopeks', 'kopeyka', 'kopeyki', 'centime', 'centimes', 'groszy', 'grosz', 'satang', 'agorot', 'haleru', 'kurus')
+PROSE_BEFORE = ('a', 'an', 'one', 'over', 'several', 'many', 'hundreds', 'tens')
+OWN_SCALE_WORDS = {'tsd': 10 ** 3, 'mln': 10 ** 6, 'mio': 10 ** 6, 'mill': 10 ** 6, 'mil': 0, 'bln': 10 ** 9, 'mrd': 10 ** 9, 'b': 10 ** 9, 'trillion': 10 ** 12, 'trillions': 10 ** 12, 'tn': 10 ** 12, 'trn': 10 ** 12, 'lakh': 10 ** 5, 'lakhs': 10 ** 5, 'lac': 10 ** 5, 'lacs': 10 ** 5, 'crore': 10 ** 7, 'crores': 10 ** 7, 'cr': 10 ** 7}
+
+def _heading_scales(line: str, code: str) -> set:
+ s = _norm(line).replace('’', "'")
+ low = code.lower()
+ out = set()
+ sym = CURRENCY_SYMBOLS.get(code, '')
+ for m in THOUSANDS_MARKS + (low + ' 000', low + '000') + ((sym + ' 000',) if sym else ()):
+  i = s.find(m)
+  while i >= 0:
+   prev = s[i - 1] if i > 0 else ' '
+   nxt = s[i + len(m)] if i + len(m) < len(s) else ' '
+   if prev not in DIGITS and prev not in '.,' and (nxt not in DIGITS):
+    out.add(10 ** 3)
+   i = s.find(m, i + 1)
+ cw = _currency_words(code)
+ syms = [x for x in (CURRENCY_SYMBOLS.get(code, ''),) if x]
+ out |= _multiplier_heading(s, code)
+
+ def near_currency(a: int, b: int) -> bool:
+  if any((t in cw for t in _name_words(s[:a]).split()[-3:] + _name_words(s[b:]).split()[:3])):
+   return True
+  return any((x in s[max(0, a - 12):a] or x in s[b:b + 12] for x in syms))
+ i, n = (0, len(s))
+ while i < n:
+  if 'a' <= s[i] <= 'z' and (i == 0 or not s[i - 1].isalnum()):
+   j = i
+   while j < n and s[j].isalnum():
+    j += 1
+   tok = s[i:j]
+   glued = tok != low and tok.startswith(low)
+   if glued:
+    tok = tok[len(low):]
+   k = i - 1
+   while k >= 0 and s[k] == ' ':
+    k -= 1
+   attached = k >= 0 and s[k] in DIGITS
+   before = s[:i].rstrip()
+   prev_word = _name_words(before).split()[-1:]
+   nxt_words = _name_words(s[j:]).split()[:2]
+   nxt_words = _name_words(s[j:]).split()[:4]
+   of_noun = nxt_words[:1] == ['of'] and bool(nxt_words[1:2]) and (not any((w in _currency_words(code) + MONEY_NOUNS for w in nxt_words[1:4])))
+   plural_alone = tok in ('thousands', 'millions', 'billions') and (not of_noun)
+   if tok in ('t' + low, 'k' + low):
+    out.add(10 ** 3)
+   if tok in ('m' + low, 'mio'):
+    out.add(10 ** 6)
+   after_currency = glued or any((before.endswith(x) for x in syms)) or (before.endswith(low) and (len(before) == len(low) or not before[-len(low) - 1].isalnum()))
+   after_currency = after_currency or any((before.endswith(x + ' (') or before.endswith(x + '(') or before.endswith(x + "'") for x in syms + [low]))
+   rest_after = s[j:].lstrip()
+   before_currency = tok in SINGLE_SCALES and (not attached) and (any((rest_after.startswith(x) for x in syms)) or rest_after.split(' ', 1)[0].strip('.,;:)') == low)
+   area_or_class = prev_word in (['per'], ['sq'], ['square'], ['cubic'], ['class'], ['series'], ['tranche'])
+   if tok == 't' and s[j:j + 1] in syms and (not attached):
+    out.add(10 ** 3)
+   if tok == 'm' and s[j:j + 1] in syms and (not attached):
+    out.add(10 ** 6)
+   for mult, words in SCALE_WORDS.items():
+    if tok in words and (not attached):
+     if tok in SINGLE_SCALES:
+      if (after_currency or before_currency) and (not area_or_class):
+       out.add(mult)
+     elif near_currency(i, j) or (prev_word == ['in'] and (not of_noun)) or after_currency or plural_alone:
+      out.add(mult)
+   i = j
+  else:
+   i += 1
+ return out
+
+def _multiplier_heading(s: str, code: str) -> set:
+ out = set()
+ if '000 omitted' in s or '000s omitted' in s:
+  out.add(10 ** 3)
+ toks = s.replace('(', ' ').replace(')', ' ').replace('×', ' x ').split()
+ cw = _currency_words(code) + tuple((x for x in (CURRENCY_SYMBOLS.get(code, ''),) if x))
+ for k, t in enumerate(toks):
+  num = t.rstrip('.,;:')
+  if k + 1 < len(toks) and num in ('1', '1.000', '1,000', '1.000.000', '1,000,000') and (toks[k + 1].rstrip('.,;:') in ('000', '000.000')):
+   num = num + ' ' + toks[k + 1].rstrip('.,;:')
+  mult = {'1,000': 10 ** 3, '1.000': 10 ** 3, '1000': 10 ** 3, '1 000': 10 ** 3, '1,000,000': 10 ** 6, '1.000.000': 10 ** 6, '1000000': 10 ** 6, '1 000 000': 10 ** 6, '1 000.000': 10 ** 6}.get(num)
+  if mult is None:
+   continue
+  j = k - 1
+  while j >= 0 and toks[j] in cw:
+   j -= 1
+  after = toks[k + (2 if ' ' in num else 1):k + (3 if ' ' in num else 2)]
+  if j == k - 1 and after and after[0].rstrip('.,;:').isalpha() and (after[0].rstrip('.,;:') not in cw + MONEY_NOUNS):
+   continue
+  if j >= 0 and toks[j] in ('x', 'in'):
+   out.add(mult)
+ return out
+
+def _page_scales(lines: list, code: str) -> set:
+ out = set()
+ for line in lines:
+  out |= _heading_scales(line, code)
+ return out
+
+def _loose_scales(lines: list, code: str) -> set:
+ out = set()
+ for line in lines:
+  s = _norm(line).replace('’', "'")
+  out |= _heading_scales(s, code)
+  toks = ''.join((ch if ch.isalnum() else ' ' for ch in s)).split()
+  for k, t in enumerate(toks):
+   prev = toks[k - 1] if k > 0 else ''
+   if prev != '' and prev[-1] in DIGITS or t in SINGLE_SCALES or prev in PROSE_BEFORE:
+    continue
+   if toks[k + 1:k + 2] == ['of'] and (not any((w in _currency_words(code) + MONEY_NOUNS for w in toks[k + 2:k + 5]))):
+    continue
+   out |= _scale_mentions(t, code)
+   if t == 'mil':
+    out.add(0)
+  for m in THOUSANDS_MARKS:
+   if m in s:
+    out.add(10 ** 3)
+ return out
+
+def _own_scale(line: str, value, code: str, at=None) -> set:
+ v = _norm(value)
+ found = _scale_mentions(v, code)
+ k = line.find(v) if at is None else at
+ if k >= 0:
+  nxt = line[k + len(v):].lstrip().split(' ', 1)[0].strip('.,;:)')
+  if nxt:
+   found |= {m for m, words in SCALE_WORDS.items() if nxt in words}
+   if nxt in OWN_SCALE_WORDS:
+    found.add(OWN_SCALE_WORDS[nxt])
+ return found
+PER_WHAT = ('share', 'shares', 'unit', 'units', 'ads', 'adr', 'adrs', 'ordinary', 'stapled', 'security', 'securities', 'gdr', 'gdrs', 'depositary', 'depository')
+
+def _per_share_label(label_n: str) -> bool:
+ lw = _name_words(label_n).split()
+ if 'eps' in lw or 'dps' in lw or '/share' in label_n or ('/unit' in label_n):
+  return True
+ return any((w == 'per' and any((x in PER_WHAT for x in lw[k + 1:k + 6])) for k, w in enumerate(lw)))
+
+def _subunit(text: str) -> bool:
+ if '¢' in text or '(p)' in _norm(text):
+  return True
+ toks = _name_words(text).split()
+ return any((t in SUBUNIT_WORDS and (not (t in ('cent', 'cents') and k > 0 and (toks[k - 1] == 'per'))) for k, t in enumerate(toks)))
+
+def _rows_above(lines: list, line: str, n: int=3) -> list:
+ k = lines.index(line) if line in lines else 0
+ return lines[max(0, k - n):k]
+
+def _scale_ok(lines: list, line: str, scale_text, mult: int, code: str, value=None, per_share: bool=False, at=None) -> bool:
+ if _subunit(str(scale_text or '')) or _subunit(line) or any((_subunit(x) for x in _rows_above(lines, line))):
+  return False
+ own = _own_scale(line, value, code, at) if value is not None else set()
+ if per_share:
+  st = _norm(scale_text).strip('()[] ')
+  if st.startswith('in '):
+   st = st[3:].strip('()[] ')
+  cur = set(_currency_words(code)) | ({CURRENCY_SYMBOLS[code]} if CURRENCY_SYMBOLS.get(code) else set())
+  before = line[:at] if at is not None else line
+  words = ''.join((ch if ch.isalnum() else ' ' for ch in _norm(before))).split()
+  if _heading_scales(before, code) or any((_scale_mentions(w, code) for w in words if w not in SINGLE_SCALES)):
+   return False
+  return mult == 1 and (not own) and (st in cur) and _bare_on_line(line, st)
  if mult == 1:
-  return len(named) == 0
- return named == {mult}
+  return False
+ if own:
+  return own == {mult}
+ on_line = _heading_scales(line, code)
+ if on_line:
+  return on_line == {mult}
+ st = _norm(scale_text)
+ if st == '' or not any((_phrase_on_page(x, st) for x in lines)):
+  return False
+ named = _scale_mentions(st, code) | _heading_scales(st, code)
+ return named == {mult} and _page_scales(lines, code) == {mult} and (_loose_scales(lines, code) <= {mult})
+PRIOR_WORDS = ('prior', 'previous', 'comparative', 'last year', 'year ago', 'restated', 'preceding', 'compared', 'versus', 'vs')
+UTC_ZONES = ('utc', 'gmt')
+MONTH_ABBR = ('jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec')
+ORDINALS = {1: 'st', 2: 'nd', 3: 'rd', 21: 'st', 22: 'nd', 23: 'rd', 31: 'st'}
+
+def _has_word(text: str, words) -> bool:
+ w = f' {_name_words(text)} '
+ return any((f' {x} ' in w for x in words))
+
+def _date_forms(end_ts: int) -> tuple:
+ d = datetime.fromtimestamp(end_ts, timezone.utc)
+ stamps = (d.strftime('%Y-%m-%d %H:%M'), d.strftime('%Y-%m-%dt%H:%M'))
+ days = []
+ if end_ts % 86400 == 0:
+  last = datetime.fromtimestamp(end_ts - 1, timezone.utc)
+  y, dd = (last.year, last.day)
+  for m in (MONTHS[last.month - 1], MONTH_ABBR[last.month - 1]) + (('sept',) if last.month == 9 else ()):
+   for day in {str(dd), f'{dd:02d}', f"{dd}{ORDINALS.get(dd, 'th')}"}:
+    days += [f'{day} {m} {y}', f'{m} {day}, {y}', f'{m} {day} {y}', f'{day} {m}. {y}', f'{m}. {day}, {y}']
+  days.append(last.strftime('%Y-%m-%d'))
+  if dd > 12:
+   days += [f'{dd}.{last.month:02d}.{y}', f'{dd}/{last.month:02d}/{y}', f'{dd}.{last.month}.{y}', f'{dd}/{last.month}/{y}']
+ return (stamps, tuple(dict.fromkeys(days)))
+
+def _date_before(line: str, i: int) -> bool:
+ head = line[:i]
+ for k in range(len(head) - 9):
+  c = head[k:k + 10]
+  if c[4] == '-' and c[7] == '-' and c[:4].isdigit() and c[5:7].isdigit() and c[8:10].isdigit():
+   return True
+ toks = _name_words(head).split()
+ for k, t in enumerate(toks):
+  if t in MONTHS or t in MONTH_ABBR or t == 'sept':
+   near = toks[k - 1:k] + toks[k + 1:k + 2]
+   if any((x.isdigit() or (x[:-2].isdigit() and x[-2:] in ('st', 'nd', 'rd', 'th')) for x in near)):
+    return True
+ return False
+
+def _printed(line: str, forms, stamps) -> list:
+ out = []
+ for c in forms:
+  i = line.find(c)
+  while i >= 0:
+   ok = i == 0 or not line[i - 1].isalnum()
+   tail = line[i + len(c):]
+   if c in stamps:
+    if tail.startswith(':'):
+     ok = ok and tail.startswith(':00') and (not tail[3:4].isdigit())
+     tail = tail[3:]
+    if tail.startswith('z') and (not tail[1:2].isalnum()):
+     rest = tail[1:]
+    else:
+     if tail[:1].isalnum():
+      ok = False
+     t2 = tail.lstrip()
+     t2 = t2[1:] if t2.startswith('(') else t2
+     k = 0
+     while k < len(t2) and 'a' <= t2[k] <= 'z':
+      k += 1
+     if t2[:k] not in UTC_ZONES:
+      ok = False
+     rest = t2[k:]
+    r = rest.lstrip(' )')
+    if r[:1] in ('+', '-') and r[1:2].isdigit():
+     ok = False
+   elif tail[:1].isalnum():
+    ok = False
+   if ok:
+    out.append(i)
+   i = line.find(c, i + 1)
+ return out
+
+def _period_line(line: str) -> bool:
+ return _has_word(line, ('ended', 'months to', 'year to', 'quarter to', 'period to', 'weeks to', 'half year to'))
+
+def _period_on_page(lines: list, end_ts: int, later=()) -> bool:
+ stamps, days = _date_forms(end_ts)
+ for t in later:
+  ls, ld = _date_forms(t)
+  if any((_period_line(line) and (_printed(line, ls, ls) or any((_phrase_on_page(line, x) for x in ld))) for line in lines)):
+   return False
+ for line in lines:
+  for i in _printed(line, stamps + days, stamps):
+   if not _has_word(line[:i], PRIOR_WORDS) and (not _date_before(line, i)):
+    return True
+ return False
+UNIQUE_SYMBOLS = {'EUR': '€', 'GBP': '£'}
+
+def _currency_on_page(page_n: str, code: str) -> bool:
+ sym = UNIQUE_SYMBOLS.get(code, '')
+ if sym and sym in page_n:
+  return True
+ toks = ''.join((ch if 'a' <= ch <= 'z' else ' ' for ch in page_n)).split()
+ low = code.lower()
+ return any((t in (low, low + 'm', low + 'k', low + 'mn', low + 'mm', low + 'bn') for t in toks))
 COST_SIDE = ('cost', 'costs', 'expense', 'expenses', 'charge', 'charges', 'payable')
 INCOME_SIDE = ('income', 'incomes', 'credit', 'credits', 'benefit', 'benefits', 'gain', 'gains', 'receivable', 'revenue', 'revenues')
 FINANCE_WORDS = ('finance', 'financing', 'interest')
@@ -475,6 +1042,8 @@ def _figure_problem(f, seen: set) -> tuple:
  p = _text_problem(hint, f'figure {key}: label_hint', MAX_HINT_LEN)
  if p:
   return (p, None)
+ if any((not (c.isalnum() or c in HINT_CHARS) for c in hint)):
+  return (f"figure {key}: label_hint may use letters, digits, spaces and , . ( ) - / ' & % : only", None)
  labels = f.get('labels')
  if not isinstance(labels, list) or not 1 <= len(labels) <= MAX_LABELS:
   return (f'figure {key}: labels must be a list of 1 to {MAX_LABELS} line labels', None)
@@ -486,10 +1055,11 @@ def _figure_problem(f, seen: set) -> tuple:
   p = _text_problem(nl, f'figure {key}: a label', MAX_LABEL_LEN)
   if p:
    return (p, None)
-  if not any((c.isalpha() for c in nl)):
-   return (f'figure {key}: a label must contain letters', None)
+  if len(nl) < 3 or sum((1 for c in nl if c.isalpha())) < 2:
+   return (f'figure {key}: a label must be at least 3 characters with at least 2 letters', None)
   if nl not in clean:
    clean.append(nl)
+ clean.sort()
  ltm = f.get('ltm', False)
  if not isinstance(ltm, bool):
   return (f'figure {key}: ltm must be true or false', None)
@@ -505,8 +1075,14 @@ def _figure_problem(f, seen: set) -> tuple:
  sign = f.get('sign', 'as_printed')
  if sign not in SIGN_RULES:
   return (f'figure {key}: sign must be as_printed, magnitude or finance_cost', None)
+ looks = any((_per_share_label(lab) for lab in clean + [_norm_label(hint)]))
+ per_share = f.get('per_share', looks)
+ if not isinstance(per_share, bool):
+  return (f'figure {key}: per_share must be true or false', None)
+ if looks and (not per_share):
+  return (f"figure {key}: a label reads as per share ('per ... share', 'per unit', 'EPS', '/share'), so per_share must be true", None)
  seen.add(key)
- return ('', {'key': key, 'label_hint': hint, 'labels': clean, 'ltm': ltm, 'decimals': decimals, 'step': str(step), 'rounding': rounding, 'sign': sign})
+ return ('', {'key': key, 'label_hint': hint, 'labels': clean, 'ltm': ltm, 'decimals': decimals, 'step': str(step), 'rounding': rounding, 'sign': sign, 'per_share': per_share})
 
 def _spec_problem(raw: str, now: int) -> tuple:
  if not isinstance(raw, str) or len(raw) == 0 or len(raw) > MAX_SPEC_CHARS:
@@ -524,15 +1100,18 @@ def _spec_problem(raw: str, now: int) -> tuple:
  p = _text_problem(name, 'issuer_name', MAX_NAME_LEN)
  if p:
   return (p, None)
- if _name_words(name) == '':
-  return ('issuer_name must contain letters or digits', None)
- tpl = spec.get('url_template')
- if not isinstance(tpl, str):
-  return ('url_template is required', None)
- tpl = tpl.strip()
- p = _template_problem(tpl)
- if p:
-  return (p, None)
+ if sum((1 for c in name if c.isalpha())) < 3:
+  return ('issuer_name must contain at least 3 letters', None)
+ tpl, urls = (spec.get('url_template'), spec.get('page_urls'))
+ if (tpl is None) == (urls is None):
+  return ('give exactly one of url_template (with {n}) or page_urls (one URL per period)', None)
+ if tpl is not None:
+  if not isinstance(tpl, str):
+   return ('url_template must be text', None)
+  tpl = tpl.strip()
+  p = _template_problem(tpl)
+  if p:
+   return (p, None)
  cur = spec.get('currency')
  if not isinstance(cur, str) or cur.strip().upper() not in ISO_CODES:
   return ('currency must be one of the listed ISO codes (see get_rules)', None)
@@ -550,6 +1129,22 @@ def _spec_problem(raw: str, now: int) -> tuple:
   ends.append(ts)
  if ends[-1] > now + MAX_AHEAD_SECONDS:
   return ('the last period end must be within five years', None)
+ if urls is not None:
+  if not isinstance(urls, list) or len(urls) != len(ends) or any((not isinstance(u, str) for u in urls)):
+   return ('page_urls must list one URL per period end', None)
+  urls = [u.strip() for u in urls]
+  for u in urls:
+   if len(u) > MAX_TEMPLATE_LEN:
+    return (f'each page URL must be at most {MAX_TEMPLATE_LEN} characters', None)
+   if '?' in u or '#' in u:
+    return ('page_urls must not contain ? or #', None)
+   p = _url_problem(u)
+   if p:
+    return ('page_urls: ' + p, None)
+   if '/' not in u.split('://', 1)[1]:
+    return ('page_urls: each URL must point to a page, not a bare host', None)
+  if len(set((u.lower() for u in urls))) != len(urls):
+   return ('page_urls must give each period its own page', None)
  lag = _int_field(spec.get('publish_lag_minutes', 0), 0, MAX_LAG_MINUTES)
  if lag is None:
   return (f'publish_lag_minutes must be a whole number from 0 to {MAX_LAG_MINUTES}', None)
@@ -565,7 +1160,11 @@ def _spec_problem(raw: str, now: int) -> tuple:
   if p:
    return (p, None)
   figs.append(cf)
- clean = {'issuer_name': name, 'url_template': tpl, 'currency': cur, 'period_ends': [_fmt(t) for t in ends], 'publish_lag_minutes': lag, 'read_window_minutes': win, 'figures': figs}
+ clean = {'issuer_name': name, 'currency': cur, 'period_ends': [_fmt(t) for t in ends], 'publish_lag_minutes': lag, 'read_window_minutes': win, 'figures': figs}
+ if tpl is not None:
+  clean['url_template'] = tpl
+ else:
+  clean['page_urls'] = urls
  return ('', clean)
 
 def _canonical(spec: dict) -> str:
@@ -584,28 +1183,32 @@ def _closes(spec: dict, n: int) -> int:
  return _opens(spec, n) + spec['read_window_minutes'] * 60
 
 def _page_url(spec: dict, n: int) -> str:
+ if 'page_urls' in spec:
+  return spec['page_urls'][n]
  return spec['url_template'].replace('{n}', str(n))
 
 def _interpret(spec: dict, n: int, ans: dict, page: str) -> dict:
  kind = str(ans.get('page_kind', '')).strip().lower()
  name = _name_words(spec['issuer_name'])
  on_page = _name_words(ans.get('issuer_name_on_page'))
- if kind not in ('periodic_report', 'not_published') or f' {name} ' not in f' {on_page} ':
+ page_n = _norm(page)
+ lines = _page_lines(page)
+ if kind not in ('periodic_report', 'not_published') or f' {name} ' not in f' {on_page} ' or f' {name} ' not in f' {_name_words(page)} ':
   return {'kind': 'NO_READING', 'reason': 'N1_WRONG_PAGE'}
  if kind == 'not_published':
   return {'kind': 'NOT_PUBLISHED'}
  if _yes(ans.get('marked_draft')):
   return {'kind': 'NO_READING', 'reason': 'N3_NOT_FINAL'}
- if not _period_matches(ans.get('period_end_on_page'), _ends(spec)[n]):
+ end = _ends(spec)[n]
+ if not _period_matches(ans.get('period_end_on_page'), end) or not _period_on_page(lines, end, _ends(spec)[n + 1:]):
   return {'kind': 'NO_READING', 'reason': 'N2_WRONG_PERIOD'}
- if not _currency_matches(ans.get('currency_on_page'), spec['currency']):
+ if not _currency_matches(ans.get('currency_on_page'), spec['currency']) or not _currency_on_page(page_n, spec['currency']):
   return {'kind': 'NO_READING', 'reason': 'N2_CURRENCY'}
  if str(ans.get('decimal_mark', '')).strip().lower() not in ('.', 'none'):
   return {'kind': 'NO_READING', 'reason': 'N2_FORMAT'}
  figs = ans.get('figures')
  if not isinstance(figs, dict):
   return {'kind': 'NO_READING', 'reason': 'N2_FIGURE_MISSING'}
- page_n = _norm(page)
  out = {}
  for fs in spec['figures']:
   key = fs['key']
@@ -619,12 +1222,17 @@ def _interpret(spec: dict, n: int, ans: dict, page: str) -> dict:
   label_n = _norm_label(f.get('line_label'))
   if label_n not in fs['labels']:
    return {'kind': 'NO_READING', 'reason': 'N2_LABEL'}
-  if not _anchored(page_n, label_n, f.get('value')):
+  value = ''.join((c for c in str(f.get('value')) if c not in SUPERSCRIPTS))
+  anchor = _anchor_at(lines, label_n, value, spec['currency'])
+  if anchor is None:
    return {'kind': 'NO_READING', 'reason': 'N2_NOT_ANCHORED'}
+  line, at = anchor
+  if fs['ltm'] and (not any((_phrase_on_page(line[:at], w) for w in LTM_WORDS))):
+   return {'kind': 'NO_READING', 'reason': 'N2_NOT_LTM'}
   mult = SCALES.get(str(f.get('scale', '')).strip().lower())
-  if mult is None or not _scale_ok(page_n, f.get('scale_text'), mult, spec['currency']):
+  if mult is None or not _scale_ok(lines, line, f.get('scale_text'), mult, spec['currency'], value, fs['per_share'] is True, at):
    return {'kind': 'NO_READING', 'reason': 'N2_UNITS_MISSING'}
-  ex = _to_exact(f.get('value'), mult, spec['currency'])
+  ex = _to_exact(value, mult, spec['currency'])
   if ex is None:
    return {'kind': 'NO_READING', 'reason': 'N2_FORMAT'}
   v, d = ex
@@ -697,7 +1305,10 @@ def _read(spec: dict, n: int) -> dict:
  return _interpret(spec, n, ans, page)
 
 def _new_period() -> dict:
- return {'official': None, 'attempts': [], 'attempt_count': 0}
+ return {'official': None, 'attempts': [], 'attempt_count': 0, 'finalized': False}
+
+def _official_hash(off: dict) -> str:
+ return hashlib.sha256(json.dumps(off, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
 def _status(spec: dict, p: dict, n: int, at: int, clock: int) -> str:
  off = p['official']
@@ -729,6 +1340,7 @@ class ReportReader(gl.contract.Contract):
  reports: TreeMap[str, Report]
  clocks: TreeMap[str, u256]
  periods: TreeMap[str, str]
+ final_clocks: TreeMap[str, u256]
  report_count: u256
  reading_count: u256
 
@@ -745,10 +1357,17 @@ class ReportReader(gl.contract.Contract):
   r = self.reports[report_id]
   return (r, json.loads(r.spec_json))
 
- def _advance(self, report_id: str) -> int:
-  now = max(int(self.clocks[report_id]), self._tx_time())
+ def _advance(self, report_id: str, spec: dict) -> int:
+  old = int(self.clocks[report_id])
+  now = max(old, self._tx_time())
   self.clocks[report_id] = u256(now)
+  if any((old < _closes(spec, n) <= now and self._period(report_id, n)['official'] is None for n in range(len(spec['period_ends'])))):
+   gl.contract.get_at(gl.message.contract_address).emit(on='finalized').confirm_clock(report_id, now)
   return now
+
+ def _only_self(self) -> None:
+  if gl.message.sender_address != gl.message.contract_address:
+   raise gl.vm.UserError("only this contract can confirm finality: the network delivers the message once the reading's transaction is finalized")
 
  def _period(self, report_id: str, n: int) -> dict:
   k = f'{report_id}:{n}'
@@ -775,7 +1394,7 @@ class ReportReader(gl.contract.Contract):
  def read(self, report_id: str, period: int) -> dict:
   r, spec = self._report(report_id)
   n = self._period_n(spec, period)
-  now = self._advance(report_id)
+  now = self._advance(report_id, spec)
   p = self._period(report_id, n)
   if now < _opens(spec, n):
    raise gl.vm.UserError(f"period {n}'s reading window opens at {_fmt(_opens(spec, n))} UTC")
@@ -806,15 +1425,57 @@ class ReportReader(gl.contract.Contract):
   if outcome['kind'] == 'READ':
    p['official'] = {'at': now, 'by': by, 'url': _page_url(spec, n), 'attempt': p['attempt_count'], 'figures': outcome['figures']}
    result['figures'] = _figures_view(spec, outcome['figures'])
+   gl.contract.get_at(gl.message.contract_address).emit(on='finalized').confirm_read(report_id, n, _official_hash(p['official']))
   self.periods[f'{report_id}:{n}'] = json.dumps(p, sort_keys=True)
   return result
 
  @gl.public.write
  def tick(self, report_id: str) -> dict:
   r, spec = self._report(report_id)
-  now = self._advance(report_id)
+  now = self._advance(report_id, spec)
   missing = [n for n in range(len(spec['period_ends'])) if now >= _closes(spec, n) and self._period(report_id, n)['official'] is None]
   return {'ok': True, 'report_id': report_id, 'clock': now, 'missing': missing}
+
+ @gl.public.write
+ def confirm_read(self, report_id: str, period: int, reading_hash: str) -> dict:
+  self._only_self()
+  r, spec = self._report(report_id)
+  n = self._period_n(spec, period)
+  p = self._period(report_id, n)
+  ok = p['official'] is not None and _official_hash(p['official']) == reading_hash
+  if ok:
+   p['finalized'] = True
+   self.periods[f'{report_id}:{n}'] = json.dumps(p, sort_keys=True)
+  return {'ok': ok, 'report_id': report_id, 'period': n}
+
+ @gl.public.write
+ def confirm_clock(self, report_id: str, clock: int) -> dict:
+  self._only_self()
+  self._report(report_id)
+  if isinstance(clock, bool) or not isinstance(clock, int):
+   raise gl.vm.UserError('clock must be a whole number')
+  if clock > int(self.final_clocks.get(report_id) or 0):
+   self.final_clocks[report_id] = u256(clock)
+  return {'ok': True, 'report_id': report_id, 'final_clock': int(self.final_clocks.get(report_id) or 0)}
+
+ @gl.public.write
+ def remark(self, report_id: str, period: int) -> dict:
+  r, spec = self._report(report_id)
+  n = self._period_n(spec, period)
+  p = self._period(report_id, n)
+  clock = int(self.clocks[report_id])
+  me = gl.contract.get_at(gl.message.contract_address)
+  if p['official'] is not None:
+   if p.get('finalized') is True:
+    return {'ok': True, 'report_id': report_id, 'period': n, 'posted': '', 'note': 'already marked finalized'}
+   me.emit(on='finalized').confirm_read(report_id, n, _official_hash(p['official']))
+   return {'ok': True, 'report_id': report_id, 'period': n, 'posted': 'confirm_read'}
+  if clock >= _closes(spec, n):
+   if int(self.final_clocks.get(report_id) or 0) >= _closes(spec, n):
+    return {'ok': True, 'report_id': report_id, 'period': n, 'posted': '', 'note': 'already marked finalized'}
+   me.emit(on='finalized').confirm_clock(report_id, clock)
+   return {'ok': True, 'report_id': report_id, 'period': n, 'posted': 'confirm_clock'}
+  raise gl.vm.UserError(f'period {n} has no final answer yet: read it in its window, or send tick after the close')
 
  @gl.public.view
  def get_rules(self) -> dict:
@@ -840,10 +1501,11 @@ class ReportReader(gl.contract.Contract):
    raise gl.vm.UserError('at must be a unix time in seconds')
   p = self._period(report_id, n)
   st = _status(spec, p, n, at, int(self.clocks[report_id]))
-  out = {'report_id': report_id, 'digest': r.digest, 'period': n, 'status': st, 'final': st in ('READ', 'MISSING'), 'end': spec['period_ends'][n], 'opens': _fmt(_opens(spec, n)), 'closes': _fmt(_closes(spec, n)), 'attempts': p['attempt_count']}
+  out = {'report_id': report_id, 'digest': r.digest, 'period': n, 'status': st, 'final': st in ('READ', 'MISSING'), 'end': spec['period_ends'][n], 'end_ts': _ends(spec)[n], 'opens': _fmt(_opens(spec, n)), 'closes': _fmt(_closes(spec, n)), 'attempts': p['attempt_count'], 'has_official': p['official'] is not None, 'clock': int(self.clocks[report_id]), 'final_clock': int(self.final_clocks.get(report_id) or 0)}
+  out['finalized'] = st == 'READ' and p.get('finalized') is True or (st == 'MISSING' and out['final_clock'] >= _closes(spec, n))
   if st == 'READ':
    off = p['official']
-   out.update({'read_at': off['at'], 'read_by': off['by'], 'url': off['url'], 'attempt': off['attempt'], 'figures': _figures_view(spec, off['figures']), 'units': {f['key']: {'decimals': f['decimals'], 'step': f['step'], 'rounding': f['rounding'], 'sign': f['sign']} for f in spec['figures']}})
+   out.update({'read_at': off['at'], 'read_by': off['by'], 'url': off['url'], 'attempt': off['attempt'], 'figures': _figures_view(spec, off['figures']), 'units': {f['key']: {'decimals': f['decimals'], 'step': f['step'], 'rounding': f['rounding'], 'sign': f['sign'], 'per_share': f.get('per_share') is True} for f in spec['figures']}})
   return out
 
  @gl.public.view
