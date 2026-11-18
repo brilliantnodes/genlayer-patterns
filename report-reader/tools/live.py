@@ -275,13 +275,15 @@ def step(case, role, addr, fn, fargs, value=0, expect=None, **kw):
 def reports():
     t = lambda m: datetime.fromtimestamp(E0 + m * 60, timezone.utc).strftime("%Y-%m-%d %H:%M")
     base_figs = [
-        {"key": "revenue", "label_hint": "Revenue for the quarter", "labels": ["Revenue"], "ltm": False, "decimals": 0, "step": 1000, "rounding": "down", "sign": "as_printed"},
-        {"key": "ltm_ebitda", "label_hint": "EBITDA for the last twelve months", "labels": ["EBITDA (last twelve months)", "LTM EBITDA"], "ltm": True, "decimals": 0, "step": 1000, "rounding": "down", "sign": "as_printed"},
-        {"key": "net_finance_costs", "label_hint": "Net finance costs (net interest expense)", "labels": ["Net finance costs"], "ltm": False, "decimals": 0, "step": 1000, "rounding": "up", "sign": "finance_cost"},
-        {"key": "total_debt", "label_hint": "Total borrowings", "labels": ["Total borrowings"], "ltm": False, "decimals": 0, "step": 1000, "rounding": "up", "sign": "magnitude"},
+        {"key": "revenue", "label_hint": "Revenue for the quarter", "labels": ["Revenue"], "ltm": False, "decimals": 0, "step": 1000, "rounding": "down", "sign": "as_printed", "per_share": False},
+        {"key": "ltm_ebitda", "label_hint": "EBITDA for the last twelve months", "labels": ["EBITDA (last twelve months)", "LTM EBITDA"], "ltm": True, "decimals": 0, "step": 1000, "rounding": "down", "sign": "as_printed", "per_share": False},
+        {"key": "net_finance_costs", "label_hint": "Net finance costs (net interest expense)", "labels": ["Net finance costs"], "ltm": False, "decimals": 0, "step": 1000, "rounding": "up", "sign": "finance_cost", "per_share": False},
+        {"key": "total_debt", "label_hint": "Total borrowings", "labels": ["Total borrowings"], "ltm": False, "decimals": 0, "step": 1000, "rounding": "up", "sign": "magnitude", "per_share": False},
     ]
+    eps = {"key": "basic_eps", "label_hint": "Basic earnings per share", "labels": ["Basic earnings per share (EUR)", "Basic earnings per share"], "ltm": False,
+           "decimals": 2, "step": 1, "rounding": "down", "sign": "as_printed", "per_share": True}
     out = {"tarnwick": {"issuer_name": "Tarnwick Harbour Holdings plc", "url_template": url_t("tarnwick"), "currency": "EUR",
-                        "period_ends": [t(0), t(15), t(30)], "publish_lag_minutes": LAG, "read_window_minutes": WIN, "figures": base_figs}}
+                        "period_ends": [t(0), t(15), t(30)], "publish_lag_minutes": LAG, "read_window_minutes": WIN, "figures": base_figs + [eps]}}
     for slug in ("ostravelle-draft", "ostravelle-adjusted", "ostravelle-comma", "ostravelle-injection", "ostravelle-old"):
         out[slug] = {"issuer_name": "Ostravelle Fibre SA", "url_template": url_t(slug), "currency": "EUR", "period_ends": [t(0)],
                      "publish_lag_minutes": LAG, "read_window_minutes": WIN, "figures": base_figs}

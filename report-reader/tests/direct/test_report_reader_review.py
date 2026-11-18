@@ -12,7 +12,7 @@ import re
 
 import pytest
 
-from tests.direct.test_report_reader import env, mod, iso, END0, register as reg_default, read as read_default, answer as answer_default  # noqa: F401
+from tests.direct.test_report_reader import env, mod, iso, END0, stated, register as reg_default, read as read_default, answer as answer_default  # noqa: F401
 
 E0 = 1794989700  # 2026-11-18 08:15 UTC
 OPEN = E0 + 5 * 60
@@ -54,7 +54,7 @@ HIGHLIGHTS = (f"{TAR}\nQuarterly highlights\nHighlights for the quarter ended 20
 
 def live_spec(issuer=TAR, figs=None, currency="EUR", end="2026-11-18 08:15"):
     return {"issuer_name": issuer, "url_template": f"{SITE}/x/q-{{n}}.html", "currency": currency,
-            "period_ends": [end], "publish_lag_minutes": 5, "read_window_minutes": 30, "figures": figs or BASE_FIGS}
+            "period_ends": [end], "publish_lag_minutes": 5, "read_window_minutes": 30, "figures": stated(figs or BASE_FIGS)}
 
 
 def fig(value, label, scale="thousands", scale_text="EUR thousands", ltm="no"):

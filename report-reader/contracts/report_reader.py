@@ -423,9 +423,7 @@ def _clean_page(text) -> str:
     text = text.replace(PAGE_BEGIN, " ").replace(PAGE_END, " ").replace("=====", " ")
     if len(text) > PAGE_CHARS:
         text = text[:PAGE_CHARS]
-        text = text[:text.rindex("\n")] if "\n" in text else ""  # never split a line: a number keeps its scale word
-        while text and (text[-1] in DIGITS or text[-1] in ".,'"):
-            text = text[:-1]  # a number cut in two would read as a smaller one
+        text = text[:text.rindex("\n")] if "\n" in text else ""  # never split a line: no number is cut in two or loses its scale word
     return text
 
 
@@ -474,6 +472,9 @@ def _currency_matches(text, code: str) -> bool:
         return False
     if raw.strip() != "" and raw.strip() == UNIQUE_SYMBOLS.get(code):
         return True
+    uniq = UNIQUE_SYMBOLS.get(code, "")
+    if uniq and raw.strip().startswith(uniq) and raw.strip()[len(uniq):].strip(" '\u2019").lower() in SIGN_SCALES:
+        return True  # '\u00a3m', '\u20ac000', "\u00a3'000": the sign with a scale
     toks, cur = [], ""
     for ch in raw.upper():
         if "A" <= ch <= "Z":
@@ -576,7 +577,7 @@ MONTHS = ("january", "february", "march", "april", "may", "june", "july", "augus
 # Words that may stand between a label and its value in a highlights line
 # ('Revenue for the quarter rose to EUR 16.2 million'). Anything else between
 # them ('Revenue per employee 120', 'Revenue from services 900') refuses.
-LINK_WORDS = ("was", "were", "is", "are", "of", "at", "to", "in", "for", "the", "quarter", "period", "rose", "fell", "grew",
+LINK_WORDS = ("was", "were", "is", "are", "of", "at", "to", "in", "for", "the", "quarter", "period", "year", "full", "half", "rose", "fell", "grew",
               "increased", "decreased", "declined", "reached", "amounted", "totalled", "totaled", "stood", "came", "up", "down",
               "by", "reported", "remained", "ended", "closed")
 LTM_WORDS = ("ltm", "ttm", "last twelve months", "trailing twelve months", "last 12 months", "trailing 12 months")
@@ -611,13 +612,15 @@ def _phrase_on_page(text_n: str, phrase_n: str) -> bool:
 
 
 def _bare_on_line(text_n: str, phrase_n: str) -> bool:
-    """_phrase_on_page, and no letter straight after the phrase even when it
-    is a symbol: '€' is not printed bare in '(€c)' (euro cents)."""
+    """_phrase_on_page, and no letter straight before or after the phrase even
+    when it is a symbol: '€' is not printed bare in '(€c)' or 'c€' (euro
+    cents), and '$' not in 'US$' (copy 'US$') or 'A$'."""
     i = text_n.find(phrase_n) if phrase_n != "" else -1
     while i >= 0:
         a, b = i, i + len(phrase_n)
         if (a == 0 or not text_n[a - 1].isalnum() or not phrase_n[0].isalnum()) and (b == len(text_n) or not text_n[b].isalpha()) \
-                and (b == len(text_n) or not text_n[b].isalnum() or not phrase_n[-1].isalnum()):
+                and (b == len(text_n) or not text_n[b].isalnum() or not phrase_n[-1].isalnum()) \
+                and (a == 0 or not text_n[a - 1].isalpha()):
             return True
         i = text_n.find(phrase_n, i + 1)
     return False
@@ -628,6 +631,19 @@ def _currency_words(code: str) -> tuple:
     return (low, low + "m", low + "k", low + "mn", low + "mm", low + "bn") + (("euro", "euros") if code == "EUR" else ())
 
 
+QUALIFIERS = ("adjusted", "adj", "underlying", "normalised", "normalized", "pro forma", "proforma", "non gaap", "non ifrs", "guidance",
+              "target", "forecast", "budget", "outlook", "estimate", "estimated", "est", "expected", "organic", "comparable", "recurring",
+              "core", "restated", "excluding", "excl", "constant currency", "like for like", "prior", "previous", "comparative",
+              "prior year", "previous year", "last year", "year ago", "prior period", "previous period", "prior quarter", "previous quarter")
+
+
+def _qualifier_before(lead: str) -> bool:
+    """The words just before a mark qualify the label after it: 'Adjusted:',
+    'Non-GAAP -', 'Pro forma |', 'Prior year:'."""
+    words = " " + _name_words(lead)
+    return any(words.endswith(" " + q) for q in QUALIFIERS)
+
+
 def _starts_phrase(line: str, a: int) -> bool:
     """A label at line[a:] starts its line, a table cell, a bullet or a
     numbered item ('1.', 'a)'), not the middle of a longer label
@@ -636,12 +652,13 @@ def _starts_phrase(line: str, a: int) -> bool:
     if lead == "":
         return True
     if lead[-1] in LIST_MARKS:
-        return True
+        return not _qualifier_before(lead[:-1])  # not 'Adjusted: EBITDA', 'Adjusted* EBITDA', 'Guidance | EBITDA'
     if lead[-1] == "-" and a > 0 and line[a - 1] == " " and (len(lead) == 1 or lead[-2] == " "):
-        return True  # a spaced dash: '- Revenue', 'Q3 - Revenue'
+        return not _qualifier_before(lead[:-1])  # a spaced dash: '- Revenue', 'Q3 - Revenue'; not 'Non-GAAP - EBITDA'
     word = lead.split(" ")[-1]
-    if lead[-1] in ".)" and len(word) <= 4 and word[:-1].isalnum() and (len(lead) == len(word) or lead[-len(word) - 1] in " |"):
-        return True  # a list number: '1.', 'iv.', 'a)'
+    number = word[:-1].isdigit() or (len(word) == 2 and word[0].isalpha()) or (word[:-1] != "" and all(c in "ivx" for c in word[:-1]))
+    if lead[-1] in ".)" and len(word) <= 4 and number and (len(lead) == len(word) or lead[:-len(word)].rstrip()[-1:] == "|"):
+        return True  # a list number that starts the line or cell: '1.', 'iv.', 'a)'; not 'Adj.', 'Est.', '(excl. IFRS 16)'
     return False
 
 
@@ -661,7 +678,7 @@ def _between_ok(text: str, code: str) -> bool:
     for c in "abcdefghijklmnopqrstuvwxyz":
         s = s.replace(f"({c})", " ")  # a footnote letter: 'Revenue (a)'
     toks = [t for t in s.replace(":", " ").split() if t not in _currency_words(code) and t not in SYMBOLS]
-    if toks and toks[-1] in ("-", "|-", "-|", "\u2026", "...", "..", "*", ".", "|*", "|."):
+    if toks and toks[-1] in ("-", "|-", "-|", "\u2026", "...", "..", "*", ".", "|*", "|.", "\u2022", "=", "(-)") or "".join(s.split()).endswith("(-)"):
         return False  # a dash just before the value: an empty cell, so the value is the next column's
     cur = set(_currency_words(code))
     scale = {w for words in SCALE_WORDS.values() for w in words}
@@ -1109,6 +1126,9 @@ def _own_scale(line: str, value, code: str, at=None) -> set:
     k = line.find(v) if at is None else at
     if k >= 0:
         nxt = line[k + len(v):].lstrip().split(" ", 1)[0].strip(".,;:)")
+        low = code.lower()
+        if nxt != low and nxt.startswith(low):
+            nxt = nxt[len(low):]  # '16.2 EURm', '1.2 USDbn'
         if nxt:
             found |= {m for m, words in SCALE_WORDS.items() if nxt in words}
             if nxt in OWN_SCALE_WORDS:
@@ -1117,7 +1137,8 @@ def _own_scale(line: str, value, code: str, at=None) -> set:
 
 
 PER_WHAT = ("share", "shares", "unit", "units", "ads", "adr", "adrs", "ordinary", "stapled", "security", "securities", "gdr", "gdrs",
-            "depositary", "depository")
+            "depositary", "depository", "stock")
+PER_SHARE_ABBR = ("eps", "dps", "navps", "bvps", "dpu", "navpu")
 
 
 def _per_share_label(label_n: str) -> bool:
@@ -1127,7 +1148,7 @@ def _per_share_label(label_n: str) -> bool:
     covenant'. Used at registration: such a figure must be declared per share,
     so no wording this list misses can make a per-share figure a total."""
     lw = _name_words(label_n).split()
-    if "eps" in lw or "dps" in lw or "/share" in label_n or "/unit" in label_n:
+    if any(x in lw for x in PER_SHARE_ABBR) or "/share" in label_n or "/unit" in label_n:
         return True
     return any(w == "per" and any(x in PER_WHAT for x in lw[k + 1:k + 6]) for k, w in enumerate(lw))
 
@@ -1146,7 +1167,7 @@ def _rows_above(lines: list, line: str, n: int = 3) -> list:
     return lines[max(0, k - n):k]
 
 
-def _scale_ok(lines: list, line: str, scale_text, mult: int, code: str, value=None, per_share: bool = False, at=None) -> bool:
+def _scale_ok(lines: list, line: str, scale_text, mult: int, code: str, value=None, per_share: bool = False, at=None, label_n: str = "") -> bool:
     """The scale is tied to the figure:
       - the value's own scale word decides ('EUR 16.2 million');
       - else a heading-type scale on the figure's own line decides ('Total
@@ -1169,8 +1190,12 @@ def _scale_ok(lines: list, line: str, scale_text, mult: int, code: str, value=No
         st = _norm(scale_text).strip("()[] ")
         if st.startswith("in "):
             st = st[3:].strip("()[] ")  # '(in EUR)'
-        cur = set(_currency_words(code)) | ({CURRENCY_SYMBOLS[code]} if CURRENCY_SYMBOLS.get(code) else set())
+        cur = {code.lower()} | ({CURRENCY_SYMBOLS[code]} if CURRENCY_SYMBOLS.get(code) else set())
+        cur |= {"euro", "euros"} if code == "EUR" else set()
+        cur |= {"us$"} if code == "USD" else set()
         before = line[:at] if at is not None else line
+        if label_n and before.rfind(label_n) >= 0:
+            before = before[before.rfind(label_n):]  # from the label on: 'Net profit EUR 16.2 million; Diluted EPS EUR 1.23'
         words = "".join(ch if ch.isalnum() else " " for ch in _norm(before)).split()
         if _heading_scales(before, code) or any(_scale_mentions(w, code) for w in words if w not in SINGLE_SCALES):
             return False  # 'Average revenue per unit (EUR thousands) 1,250': a scale before the value ('Class M' is not one)
@@ -1304,6 +1329,7 @@ def _period_on_page(lines: list, end_ts: int, later=()) -> bool:
 
 
 UNIQUE_SYMBOLS = {"EUR": "\u20ac", "GBP": "\u00a3"}
+SIGN_SCALES = ("m", "k", "mn", "mm", "bn", "000", "000s", "million", "millions", "thousand", "thousands", "billion", "billions")
 
 
 def _currency_on_page(page_n: str, code: str) -> bool:
@@ -1463,11 +1489,13 @@ def _figure_problem(f, seen: set) -> tuple:
     if sign not in SIGN_RULES:
         return f"figure {key}: sign must be as_printed, magnitude or finance_cost", None
     looks = any(_per_share_label(lab) for lab in clean + [_norm_label(hint)])
-    per_share = f.get("per_share", looks)
+    per_share = f.get("per_share")
     if not isinstance(per_share, bool):
-        return f"figure {key}: per_share must be true or false", None
+        return f"figure {key}: per_share must be true (an amount per share or unit) or false (a total); it has no default", None
     if looks and not per_share:
-        return f"figure {key}: a label reads as per share ('per ... share', 'per unit', 'EPS', '/share'), so per_share must be true", None
+        return f"figure {key}: a label or the hint reads as per share ('per ... share', 'per unit', 'EPS', '/share'), so per_share must be true", None
+    if per_share and not looks:
+        return f"figure {key}: per_share is true, so a label or the label_hint must say so ('Net asset value per share, Class A')", None
     seen.add(key)
     return "", {"key": key, "label_hint": hint, "labels": clean, "ltm": ltm, "decimals": decimals, "step": str(step), "rounding": rounding, "sign": sign,
                 "per_share": per_share}
@@ -1560,7 +1588,7 @@ def _spec_problem(raw: str, now: int) -> tuple:
         "figures": figs,
     }
     if tpl is not None:
-        clean["url_template"] = tpl  # the canonical form keeps only the field given, so v1 digests are unchanged
+        clean["url_template"] = tpl  # the canonical form keeps only the field given
     else:
         clean["page_urls"] = urls
     return "", clean
@@ -1595,7 +1623,7 @@ def _page_url(spec: dict, n: int) -> str:
 # ------------------------------------------------------- reading (pure)
 
 
-def _interpret(spec: dict, n: int, ans: dict, page: str) -> dict:
+def _interpret(spec: dict, n: int, ans: dict, page: str, marks=None) -> dict:
     """The copied form to an outcome. Pure Python, no web, no model. Nothing
     that is stored is judged by the model: code checks everything against
     the frozen report and this validator's own copy of the page (the
@@ -1643,10 +1671,12 @@ def _interpret(spec: dict, n: int, ans: dict, page: str) -> dict:
         if anchor is None:
             return {"kind": "NO_READING", "reason": "N2_NOT_ANCHORED"}
         line, at = anchor
+        if _marked(line, marks):
+            return {"kind": "NO_READING", "reason": "N2_FORMAT"}  # a footnote mark glued to a word on this line: '48.01' may be 48.0 with note 1
         if fs["ltm"] and not any(_phrase_on_page(line[:at], w) for w in LTM_WORDS):
             return {"kind": "NO_READING", "reason": "N2_NOT_LTM"}  # the model's word alone is not enough
         mult = SCALES.get(str(f.get("scale", "")).strip().lower())
-        if mult is None or not _scale_ok(lines, line, f.get("scale_text"), mult, spec["currency"], value, fs["per_share"] is True, at):
+        if mult is None or not _scale_ok(lines, line, f.get("scale_text"), mult, spec["currency"], value, fs["per_share"] is True, at, label_n):
             return {"kind": "NO_READING", "reason": "N2_UNITS_MISSING"}
         ex = _to_exact(value, mult, spec["currency"])
         if ex is None:
@@ -1743,16 +1773,92 @@ Respond with JSON only:
 {{"page_kind": "...", "issuer_name_on_page": "...", "period_end_on_page": "...", "currency_on_page": "...", "marked_draft": "yes" | "no", "decimal_mark": "." | "," | "none", "figures": {{...}}}}"""
 
 
-def _fetch(url: str) -> str:
+INLINE_TAGS = ("a", "b", "i", "u", "em", "strong", "span", "font", "small", "mark", "abbr", "cite", "code", "q", "s", "sub", "sup", "label", "bdi",
+               "bdo", "data", "time", "var", "kbd", "samp", "big", "tt", "strike", "ins", "del", "nobr", "wbr")
+MAX_MARKS = 2000
+HTML_CHARS = 4_000_000
+
+
+def _html_text(s: str) -> str:
+    """HTML with its tags taken out the way Studio's text render does it: an
+    inline tag leaves nothing ('<b>bold</b>text' prints 'boldtext'), any
+    other tag a space."""
+    k, l = s.find(">"), s.find("<")
+    if k >= 0 and (l < 0 or k < l):
+        s = " " + s[k + 1:]  # the piece starts inside a tag
+    out = []
+    i, n = 0, len(s)
+    while i < n:
+        if s[i] == "<":
+            j = s.find(">", i)
+            if j < 0:
+                break
+            name = s[i + 1:j].strip().lstrip("/").replace("\n", " ").replace("\t", " ").split(" ")[0].rstrip("/").lower()
+            out.append("" if name in INLINE_TAGS else " ")
+            i = j + 1
+        else:
+            out.append(s[i])
+            i += 1
+    return "".join(out).replace("&nbsp;", " ").replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
+
+
+def _glued_marks(html) -> set:
+    """The tokens Studio's text render makes by gluing a footnote mark to the
+    word before it. Measured on Studio: '48.0<sup>1</sup>' prints '48.01',
+    'Revenue<sup>1</sup>' prints 'Revenue1', 'million<sup>3</sup>' prints
+    'million3'. Text cannot tell '48.01' from 48.0 with note 1, so the page's
+    HTML is read as well and every such token is listed; a figure whose line
+    holds one is refused. A mark after a space ('costs <sup>(a)</sup>') or a
+    Unicode superscript is not glued and is not listed. One pass over the
+    HTML (at most HTML_CHARS of it), at most MAX_MARKS marks."""
+    if isinstance(html, (bytes, bytearray)):
+        html = bytes(html).decode("utf-8", errors="replace")
+    s = str(html or "")[:HTML_CHARS]
+    low = s.lower()
+    out = set()
+    i = 0
+    while len(out) < MAX_MARKS:
+        a = low.find("<su", i)
+        if a < 0:
+            break
+        tag = low[a + 1:a + 4]
+        if tag not in ("sup", "sub") or low[a + 4:a + 5] not in (">", " ", "\n", "\t", "/"):
+            i = a + 3  # '<summary>', '<support>': another tag
+            continue
+        gt = low.find(">", a)
+        close = low.find("</" + tag, gt) if gt >= 0 else -1
+        if gt < 0 or close < 0:
+            break
+        i = close + 1
+        mark = "".join(_html_text(s[gt + 1:close]).split())
+        before = _html_text(s[max(0, a - 300):a])
+        if mark == "" or before == "" or before[-1].isspace():
+            continue
+        prev = before.split()[-1]
+        if _norm(prev + mark) != _norm(prev):
+            out.add(_norm(prev + mark))
+    return out
+
+
+def _marked(line: str, marks) -> bool:
+    """The line holds a token made of a word and a footnote mark."""
+    return bool(marks) and any(t in marks for t in line.split(" "))
+
+
+def _fetch(url: str) -> tuple:
+    """The page as text, and the footnote marks its HTML shows glued to a
+    word. If either rendering fails there is no page."""
     try:
-        return _clean_page(gl.nondet.web.render(url, mode="text", wait_after_loaded=RENDER_WAIT))
+        text = _clean_page(gl.nondet.web.render(url, mode="text", wait_after_loaded=RENDER_WAIT))
+        marks = _glued_marks(gl.nondet.web.render(url, mode="html", wait_after_loaded=RENDER_WAIT))
     except Exception:
-        return ""
+        return "", set()
+    return text, marks
 
 
 def _read(spec: dict, n: int) -> dict:
     """Runs inside a non-deterministic block on every node."""
-    page = _fetch(_page_url(spec, n))
+    page, marks = _fetch(_page_url(spec, n))
     if page.strip() == "":
         return {"kind": "NO_READING", "reason": "N1_PAGE_DARK"}
     if _decimal_comma_page(page):
@@ -1761,7 +1867,7 @@ def _read(spec: dict, n: int) -> dict:
         ans = _parse_llm_json(gl.nondet.exec_prompt(_prompt(spec, n, page)))
     except Exception:
         return {"kind": "NO_READING", "reason": "N2_FORMAT"}
-    return _interpret(spec, n, ans, page)
+    return _interpret(spec, n, ans, page, marks)
 
 
 # ------------------------------------------------------------ state views

@@ -1,0 +1,690 @@
+{
+ "record": "live-studio-s12.json",
+ "transactions": 35,
+ "all_match": true,
+ "rows": [
+  {
+   "case": "register tarnwick",
+   "fn": "register_report",
+   "tx": "0x819f3bc88499ffd7824ab6347fd70c0938cc37047b456ba0d147beedda6f5f5b",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "idle",
+    "0x240d2d7c8DF220110c26cfFFC532479319Cca0dC": "agree",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "agree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "register ostravelle-draft",
+   "fn": "register_report",
+   "tx": "0x12c21f150acfee84972c9a213b48afdac6a5a21bc42e3a9f3d2a432350032625",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "idle",
+    "0x4eeaD269a60bB89c98a23c1BCd0bd101CafD90E0": "agree",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "agree",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "register ostravelle-adjusted",
+   "fn": "register_report",
+   "tx": "0xe43adce09163f001b1d24a926f081fefaabd2482814509391bc694b8678aab58",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "agree",
+    "0x4eeaD269a60bB89c98a23c1BCd0bd101CafD90E0": "idle",
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "register ostravelle-comma",
+   "fn": "register_report",
+   "tx": "0x66b8682aa12b32f8c07f3106858bc3aaa514c3a0ab14061b05e8e2c9f1f072e7",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "idle",
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "agree",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "idle",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "register ostravelle-injection",
+   "fn": "register_report",
+   "tx": "0xe99d621a79e4d230f2842cfa4242bc89d3509a77a3ba9e2fd47afc6479517d10",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x21e4F7ba6Ec0fbf70C019fbc0F9A797c3ed1F969": "agree",
+    "0x4eeaD269a60bB89c98a23c1BCd0bd101CafD90E0": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "agree",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "idle"
+   },
+   "match": true
+  },
+  {
+   "case": "register ostravelle-old",
+   "fn": "register_report",
+   "tx": "0xc6c0abe36b1c3fec9f8933c0d26f3693f56d3f84082c11601a7535ebfc22d57f",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "idle",
+    "0x5744305308D62592B7De585e1999c4Ea51E03C29": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "agree",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "agree",
+    "0xee46B9Dc4c860149B1d140840284e5374854e746": "idle"
+   },
+   "match": true
+  },
+  {
+   "case": "read before the window opens (refused)",
+   "fn": "read",
+   "tx": "0x665ae938439a73c89dab39cf898a757cd30e62225ab700be7293df926267ad1c",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "ERROR",
+   "recorded_execution": "ERROR",
+   "votes": {
+    "0x21e4F7ba6Ec0fbf70C019fbc0F9A797c3ed1F969": "idle",
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "agree",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "idle",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "agree",
+    "0xee46B9Dc4c860149B1d140840284e5374854e746": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "offer 1: revenue, floor 10,000,000, target 20,000,000, missing share 50%",
+   "fn": "create",
+   "tx": "0x9a97ac16e9f9b565d2bf99013ff9518fe0995fd8ef18a93f7fb402599981de8c",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "agree",
+    "0x4eeaD269a60bB89c98a23c1BCd0bd101CafD90E0": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "idle",
+    "0xE74a9088aD4d6dBf3C8cABcC0B91072d2a8c8afa": "idle"
+   },
+   "match": true
+  },
+  {
+   "case": "accept of offer 1 by a stranger (refused)",
+   "fn": "accept",
+   "tx": "0xfd6591d26d3bbcbc7e550d13e1b8cffabb930d814cba5741b3403f18bae81190",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "ERROR",
+   "recorded_execution": "ERROR",
+   "votes": {
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "idle",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "seller accepts offer 1",
+   "fn": "accept",
+   "tx": "0xbf2a9c15af2d23aedc0fd46432c2bbdecbabadc2a1f786eb868344080cdbcc28",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "agree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "agree",
+    "0xE74a9088aD4d6dBf3C8cABcC0B91072d2a8c8afa": "idle"
+   },
+   "match": true
+  },
+  {
+   "case": "offer 2: LTM EBITDA of period 1, missing share 100% (the buyer runs the reporting)",
+   "fn": "create",
+   "tx": "0x399fc9370158d27f4471dac6d190c2472bdc3ea199d04f364ab792ac1ac2ba35",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "idle",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "agree",
+    "0xee46B9Dc4c860149B1d140840284e5374854e746": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "seller accepts offer 2",
+   "fn": "accept",
+   "tx": "0x12f04509abc2ad5ba75472a779f94e77fa9e1955a0574f4541e0072e87d8f322",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "idle",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree",
+    "0xee46B9Dc4c860149B1d140840284e5374854e746": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "offer 3: never accepted before the period end",
+   "fn": "create",
+   "tx": "0x1273f92006527564eefef1241f8d0d72dc9e3d4ccb6bcd0f50691c394c24e250",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "agree",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "idle",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "idle"
+   },
+   "match": true
+  },
+  {
+   "case": "offer 4: cancelled by the buyer",
+   "fn": "create",
+   "tx": "0xfad2b3c22952206c632c2a79ca47b25257cbb08da773f6f03a980973242039b2",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "idle",
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "idle",
+    "0xE74a9088aD4d6dBf3C8cABcC0B91072d2a8c8afa": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "buyer cancels offer 4",
+   "fn": "cancel",
+   "tx": "0x6b3e5ed4a040e992202b598716e688d5443ed1312c99515959515fb02da5cc62",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x240d2d7c8DF220110c26cfFFC532479319Cca0dC": "idle",
+    "0x4eeaD269a60bB89c98a23c1BCd0bd101CafD90E0": "idle",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "agree",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "offer refused: wrong digest (value credited back)",
+   "fn": "create",
+   "tx": "0xb2c2bf626da0527bfb56bbb7c8e9cefdff8f15daa7ff091418f231e3f072669e",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "idle",
+    "0x4eeaD269a60bB89c98a23c1BCd0bd101CafD90E0": "idle",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "Tarnwick period 0: table page",
+   "fn": "read",
+   "tx": "0x300e1910657d99dfe31ae920cc648bab56a48998552e3509c57b6d6e397864c4",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "idle",
+    "0x21e4F7ba6Ec0fbf70C019fbc0F9A797c3ed1F969": "idle",
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "agree",
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "settle earn-out 1 at once (refused unless the reading is already marked finalized)",
+   "fn": "settle",
+   "tx": "0x8799bbcd473091434e66b6a53a8888594f9f355ea263e86b6d9fd3deb82b1d70",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "ERROR",
+   "recorded_execution": "ERROR",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x4eeaD269a60bB89c98a23c1BCd0bd101CafD90E0": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "idle"
+   },
+   "match": true
+  },
+  {
+   "case": "ostravelle-draft period 0",
+   "fn": "read",
+   "tx": "0x35b858357310eaba3b565f668b62927fffff2902296745686107ed16f533d597",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x21e4F7ba6Ec0fbf70C019fbc0F9A797c3ed1F969": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "idle",
+    "0xee46B9Dc4c860149B1d140840284e5374854e746": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "ostravelle-adjusted period 0",
+   "fn": "read",
+   "tx": "0xef0600cb3878bad8c0a8647b513b51f0d265e4e08bda442e074a02166121d1c7",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "agree",
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "disagree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "disagree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "agree",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "ostravelle-comma period 0",
+   "fn": "read",
+   "tx": "0xdfd2719e68c0992ec8915ea1ef5804ee80ad40225879b267facc0e4cca509c15",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "agree",
+    "0x240d2d7c8DF220110c26cfFFC532479319Cca0dC": "agree",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "idle",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "idle"
+   },
+   "match": true
+  },
+  {
+   "case": "ostravelle-injection period 0",
+   "fn": "read",
+   "tx": "0x3ab08b98be9949192b3ebf0cbd3d1cd40562011bfaa27ac3a2b26a00ebbfa61a",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "idle",
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "agree",
+    "0x240d2d7c8DF220110c26cfFFC532479319Cca0dC": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "ostravelle-old period 0",
+   "fn": "read",
+   "tx": "0x731ed5532bf8e272781984b4c70df8bce43e07aba3261cae7e89dbf9c5f62816",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x5744305308D62592B7De585e1999c4Ea51E03C29": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "idle",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "idle",
+    "0xE74a9088aD4d6dBf3C8cABcC0B91072d2a8c8afa": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "Tarnwick period 0 read again (refused: one official reading)",
+   "fn": "read",
+   "tx": "0xa270d2a99bb035932fea514b84c117c8480ba1f82d40be22f0029220bff3561d",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "ERROR",
+   "recorded_execution": "ERROR",
+   "votes": {
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "agree",
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "agree",
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "agree",
+    "0xee46B9Dc4c860149B1d140840284e5374854e746": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "offer pinned after the period ended (refused, value credited back)",
+   "fn": "create",
+   "tx": "0xec4fa672bcaa1507cc50050ee8a532268cd756999dcccad24143a63780defc67",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "agree",
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "idle",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "seller accepts offer 3 after the period end (refused)",
+   "fn": "accept",
+   "tx": "0x12652447adcf950cbdd35317e9d9b20b0c42c2c772347b377f1f814537908366",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "ERROR",
+   "recorded_execution": "ERROR",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x21e4F7ba6Ec0fbf70C019fbc0F9A797c3ed1F969": "agree",
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "idle",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "settle earn-out 1 (reading marked finalized)",
+   "fn": "settle",
+   "tx": "0x9c14618ba398e5267fc751dd3aed2a1582a357233026f7e7337aab1366d79a96",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "agree",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "idle",
+    "0xE74a9088aD4d6dBf3C8cABcC0B91072d2a8c8afa": "idle"
+   },
+   "match": true
+  },
+  {
+   "case": "settle offer 3 (never accepted: back to the buyer)",
+   "fn": "settle",
+   "tx": "0xee937a8011a584accb43bf89a833d41a785c2e8cfad876cb7da81958f73f8d2d",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x21e4F7ba6Ec0fbf70C019fbc0F9A797c3ed1F969": "agree",
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "idle",
+    "0x5744305308D62592B7De585e1999c4Ea51E03C29": "idle",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "agree",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "Tarnwick period 1: not yet published",
+   "fn": "read",
+   "tx": "0x332a871ec3890bb49282e81f44716e6c10ad4eb30a1dc848be0ab7417acbd6cc",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "idle",
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "agree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "Tarnwick period 2: highlights page in millions",
+   "fn": "read",
+   "tx": "0x5ed5b63f3c65f918fd89c027f8016b0f4012bd4655f817c56f4561391c94d083",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "idle",
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "agree",
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "idle",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "ostravelle-draft read after its window closed",
+   "fn": "read",
+   "tx": "0x57bc41c488e60207f22635468469aafe83a0560ce54ffb13507dd6728877f615",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "agree",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "agree",
+    "0xE74a9088aD4d6dBf3C8cABcC0B91072d2a8c8afa": "idle",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "tick Tarnwick: period 1 settles as MISSING",
+   "fn": "tick",
+   "tx": "0xaa4d8ffdad86a5af31a3ac8aa02d1f52958583eb431c8460dc24bc533c9f77d9",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x21e4F7ba6Ec0fbf70C019fbc0F9A797c3ed1F969": "agree",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "idle"
+   },
+   "match": true
+  },
+  {
+   "case": "settle earn-out 2 (report missing: the pinned 100% to the seller)",
+   "fn": "settle",
+   "tx": "0x50fa5b7496eb56ff54f41c8e99977c3c958c30f4f828d59a9e083984b523fead",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "agree",
+    "0x240d2d7c8DF220110c26cfFFC532479319Cca0dC": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "idle",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "idle",
+    "0xee46B9Dc4c860149B1d140840284e5374854e746": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "withdraw (bob)",
+   "fn": "withdraw",
+   "tx": "0xad77b747e5629df791a216f9278e932daecd18b89f95fbc468b14db4be67a424",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "idle",
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "agree",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "idle",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "agree"
+   },
+   "match": true
+  },
+  {
+   "case": "withdraw (alice)",
+   "fn": "withdraw",
+   "tx": "0x3b950f186fbfea28ac0d85faf13b301b454974d6cc49202553fd81f91f50ec75",
+   "status": "FINALIZED",
+   "result": "MAJORITY_AGREE",
+   "execution": "SUCCESS",
+   "recorded_execution": "SUCCESS",
+   "votes": {
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "agree",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "agree",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "agree"
+   },
+   "match": true
+  }
+ ],
+ "reader_counts": {
+  "readings": 8,
+  "reports": 6
+ },
+ "consumer_totals": {
+  "credited": "0",
+  "deals": 4,
+  "locked": "0",
+  "reader": "0xd2f8B46D5A325eF6E81476063DD1520c9EDD2029"
+ },
+ "consumer_balance": "0",
+ "balance_reconciles": true,
+ "accounts": {
+  "alice": "89760000000000000000",
+  "bob": "110240000000000000000",
+  "carol": "100000000000000000000"
+ },
+ "readings": {
+  "1:0": {
+   "recorded": {
+    "basic_eps": "42",
+    "ltm_ebitda": "4180000",
+    "net_finance_costs": "2150000",
+    "revenue": "15240000",
+    "total_debt": "48000000"
+   },
+   "chain": {
+    "basic_eps": "42",
+    "ltm_ebitda": "4180000",
+    "net_finance_costs": "2150000",
+    "revenue": "15240000",
+    "total_debt": "48000000"
+   },
+   "status": "READ",
+   "finalized": true,
+   "match": true
+  },
+  "5:0": {
+   "recorded": {
+    "ltm_ebitda": "2240000",
+    "net_finance_costs": "910000",
+    "revenue": "8315000",
+    "total_debt": "21400000"
+   },
+   "chain": {
+    "ltm_ebitda": "2240000",
+    "net_finance_costs": "910000",
+    "revenue": "8315000",
+    "total_debt": "21400000"
+   },
+   "status": "READ",
+   "finalized": true,
+   "match": true
+  },
+  "1:2": {
+   "recorded": {
+    "basic_eps": "45",
+    "ltm_ebitda": "4450000",
+    "net_finance_costs": "2100000",
+    "revenue": "16200000",
+    "total_debt": "47500000"
+   },
+   "chain": {
+    "basic_eps": "45",
+    "ltm_ebitda": "4450000",
+    "net_finance_costs": "2100000",
+    "revenue": "16200000",
+    "total_debt": "47500000"
+   },
+   "status": "READ",
+   "finalized": true,
+   "match": true
+  }
+ },
+ "deals": {
+  "1": {
+   "state": "SETTLED",
+   "match": true
+  },
+  "3": {
+   "state": "EXPIRED",
+   "match": true
+  },
+  "2": {
+   "state": "SETTLED",
+   "match": true
+  }
+ }
+}

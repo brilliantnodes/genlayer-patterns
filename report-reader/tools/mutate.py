@@ -85,9 +85,9 @@ READER = [
     ("lines flattened", '        out.append(_norm(line.replace("\\t", " | ")))\n    return out', "        out.append(_norm(line.replace(\"\\t\", \" | \")))\n    return [\" \".join(out)]"),
     ("label may start mid-phrase", "if _starts_phrase(line, i) and", "if True and"),
     ("label may end mid-word", "(b == len(line) or not line[b].isalnum() or not label_n[-1].isalnum())", "True"),
-    ("any word before the label", 'if lead[-1] in LIST_MARKS:\n        return True', 'if True:\n        return True'),
+    ('any word before the label', "    if lead[-1] in LIST_MARKS:\n        return not _qualifier_before(lead[:-1])  # not 'Adjusted: EBITDA', 'Adjusted* EBITDA', 'Guidance | EBITDA'", "    if True:\n        return True  # not 'Adjusted: EBITDA', 'Adjusted* EBITDA', 'Guidance | EBITDA'"),
     ("unspaced dash starts a phrase", 'if lead[-1] == "-" and a > 0 and line[a - 1] == " " and (len(lead) == 1 or lead[-2] == " "):', 'if lead[-1] == "-":'),
-    ("any word ending in a dot is a list number", 'and len(word) <= 4 and word[:-1].isalnum()', ""),
+    ('any word ending in a dot is a list number', 'and len(word) <= 4 and number and', 'and len(word) <= 4 and word[:-1].isalnum() and'),
     ('anything between label and value', ' and _between_ok(btw, code) and', ' and'),
     ("other words between label and value", "if w not in LINK_WORDS and w not in cur and w not in scale:", "if False:"),
     ("other numbers between label and value", 'if k >= n or s[k] != "%":\n                return False', 'if False:\n                return False'),
@@ -95,7 +95,7 @@ READER = [
     ("note references not dropped in between", "    s = _drop_note_refs(s)\n    for c in", "    for c in"),
     ("footnote letters not dropped", '        s = s.replace(f"({c})", " ")', "        pass"),
     ("another currency's amount first", "        return False  # an amount in another currency stands first", "        pass  # an amount in another currency stands first"),
-    ('empty dash cell read as the next column', '    if toks and toks[-1] in ("-", "|-", "-|", "\\u2026", "...", "..", "*", ".", "|*", "|."):\n        return False', '    if False:\n        return False'),
+    ('empty dash cell read as the next column', '    if toks and toks[-1] in ("-", "|-", "-|", "\\u2026", "...", "..", "*", ".", "|*", "|.", "\\u2022", "=", "(-)") or "".join(s.split()).endswith("(-)"):\n        return False', '    if False:\n        return False'),
     ("a change read as the figure", "    return last not in CHANGE_WORDS  #", "    return True  #"),
     ("sign before the currency dropped", "    if code and not value_n.startswith((\"(\", \"-\")) and _sign_across_currency(line, a, code):\n        return False", "    pass"),
     ("spaced dash read as a minus", '        if s[1:2] == " ":\n            return None  # a spaced dash', '        if False:\n            return None  # a spaced dash'),
@@ -108,15 +108,15 @@ READER = [
     ("date part anchored", 'if before in ("/", ":") and before2 != "" and before2 in DIGITS:', "if False:"),
     ("value without digits anchored", " or not any(c in DIGITS for c in value_n)", ""),
     # scale
-    ('scale words not checked', 'if mult is None or not _scale_ok(lines, line, f.get("scale_text"), mult, spec["currency"], value, fs["per_share"] is True, at):', 'if mult is None:'),
-    ("the value's own scale ignored", 'f.get("scale_text"), mult, spec["currency"], value, fs["per_share"] is True, at)', 'f.get("scale_text"), mult, spec["currency"], None, fs["per_share"] is True, at)'),
+    ('scale words not checked', 'if mult is None or not _scale_ok(lines, line, f.get("scale_text"), mult, spec["currency"], value, fs["per_share"] is True, at, label_n):', 'if mult is None:'),
+    ("the value's own scale ignored", 'f.get("scale_text"), mult, spec["currency"], value, fs["per_share"] is True, at, label_n)', 'f.get("scale_text"), mult, spec["currency"], None, fs["per_share"] is True, at, label_n)'),
     ("the word after the value ignored", "            found |= {m for m, words in SCALE_WORDS.items() if nxt in words}", "            pass"),
-    ('per-share figures take the heading scale', 'spec["currency"], value, fs["per_share"] is True, at)', 'spec["currency"], value, False, at)'),
+    ('per-share figures take the heading scale', 'spec["currency"], value, fs["per_share"] is True, at, label_n)', 'spec["currency"], value, False, at, label_n)'),
     ('per-share units without words on the line', 'st in cur and _bare_on_line(line, st)', 'st in cur'),
     ('one-letter scales count anywhere', '                    if tok in SINGLE_SCALES:\n                        if (after_currency or before_currency) and not area_or_class:', '                    if tok in SINGLE_SCALES:\n                        if True:'),
     ('scale words count without the currency', 'elif near_currency(i, j) or (prev_word == ["in"] and not of_noun) or after_currency or plural_alone:', 'else:'),
     ('LTM need not be printed', '        if fs["ltm"] and not any(_phrase_on_page(line[:at], w) for w in LTM_WORDS):', '        if False:'),
-    ('page cut inside a line', '        text = text[:text.rindex("\\n")] if "\\n" in text else ""  # never split a line', '        pass  # never split a line'),
+    ('page cut inside a line', '        text = text[:text.rindex("\\n")] if "\\n" in text else ""  # never split a line: no number is cut in two or loses its scale word', '        pass'),
     ("page_urls ignored", '    if "page_urls" in spec:\n        return spec["page_urls"][n]', '    if "page_urls" in spec:\n        return spec["page_urls"][0]'),
     ("page_urls count not checked", ' or len(urls) != len(ends) or', " or"),
     ("both url forms accepted", "    if (tpl is None) == (urls is None):", "    if tpl is None and urls is None:"),
@@ -139,7 +139,6 @@ READER = [
     ("JSON floats parsed", "out = json.loads(s, parse_float=str)", "out = json.loads(s)"),
     ("12.450 read as a number", 'if dot and "," not in s and len(frac) == 3', 'if False and dot and "," not in s and len(frac) == 3'),
     ("page not cut", "        text = text[:PAGE_CHARS]\n", ""),
-    ("page cut inside a number", "        while text and (text[-1] in DIGITS or text[-1] in \".,'\"):\n            text = text[:-1]", "        pass"),
 
     ("note references read as decimal commas", "for ch in _drop_note_refs(str(page or \"\").lower()) + \" \":", "for ch in str(page or \"\").lower() + \" \":"),
     ("1.234,567 not decimal comma", 'if "." in r and r.index(".") < r.rindex(","):\n                return True', 'if False:\n                return True'),
@@ -167,7 +166,7 @@ READER = [
     ('a scaled copy ignores loose scales', ' and _loose_scales(lines, code) <= {mult}', ''),
     ('a scale word anywhere near nothing counts', '        if any(t in cw for t in _name_words(s[:a]).split()[-3:] + _name_words(s[b:]).split()[:3]):', '        if True:'),
     ('a change after the amount read', ' and not _change_after(line[b + j + len(value_n):]):', ':'),
-    ('EPS labels take the heading scale', '    if "eps" in lw or "dps" in lw or "/share" in label_n or "/unit" in label_n:\n        return True', '    if "/share" in label_n or "/unit" in label_n:\n        return True'),
+    ('EPS labels take the heading scale', '    if any(x in lw for x in PER_SHARE_ABBR) or "/share" in label_n or "/unit" in label_n:\n        return True', '    if "/share" in label_n or "/unit" in label_n:\n        return True'),
     ('non-breaking hyphen not a minus', '"\\u2010", "\\u2011", ', ''),
     ('an unreadable mark before the value ignored', '    if k > 0 and not line[k - 1].isalnum() and line[k - 1] not in BEFORE_OK:\n        return True', '    if False:\n        return True'),
     ('currency cells hide an empty cell', '    toks = [t for t in s.replace(":", " ").split() if t not in _currency_words(code) and t not in SYMBOLS]', '    toks = s.replace(":", " ").split()'),
@@ -248,7 +247,7 @@ READER = [
     # seventh review (v8)
     ("two words only after 'per'", 'any(x in PER_WHAT for x in lw[k + 1:k + 6])', 'any(x in PER_WHAT for x in lw[k + 1:k + 3])'),
     ("four words only after 'per'", 'any(x in PER_WHAT for x in lw[k + 1:k + 6])', 'any(x in PER_WHAT for x in lw[k + 1:k + 5])'),
-    ("'depositary' not a share word", '            "depositary", "depository")', '            )'),
+    ("'depositary' not a share word", '            "depositary", "depository", "stock")', '            "stock")'),
     ("'security' not a share word", '"stapled", "security", "securities",', '"stapled",'),
     ("'GDR' not a share word", '"gdr", "gdrs",', ''),
     ('a spaced dash not a comma', 'raw = rest[:stop].lower().replace(" - ", " , ")', 'raw = rest[:stop].lower()'),
@@ -257,7 +256,7 @@ READER = [
     ("'in 1,000 US dollars' is prose", 'not in cw + MONEY_NOUNS:\n            continue', 'not in cw:\n            continue'),
     ('a per-share symbol may touch a letter', '(b == len(text_n) or not text_n[b].isalpha()) \\', '(True) \\'),
     ('bare: a letter before the phrase', '(a == 0 or not text_n[a - 1].isalnum() or not phrase_n[0].isalnum()) and (b == len(text_n) or not text_n[b].isalpha())', 'True and (b == len(text_n) or not text_n[b].isalpha())'),
-    ('bare: a digit after the phrase', '                and (b == len(text_n) or not text_n[b].isalnum() or not phrase_n[-1].isalnum()):', '                and True:'),
+    ('bare: a digit after the phrase', '                and (b == len(text_n) or not text_n[b].isalnum() or not phrase_n[-1].isalnum()) \\', '                and True \\'),
     ('bare: an empty copy', 'i = text_n.find(phrase_n) if phrase_n != "" else -1', 'i = text_n.find(phrase_n)'),
     ("per share '(in EUR)' refused", '        if st.startswith("in "):\n            st = st[3:].strip("()[] ")', '        if False:\n            st = st[3:].strip("()[] ")'),
     ("'per m2' names millions", '            area_or_class = prev_word in (["per"], ["sq"], ["square"], ["cubic"], ["class"], ["series"], ["tranche"])', '            area_or_class = False'),
@@ -265,9 +264,9 @@ READER = [
     ("'mil' in a heading ignored", '            if t == "mil":\n                out.add(0)', '            if False:\n                out.add(0)'),
     # v9: per share declared in the spec
     ('per_share not a figure field', 'FIGURE_KEYS = ("key", "label_hint", "labels", "ltm", "decimals", "step", "rounding", "sign", "per_share")', 'FIGURE_KEYS = ("key", "label_hint", "labels", "ltm", "decimals", "step", "rounding", "sign")'),
-    ('per_share defaults to false', 'per_share = f.get("per_share", looks)', 'per_share = f.get("per_share", False)'),
+    ('per_share defaults to the wording', 'per_share = f.get("per_share")\n', 'per_share = f.get("per_share", looks)\n'),
     ('a per-share label may be declared a total', '    if looks and not per_share:\n', '    if False:\n'),
-    ('per_share need not be a bool', '    if not isinstance(per_share, bool):\n        return f"figure {key}: per_share must be true or false", None', '    if False:\n        return f"figure {key}: per_share must be true or false", None'),
+    ('per_share need not be a bool', '    if not isinstance(per_share, bool):\n        return f"figure {key}: per_share must be true (an amount per share or unit) or false (a total); it has no default", None', '    if False:\n        return f"figure {key}: per_share must be true (an amount per share or unit) or false (a total); it has no default", None'),
     ('the label hint not checked for per share', 'for lab in clean + [_norm_label(hint)])', 'for lab in clean)'),
     ('the copied label decides per share', 'fs["per_share"] is True', '_per_share_label(label_n)'),
     ('a scale before a per-share value allowed', '        if _heading_scales(before, code) or any(_scale_mentions(w, code) for w in words if w not in SINGLE_SCALES):\n            return False', '        if False:\n            return False'),
@@ -279,6 +278,37 @@ READER = [
     ("'cps' not a sub-unit", '"eurocents", "cps",', '"eurocents",'),
     ("'kopecks' not a sub-unit", '"kopeck", "kopecks",', '"kopeck",'),
     ("'paise' not a sub-unit", '"paise", ', ''),
+    # v10: the eighth and ninth reviews
+    ("currency prefix kept", "if tok != low and tok.startswith(low):", "if False:"),
+    ('per_share true without the wording', '    if per_share and not looks:\n', '    if False:\n'),
+    ('a glued code scale after the value ignored', '        if nxt != low and nxt.startswith(low):\n            nxt = nxt[len(low):]', '        if False:\n            nxt = nxt[len(low):]'),
+    ('the whole line before a per-share value checked', '        if label_n and before.rfind(label_n) >= 0:\n', '        if False:\n'),
+    ('a code with a scale suffix is a per-share currency', '        cur = {code.lower()} |', '        cur = set(_currency_words(code)) |'),
+    ("'US$' not a per-share currency", '        cur |= {"us$"} if code == "USD" else set()', '        pass'),
+    ('bare: a letter before a symbol', '                and (a == 0 or not text_n[a - 1].isalpha()):', '                and True:'),
+    ('a qualifier before a spaced dash starts a phrase', "        return not _qualifier_before(lead[:-1])  # a spaced dash: '- Revenue', 'Q3 - Revenue'; not 'Non-GAAP - EBITDA'", "        return True  # a spaced dash: '- Revenue', 'Q3 - Revenue'; not 'Non-GAAP - EBITDA'"),
+    ('a list number in the middle of a line', '(len(lead) == len(word) or lead[:-len(word)].rstrip()[-1:] == "|")', 'True'),
+    ('two letters are a list letter', '(len(word) == 2 and word[0].isalpha())', '(len(word) <= 3 and word[0].isalpha())'),
+    ("'1.' not a list number", 'number = word[:-1].isdigit() or', 'number = False or'),
+    ('roman numerals not list numbers', '(word[:-1] != "" and all(c in "ivx" for c in word[:-1]))', 'False'),
+    ("'adj' not a qualifier", '("adjusted", "adj", ', '("adjusted", '),
+    ('qualifiers match inside words', 'return any(words.endswith(" " + q) for q in QUALIFIERS)', 'return any(words.endswith(q) for q in QUALIFIERS)'),
+    ("'NAVPS' not per share", 'PER_SHARE_ABBR = ("eps", "dps", "navps", ', 'PER_SHARE_ABBR = ("eps", "dps", '),
+    ("'per common stock' not per share", '"depository", "stock")', '"depository")'),
+    ("'(-)' with spaces not an empty cell", ' or "".join(s.split()).endswith("(-)"):', ':'),
+    ("'for the year' does not link", '"period", "year", "full", "half",', '"period",'),
+    ('the currency sign with a scale refused', '    if uniq and raw.strip().startswith(uniq) and raw.strip()[len(uniq):].strip(" \'\\u2019").lower() in SIGN_SCALES:', '    if False:'),
+    ("a glued footnote mark on the figure's line ignored", '        if _marked(line, marks):\n', '        if False:\n'),
+    ('marks: a mark after a space counts', 'if mark == "" or before == "" or before[-1].isspace():', 'if mark == "" or before == "":'),
+    ('marks: <sub> not read', 'if tag not in ("sup", "sub")', 'if tag not in ("sup",)'),
+    ('marks: inline tags leave a space', 'out.append("" if name in INLINE_TAGS else " ")', 'out.append(" ")'),
+    ('marks: entities kept', '    return "".join(out).replace("&nbsp;", " ").replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")', '    return "".join(out)'),
+    ('marks: a piece inside a tag', '        s = " " + s[k + 1:]  # the piece starts inside a tag', '        pass'),
+    ('marks: no cap', '    while len(out) < MAX_MARKS:', '    while True:'),
+    ('the HTML render not read', '        marks = _glued_marks(gl.nondet.web.render(url, mode="html", wait_after_loaded=RENDER_WAIT))', '        marks = set()'),
+    ('a comma starts a phrase', 'LIST_MARKS = "|:;', 'LIST_MARKS = ",|:;'),
+    ('pence one row up only', 'def _rows_above(lines: list, line: str, n: int = 3)', 'def _rows_above(lines: list, line: str, n: int = 1)'),
+    ("the official reading keeps period 0's URL", '"url": _page_url(spec, n), "attempt"', '"url": _page_url(spec, 0), "attempt"'),
 ]
 
 EARNOUT = [
@@ -318,6 +348,7 @@ EARNOUT = [
     ("offer expires early", 'if now < deal["period_end_ts"]:\n                raise', 'if False:\n                raise'),
     ("expired offer pays the seller", '            self._credit(d.buyer, deal["amount"])\n            d.state = "EXPIRED"', '            self._credit(d.seller, deal["amount"])\n            d.state = "EXPIRED"'),
     ("settled deal pays again", 'if d.state in ("SETTLED", "CANCELLED", "EXPIRED"):', 'if d.state in ("CANCELLED", "EXPIRED"):'),
+    ('settle reads the reading as of a fixed time', '        reading = gl.get_contract_at(self.reader).view().get_reading(deal["report_id"], deal["period"], now)', '        reading = gl.get_contract_at(self.reader).view().get_reading(deal["report_id"], deal["period"], 2**40)'),
 ]
 
 # Equivalent mutants, not counted: each removes a check that a later check
@@ -325,7 +356,6 @@ EARNOUT = [
 #   superscript footnote marks kept: _norm drops them for every line first;
 #   totals read in whole units: the last check (named == {mult}) can never hold
 #     for units, since no scale word names 1; the explicit rule documents it;
-#   currency prefix kept: _heading_scales of the copy also reads 'EURm';
 #   sign before the value ignored: _sign_across_currency refuses any mark before
 #     the digits that is not a separator, '(' and '-' included;
 #   'mill.' after the value ignored: 'mill' is also in SCALE_WORDS, which
@@ -338,7 +368,6 @@ EARNOUT = [
 #     still names millions and so can only refuse a scaled copy.
 EQUIVALENT_READER = [
     ('totals read in whole units', '    if mult == 1:\n        return False  # totals', '    if False:\n        return False  # totals'),
-    ("currency prefix kept", "if tok != low and tok.startswith(low):", "if False:"),
     ("superscript footnote marks kept", "        for c in SUPERSCRIPTS:\n            line = line.replace(c, \" \")", "        pass"),
     ("sign before the value ignored", 'if before in ("(", "-") and not value_n.startswith(("(", "-")):', "if False:"),
     ("'M€' not a heading", '            if tok == "m" and s[j:j + 1] in syms and not attached:\n                out.add(10**6)', '            if False:\n                out.add(10**6)'),
@@ -348,7 +377,7 @@ EQUIVALENT_READER = [
 
 TARGETS = {
     "reader": ("contracts/report_reader.py", "RR_CONTRACT", READER, ["tests/direct/test_report_reader.py", "tests/direct/test_report_reader_review.py", "tests/direct/test_report_reader_review2.py",
-                                                                  "tests/direct/test_report_reader_review3.py", "tests/direct/test_report_reader_review4.py", "tests/direct/test_report_reader_review5.py", "tests/direct/test_report_reader_review6.py", "tests/direct/test_report_reader_review7.py",
+                                                                  "tests/direct/test_report_reader_review3.py", "tests/direct/test_report_reader_review4.py", "tests/direct/test_report_reader_review5.py", "tests/direct/test_report_reader_review6.py", "tests/direct/test_report_reader_review7.py", "tests/direct/test_report_reader_review8.py", "tests/direct/test_report_reader_review9.py",
                                                                   "tests/direct/test_report_reader_finality.py"]),
     "earnout": ("examples/consumer/earn_out_example.py", "EO_CONTRACT", EARNOUT, ["tests/direct/test_earn_out.py", "tests/direct/test_earn_out_review3.py"]),
 }

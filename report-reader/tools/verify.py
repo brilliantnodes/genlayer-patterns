@@ -49,6 +49,28 @@ def main():
         out["consumer_balance"] = str(bal)
         out["balance_reconciles"] = bal == int(totals["locked"]) + int(totals["credited"])
         out["accounts"] = {r: str(int(rpc("eth_getBalance", [a, "latest"]), 16)) for r, a in rec["accounts"].items()}
+        # every READ the record shows is the official reading the chain stores, figure for figure
+        late = int(rec["e0"]) + 30 * 86400  # long after every window
+        stored = {}
+        for s in rec["steps"]:
+            r = s.get("result")
+            if s.get("fn") == "read" and isinstance(r, dict) and r.get("kind") == "READ":
+                g = c.read_contract(address=reader, function_name="get_reading", args=[r["report_id"], r["period"], late])
+                stored[f"{r['report_id']}:{r['period']}"] = {"recorded": r["figures"], "chain": g.get("figures"), "status": g.get("status"),
+                                                             "finalized": g.get("finalized"), "match": g.get("status") == "READ" and g.get("figures") == r["figures"]}
+        out["readings"] = stored
+        ok &= all(v["match"] and v["finalized"] is True for v in stored.values())
+        # every settled earn-out pays on the chain what the record shows
+        deals = {}
+        for s in rec["steps"]:
+            r = s.get("result")
+            if s.get("fn") == "settle" and isinstance(r, dict) and isinstance(r.get("deal"), dict) and r["deal"].get("state") in ("SETTLED", "EXPIRED"):
+                d = r["deal"]
+                g = c.read_contract(address=cons, function_name="get_deal", args=[d["id"]])
+                deals[d["id"]] = {"state": g.get("state"), "match": g.get("state") == d.get("state") and g.get("result") == d.get("result")}
+        out["deals"] = deals
+        ok &= all(v["match"] for v in deals.values())
+        out["all_match"] = ok
     else:  # ClaimEscrow run
         addr = rec["contract"]["address"]
         totals = c.read_contract(address=addr, function_name="totals", args=[])

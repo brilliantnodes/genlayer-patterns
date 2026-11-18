@@ -1,0 +1,2296 @@
+{
+ "net": "studio",
+ "tag": "s12",
+ "e0": 1795037700,
+ "site": "https://privatecredit.brilliantnodes.com",
+ "contracts": {
+  "reader": {
+   "address": "0xd2f8B46D5A325eF6E81476063DD1520c9EDD2029",
+   "deploy_tx": "0xf762fa8431761b1dd4e77fddbba2d4ef8e21ed0d686b74405135253ab78ded3a"
+  },
+  "consumer": {
+   "address": "0xacd6a107b498b2fe17f37467697F6Af7F5Facb31",
+   "deploy_tx": "0x4358d76159d8917ee0aeb73a4f83f65d960a56fdb3ebee005a2ea86ecdbb5e3e"
+  }
+ },
+ "accounts": {
+  "alice": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+  "bob": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+  "carol": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6"
+ },
+ "reports": {
+  "tarnwick": {
+   "id": "1",
+   "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+   "register_tx": "0x819f3bc88499ffd7824ab6347fd70c0938cc37047b456ba0d147beedda6f5f5b",
+   "periods": [
+    {
+     "closes": "2026-11-18 22:10",
+     "end": "2026-11-18 21:35",
+     "opens": "2026-11-18 21:40",
+     "period": 0,
+     "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/tarnwick/q-0.html"
+    },
+    {
+     "closes": "2026-11-18 22:25",
+     "end": "2026-11-18 21:50",
+     "opens": "2026-11-18 21:55",
+     "period": 1,
+     "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/tarnwick/q-1.html"
+    },
+    {
+     "closes": "2026-11-18 22:40",
+     "end": "2026-11-18 22:05",
+     "opens": "2026-11-18 22:10",
+     "period": 2,
+     "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/tarnwick/q-2.html"
+    }
+   ]
+  },
+  "ostravelle-draft": {
+   "id": "2",
+   "digest": "f0c3aafe5bd1c06f3c57183d9bafea12c3e6126a1e24bd1ac7432b477f74b40f",
+   "register_tx": "0x12c21f150acfee84972c9a213b48afdac6a5a21bc42e3a9f3d2a432350032625",
+   "periods": [
+    {
+     "closes": "2026-11-18 22:10",
+     "end": "2026-11-18 21:35",
+     "opens": "2026-11-18 21:40",
+     "period": 0,
+     "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-draft/q-0.html"
+    }
+   ]
+  },
+  "ostravelle-adjusted": {
+   "id": "3",
+   "digest": "6da04ed263602426bda1196ca50a96f2a438e9f00eb651eebf70e10674597dcd",
+   "register_tx": "0xe43adce09163f001b1d24a926f081fefaabd2482814509391bc694b8678aab58",
+   "periods": [
+    {
+     "closes": "2026-11-18 22:10",
+     "end": "2026-11-18 21:35",
+     "opens": "2026-11-18 21:40",
+     "period": 0,
+     "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-adjusted/q-0.html"
+    }
+   ]
+  },
+  "ostravelle-comma": {
+   "id": "4",
+   "digest": "f446e69eff8b3db1d3fe209989efa03909b82c3c3d16753f295256f97d38d508",
+   "register_tx": "0x66b8682aa12b32f8c07f3106858bc3aaa514c3a0ab14061b05e8e2c9f1f072e7",
+   "periods": [
+    {
+     "closes": "2026-11-18 22:10",
+     "end": "2026-11-18 21:35",
+     "opens": "2026-11-18 21:40",
+     "period": 0,
+     "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-comma/q-0.html"
+    }
+   ]
+  },
+  "ostravelle-injection": {
+   "id": "5",
+   "digest": "8c6f03923be32d2f838df8c0278375864dbf280d7ca0c28161483ebe429534cd",
+   "register_tx": "0xe99d621a79e4d230f2842cfa4242bc89d3509a77a3ba9e2fd47afc6479517d10",
+   "periods": [
+    {
+     "closes": "2026-11-18 22:10",
+     "end": "2026-11-18 21:35",
+     "opens": "2026-11-18 21:40",
+     "period": 0,
+     "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-injection/q-0.html"
+    }
+   ]
+  },
+  "ostravelle-old": {
+   "id": "6",
+   "digest": "da955d13f716930479b7f18025e7085895d58dd0d2b958056a2b4f05bd561cbf",
+   "register_tx": "0xc6c0abe36b1c3fec9f8933c0d26f3693f56d3f84082c11601a7535ebfc22d57f",
+   "periods": [
+    {
+     "closes": "2026-11-18 22:10",
+     "end": "2026-11-18 21:35",
+     "opens": "2026-11-18 21:40",
+     "period": 0,
+     "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-old/q-0.html"
+    }
+   ]
+  }
+ },
+ "deals": {
+  "count_after_setup": {
+   "credited": "2000000000000000000",
+   "deals": 4,
+   "locked": "16000000000000000000",
+   "reader": "0xd2f8B46D5A325eF6E81476063DD1520c9EDD2029"
+  }
+ },
+ "steps": [
+  {
+   "case": "register tarnwick",
+   "at": "2026-11-18 21:11:38",
+   "from": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+   "fn": "register_report",
+   "args": [
+    "{\"issuer_name\": \"Tarnwick Harbour Holdings plc\", \"url_template\": \"https://privatecredit.brilliantnodes.com/report-reader/s12/tarnwick/q-{n}.html\", \"currency\": \"EUR\", \"period_ends\": [\"2026-11-18 21:35\", \"2026-11-18 21:50\", \"2026-11-18 22:05\"], \"publish_lag_minutes\": 5, \"read_window_minutes\": 30, \"figures\": [{\"key\": \"revenue\", \"label_hint\": \"Revenue for the quarter\", \"labels\": [\"Revenue\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"down\", \"sign\": \"as_printed\", \"per_share\": false}, {\"key\": \"ltm_ebitda\", \"label_hint\": \"EBITDA for the last twelve months\", \"labels\": [\"EBITDA (last twelve months)\", \"LTM EBITDA\"], \"ltm\": true, \"decimals\": 0, \"step\": 1000, \"rounding\": \"down\", \"sign\": \"as_printed\", \"per_share\": false}, {\"key\": \"net_finance_costs\", \"label_hint\": \"Net finance costs (net interest expense)\", \"labels\": [\"Net finance costs\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"up\", \"sign\": \"finance_cost\", \"per_share\": false}, {\"key\": \"total_debt\", \"label_hint\": \"Total borrowings\", \"labels\": [\"Total borrowings\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"up\", \"sign\": \"magnitude\", \"per_share\": false}, {\"key\": \"basic_eps\", \"label_hint\": \"Basic earnings per share\", \"labels\": [\"Basic earnings per share (EUR)\", \"Basic earnings per share\"], \"ltm\": false, \"decimals\": 2, \"step\": 1, \"rounding\": \"down\", \"sign\": \"as_printed\", \"per_share\": true}]}"
+   ],
+   "value": "0",
+   "tx": "0x819f3bc88499ffd7824ab6347fd70c0938cc37047b456ba0d147beedda6f5f5b",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "clock": 1795036288,
+    "created_at": 1795036288,
+    "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+    "id": "1",
+    "owner": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+    "periods": [
+     {
+      "closes": "2026-11-18 22:10",
+      "end": "2026-11-18 21:35",
+      "opens": "2026-11-18 21:40",
+      "period": 0,
+      "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/tarnwick/q-0.html"
+     },
+     {
+      "closes": "2026-11-18 22:25",
+      "end": "2026-11-18 21:50",
+      "opens": "2026-11-18 21:55",
+      "period": 1,
+      "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/tarnwick/q-1.html"
+     },
+     {
+      "closes": "2026-11-18 22:40",
+      "end": "2026-11-18 22:05",
+      "opens": "2026-11-18 22:10",
+      "period": 2,
+      "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/tarnwick/q-2.html"
+     }
+    ],
+    "spec": {
+     "currency": "EUR",
+     "figures": [
+      {
+       "decimals": 0,
+       "key": "revenue",
+       "label_hint": "Revenue for the quarter",
+       "labels": [
+        "revenue"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "down",
+       "sign": "as_printed",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "ltm_ebitda",
+       "label_hint": "EBITDA for the last twelve months",
+       "labels": [
+        "ebitda (last twelve months)",
+        "ltm ebitda"
+       ],
+       "ltm": true,
+       "per_share": false,
+       "rounding": "down",
+       "sign": "as_printed",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "net_finance_costs",
+       "label_hint": "Net finance costs (net interest expense)",
+       "labels": [
+        "net finance costs"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "up",
+       "sign": "finance_cost",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "total_debt",
+       "label_hint": "Total borrowings",
+       "labels": [
+        "total borrowings"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "up",
+       "sign": "magnitude",
+       "step": "1000"
+      },
+      {
+       "decimals": 2,
+       "key": "basic_eps",
+       "label_hint": "Basic earnings per share",
+       "labels": [
+        "basic earnings per share",
+        "basic earnings per share (eur)"
+       ],
+       "ltm": false,
+       "per_share": true,
+       "rounding": "down",
+       "sign": "as_printed",
+       "step": "1"
+      }
+     ],
+     "issuer_name": "Tarnwick Harbour Holdings plc",
+     "period_ends": [
+      "2026-11-18 21:35",
+      "2026-11-18 21:50",
+      "2026-11-18 22:05"
+     ],
+     "publish_lag_minutes": 5,
+     "read_window_minutes": 30,
+     "url_template": "https://privatecredit.brilliantnodes.com/report-reader/s12/tarnwick/q-{n}.html"
+    }
+   },
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "idle",
+    "0x240d2d7c8DF220110c26cfFFC532479319Cca0dC": "agree",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "agree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "agree"
+   }
+  },
+  {
+   "case": "register ostravelle-draft",
+   "at": "2026-11-18 21:11:52",
+   "from": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+   "fn": "register_report",
+   "args": [
+    "{\"issuer_name\": \"Ostravelle Fibre SA\", \"url_template\": \"https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-draft/q-{n}.html\", \"currency\": \"EUR\", \"period_ends\": [\"2026-11-18 21:35\"], \"publish_lag_minutes\": 5, \"read_window_minutes\": 30, \"figures\": [{\"key\": \"revenue\", \"label_hint\": \"Revenue for the quarter\", \"labels\": [\"Revenue\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"down\", \"sign\": \"as_printed\", \"per_share\": false}, {\"key\": \"ltm_ebitda\", \"label_hint\": \"EBITDA for the last twelve months\", \"labels\": [\"EBITDA (last twelve months)\", \"LTM EBITDA\"], \"ltm\": true, \"decimals\": 0, \"step\": 1000, \"rounding\": \"down\", \"sign\": \"as_printed\", \"per_share\": false}, {\"key\": \"net_finance_costs\", \"label_hint\": \"Net finance costs (net interest expense)\", \"labels\": [\"Net finance costs\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"up\", \"sign\": \"finance_cost\", \"per_share\": false}, {\"key\": \"total_debt\", \"label_hint\": \"Total borrowings\", \"labels\": [\"Total borrowings\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"up\", \"sign\": \"magnitude\", \"per_share\": false}]}"
+   ],
+   "value": "0",
+   "tx": "0x12c21f150acfee84972c9a213b48afdac6a5a21bc42e3a9f3d2a432350032625",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "clock": 1795036306,
+    "created_at": 1795036306,
+    "digest": "f0c3aafe5bd1c06f3c57183d9bafea12c3e6126a1e24bd1ac7432b477f74b40f",
+    "id": "2",
+    "owner": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+    "periods": [
+     {
+      "closes": "2026-11-18 22:10",
+      "end": "2026-11-18 21:35",
+      "opens": "2026-11-18 21:40",
+      "period": 0,
+      "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-draft/q-0.html"
+     }
+    ],
+    "spec": {
+     "currency": "EUR",
+     "figures": [
+      {
+       "decimals": 0,
+       "key": "revenue",
+       "label_hint": "Revenue for the quarter",
+       "labels": [
+        "revenue"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "down",
+       "sign": "as_printed",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "ltm_ebitda",
+       "label_hint": "EBITDA for the last twelve months",
+       "labels": [
+        "ebitda (last twelve months)",
+        "ltm ebitda"
+       ],
+       "ltm": true,
+       "per_share": false,
+       "rounding": "down",
+       "sign": "as_printed",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "net_finance_costs",
+       "label_hint": "Net finance costs (net interest expense)",
+       "labels": [
+        "net finance costs"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "up",
+       "sign": "finance_cost",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "total_debt",
+       "label_hint": "Total borrowings",
+       "labels": [
+        "total borrowings"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "up",
+       "sign": "magnitude",
+       "step": "1000"
+      }
+     ],
+     "issuer_name": "Ostravelle Fibre SA",
+     "period_ends": [
+      "2026-11-18 21:35"
+     ],
+     "publish_lag_minutes": 5,
+     "read_window_minutes": 30,
+     "url_template": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-draft/q-{n}.html"
+    }
+   },
+   "votes": {
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "idle",
+    "0x4eeaD269a60bB89c98a23c1BCd0bd101CafD90E0": "agree",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "agree",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "agree"
+   }
+  },
+  {
+   "case": "register ostravelle-adjusted",
+   "at": "2026-11-18 21:12:06",
+   "from": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+   "fn": "register_report",
+   "args": [
+    "{\"issuer_name\": \"Ostravelle Fibre SA\", \"url_template\": \"https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-adjusted/q-{n}.html\", \"currency\": \"EUR\", \"period_ends\": [\"2026-11-18 21:35\"], \"publish_lag_minutes\": 5, \"read_window_minutes\": 30, \"figures\": [{\"key\": \"revenue\", \"label_hint\": \"Revenue for the quarter\", \"labels\": [\"Revenue\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"down\", \"sign\": \"as_printed\", \"per_share\": false}, {\"key\": \"ltm_ebitda\", \"label_hint\": \"EBITDA for the last twelve months\", \"labels\": [\"EBITDA (last twelve months)\", \"LTM EBITDA\"], \"ltm\": true, \"decimals\": 0, \"step\": 1000, \"rounding\": \"down\", \"sign\": \"as_printed\", \"per_share\": false}, {\"key\": \"net_finance_costs\", \"label_hint\": \"Net finance costs (net interest expense)\", \"labels\": [\"Net finance costs\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"up\", \"sign\": \"finance_cost\", \"per_share\": false}, {\"key\": \"total_debt\", \"label_hint\": \"Total borrowings\", \"labels\": [\"Total borrowings\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"up\", \"sign\": \"magnitude\", \"per_share\": false}]}"
+   ],
+   "value": "0",
+   "tx": "0xe43adce09163f001b1d24a926f081fefaabd2482814509391bc694b8678aab58",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "clock": 1795036320,
+    "created_at": 1795036320,
+    "digest": "6da04ed263602426bda1196ca50a96f2a438e9f00eb651eebf70e10674597dcd",
+    "id": "3",
+    "owner": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+    "periods": [
+     {
+      "closes": "2026-11-18 22:10",
+      "end": "2026-11-18 21:35",
+      "opens": "2026-11-18 21:40",
+      "period": 0,
+      "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-adjusted/q-0.html"
+     }
+    ],
+    "spec": {
+     "currency": "EUR",
+     "figures": [
+      {
+       "decimals": 0,
+       "key": "revenue",
+       "label_hint": "Revenue for the quarter",
+       "labels": [
+        "revenue"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "down",
+       "sign": "as_printed",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "ltm_ebitda",
+       "label_hint": "EBITDA for the last twelve months",
+       "labels": [
+        "ebitda (last twelve months)",
+        "ltm ebitda"
+       ],
+       "ltm": true,
+       "per_share": false,
+       "rounding": "down",
+       "sign": "as_printed",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "net_finance_costs",
+       "label_hint": "Net finance costs (net interest expense)",
+       "labels": [
+        "net finance costs"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "up",
+       "sign": "finance_cost",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "total_debt",
+       "label_hint": "Total borrowings",
+       "labels": [
+        "total borrowings"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "up",
+       "sign": "magnitude",
+       "step": "1000"
+      }
+     ],
+     "issuer_name": "Ostravelle Fibre SA",
+     "period_ends": [
+      "2026-11-18 21:35"
+     ],
+     "publish_lag_minutes": 5,
+     "read_window_minutes": 30,
+     "url_template": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-adjusted/q-{n}.html"
+    }
+   },
+   "votes": {
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "agree",
+    "0x4eeaD269a60bB89c98a23c1BCd0bd101CafD90E0": "idle",
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree"
+   }
+  },
+  {
+   "case": "register ostravelle-comma",
+   "at": "2026-11-18 21:12:20",
+   "from": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+   "fn": "register_report",
+   "args": [
+    "{\"issuer_name\": \"Ostravelle Fibre SA\", \"url_template\": \"https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-comma/q-{n}.html\", \"currency\": \"EUR\", \"period_ends\": [\"2026-11-18 21:35\"], \"publish_lag_minutes\": 5, \"read_window_minutes\": 30, \"figures\": [{\"key\": \"revenue\", \"label_hint\": \"Revenue for the quarter\", \"labels\": [\"Revenue\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"down\", \"sign\": \"as_printed\", \"per_share\": false}, {\"key\": \"ltm_ebitda\", \"label_hint\": \"EBITDA for the last twelve months\", \"labels\": [\"EBITDA (last twelve months)\", \"LTM EBITDA\"], \"ltm\": true, \"decimals\": 0, \"step\": 1000, \"rounding\": \"down\", \"sign\": \"as_printed\", \"per_share\": false}, {\"key\": \"net_finance_costs\", \"label_hint\": \"Net finance costs (net interest expense)\", \"labels\": [\"Net finance costs\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"up\", \"sign\": \"finance_cost\", \"per_share\": false}, {\"key\": \"total_debt\", \"label_hint\": \"Total borrowings\", \"labels\": [\"Total borrowings\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"up\", \"sign\": \"magnitude\", \"per_share\": false}]}"
+   ],
+   "value": "0",
+   "tx": "0x66b8682aa12b32f8c07f3106858bc3aaa514c3a0ab14061b05e8e2c9f1f072e7",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "clock": 1795036334,
+    "created_at": 1795036334,
+    "digest": "f446e69eff8b3db1d3fe209989efa03909b82c3c3d16753f295256f97d38d508",
+    "id": "4",
+    "owner": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+    "periods": [
+     {
+      "closes": "2026-11-18 22:10",
+      "end": "2026-11-18 21:35",
+      "opens": "2026-11-18 21:40",
+      "period": 0,
+      "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-comma/q-0.html"
+     }
+    ],
+    "spec": {
+     "currency": "EUR",
+     "figures": [
+      {
+       "decimals": 0,
+       "key": "revenue",
+       "label_hint": "Revenue for the quarter",
+       "labels": [
+        "revenue"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "down",
+       "sign": "as_printed",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "ltm_ebitda",
+       "label_hint": "EBITDA for the last twelve months",
+       "labels": [
+        "ebitda (last twelve months)",
+        "ltm ebitda"
+       ],
+       "ltm": true,
+       "per_share": false,
+       "rounding": "down",
+       "sign": "as_printed",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "net_finance_costs",
+       "label_hint": "Net finance costs (net interest expense)",
+       "labels": [
+        "net finance costs"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "up",
+       "sign": "finance_cost",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "total_debt",
+       "label_hint": "Total borrowings",
+       "labels": [
+        "total borrowings"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "up",
+       "sign": "magnitude",
+       "step": "1000"
+      }
+     ],
+     "issuer_name": "Ostravelle Fibre SA",
+     "period_ends": [
+      "2026-11-18 21:35"
+     ],
+     "publish_lag_minutes": 5,
+     "read_window_minutes": 30,
+     "url_template": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-comma/q-{n}.html"
+    }
+   },
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "idle",
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "agree",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "idle",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "agree"
+   }
+  },
+  {
+   "case": "register ostravelle-injection",
+   "at": "2026-11-18 21:12:34",
+   "from": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+   "fn": "register_report",
+   "args": [
+    "{\"issuer_name\": \"Ostravelle Fibre SA\", \"url_template\": \"https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-injection/q-{n}.html\", \"currency\": \"EUR\", \"period_ends\": [\"2026-11-18 21:35\"], \"publish_lag_minutes\": 5, \"read_window_minutes\": 30, \"figures\": [{\"key\": \"revenue\", \"label_hint\": \"Revenue for the quarter\", \"labels\": [\"Revenue\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"down\", \"sign\": \"as_printed\", \"per_share\": false}, {\"key\": \"ltm_ebitda\", \"label_hint\": \"EBITDA for the last twelve months\", \"labels\": [\"EBITDA (last twelve months)\", \"LTM EBITDA\"], \"ltm\": true, \"decimals\": 0, \"step\": 1000, \"rounding\": \"down\", \"sign\": \"as_printed\", \"per_share\": false}, {\"key\": \"net_finance_costs\", \"label_hint\": \"Net finance costs (net interest expense)\", \"labels\": [\"Net finance costs\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"up\", \"sign\": \"finance_cost\", \"per_share\": false}, {\"key\": \"total_debt\", \"label_hint\": \"Total borrowings\", \"labels\": [\"Total borrowings\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"up\", \"sign\": \"magnitude\", \"per_share\": false}]}"
+   ],
+   "value": "0",
+   "tx": "0xe99d621a79e4d230f2842cfa4242bc89d3509a77a3ba9e2fd47afc6479517d10",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "clock": 1795036348,
+    "created_at": 1795036348,
+    "digest": "8c6f03923be32d2f838df8c0278375864dbf280d7ca0c28161483ebe429534cd",
+    "id": "5",
+    "owner": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+    "periods": [
+     {
+      "closes": "2026-11-18 22:10",
+      "end": "2026-11-18 21:35",
+      "opens": "2026-11-18 21:40",
+      "period": 0,
+      "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-injection/q-0.html"
+     }
+    ],
+    "spec": {
+     "currency": "EUR",
+     "figures": [
+      {
+       "decimals": 0,
+       "key": "revenue",
+       "label_hint": "Revenue for the quarter",
+       "labels": [
+        "revenue"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "down",
+       "sign": "as_printed",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "ltm_ebitda",
+       "label_hint": "EBITDA for the last twelve months",
+       "labels": [
+        "ebitda (last twelve months)",
+        "ltm ebitda"
+       ],
+       "ltm": true,
+       "per_share": false,
+       "rounding": "down",
+       "sign": "as_printed",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "net_finance_costs",
+       "label_hint": "Net finance costs (net interest expense)",
+       "labels": [
+        "net finance costs"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "up",
+       "sign": "finance_cost",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "total_debt",
+       "label_hint": "Total borrowings",
+       "labels": [
+        "total borrowings"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "up",
+       "sign": "magnitude",
+       "step": "1000"
+      }
+     ],
+     "issuer_name": "Ostravelle Fibre SA",
+     "period_ends": [
+      "2026-11-18 21:35"
+     ],
+     "publish_lag_minutes": 5,
+     "read_window_minutes": 30,
+     "url_template": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-injection/q-{n}.html"
+    }
+   },
+   "votes": {
+    "0x21e4F7ba6Ec0fbf70C019fbc0F9A797c3ed1F969": "agree",
+    "0x4eeaD269a60bB89c98a23c1BCd0bd101CafD90E0": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "agree",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "idle"
+   }
+  },
+  {
+   "case": "register ostravelle-old",
+   "at": "2026-11-18 21:12:48",
+   "from": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+   "fn": "register_report",
+   "args": [
+    "{\"issuer_name\": \"Ostravelle Fibre SA\", \"url_template\": \"https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-old/q-{n}.html\", \"currency\": \"EUR\", \"period_ends\": [\"2026-11-18 21:35\"], \"publish_lag_minutes\": 5, \"read_window_minutes\": 30, \"figures\": [{\"key\": \"revenue\", \"label_hint\": \"Revenue for the quarter\", \"labels\": [\"Revenue\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"down\", \"sign\": \"as_printed\", \"per_share\": false}, {\"key\": \"ltm_ebitda\", \"label_hint\": \"EBITDA for the last twelve months\", \"labels\": [\"EBITDA (last twelve months)\", \"LTM EBITDA\"], \"ltm\": true, \"decimals\": 0, \"step\": 1000, \"rounding\": \"down\", \"sign\": \"as_printed\", \"per_share\": false}, {\"key\": \"net_finance_costs\", \"label_hint\": \"Net finance costs (net interest expense)\", \"labels\": [\"Net finance costs\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"up\", \"sign\": \"finance_cost\", \"per_share\": false}, {\"key\": \"total_debt\", \"label_hint\": \"Total borrowings\", \"labels\": [\"Total borrowings\"], \"ltm\": false, \"decimals\": 0, \"step\": 1000, \"rounding\": \"up\", \"sign\": \"magnitude\", \"per_share\": false}]}"
+   ],
+   "value": "0",
+   "tx": "0xc6c0abe36b1c3fec9f8933c0d26f3693f56d3f84082c11601a7535ebfc22d57f",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "clock": 1795036362,
+    "created_at": 1795036362,
+    "digest": "da955d13f716930479b7f18025e7085895d58dd0d2b958056a2b4f05bd561cbf",
+    "id": "6",
+    "owner": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+    "periods": [
+     {
+      "closes": "2026-11-18 22:10",
+      "end": "2026-11-18 21:35",
+      "opens": "2026-11-18 21:40",
+      "period": 0,
+      "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-old/q-0.html"
+     }
+    ],
+    "spec": {
+     "currency": "EUR",
+     "figures": [
+      {
+       "decimals": 0,
+       "key": "revenue",
+       "label_hint": "Revenue for the quarter",
+       "labels": [
+        "revenue"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "down",
+       "sign": "as_printed",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "ltm_ebitda",
+       "label_hint": "EBITDA for the last twelve months",
+       "labels": [
+        "ebitda (last twelve months)",
+        "ltm ebitda"
+       ],
+       "ltm": true,
+       "per_share": false,
+       "rounding": "down",
+       "sign": "as_printed",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "net_finance_costs",
+       "label_hint": "Net finance costs (net interest expense)",
+       "labels": [
+        "net finance costs"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "up",
+       "sign": "finance_cost",
+       "step": "1000"
+      },
+      {
+       "decimals": 0,
+       "key": "total_debt",
+       "label_hint": "Total borrowings",
+       "labels": [
+        "total borrowings"
+       ],
+       "ltm": false,
+       "per_share": false,
+       "rounding": "up",
+       "sign": "magnitude",
+       "step": "1000"
+      }
+     ],
+     "issuer_name": "Ostravelle Fibre SA",
+     "period_ends": [
+      "2026-11-18 21:35"
+     ],
+     "publish_lag_minutes": 5,
+     "read_window_minutes": 30,
+     "url_template": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-old/q-{n}.html"
+    }
+   },
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "idle",
+    "0x5744305308D62592B7De585e1999c4Ea51E03C29": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "agree",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "agree",
+    "0xee46B9Dc4c860149B1d140840284e5374854e746": "idle"
+   }
+  },
+  {
+   "case": "read before the window opens (refused)",
+   "at": "2026-11-18 21:13:02",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "read",
+   "args": [
+    "1",
+    0
+   ],
+   "value": "0",
+   "tx": "0x665ae938439a73c89dab39cf898a757cd30e62225ab700be7293df926267ad1c",
+   "status": "ACCEPTED",
+   "execution": "ERROR",
+   "result": "period 0's reading window opens at 2026-11-18 21:40 UTC",
+   "votes": {
+    "0x21e4F7ba6Ec0fbf70C019fbc0F9A797c3ed1F969": "idle",
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "agree",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "idle",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "agree",
+    "0xee46B9Dc4c860149B1d140840284e5374854e746": "agree"
+   },
+   "expect": "error: window opens at E0+5"
+  },
+  {
+   "case": "offer 1: revenue, floor 10,000,000, target 20,000,000, missing share 50%",
+   "at": "2026-11-18 21:13:12",
+   "from": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+   "fn": "create",
+   "args": [
+    "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+    "1",
+    "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+    0,
+    "revenue",
+    "10000000",
+    "20000000",
+    5000
+   ],
+   "value": "10000000000000000000",
+   "tx": "0x9a97ac16e9f9b565d2bf99013ff9518fe0995fd8ef18a93f7fb402599981de8c",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "deal": {
+     "amount": "10000000000000000000",
+     "buyer": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+     "created_at": 1795036386,
+     "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+     "figure": "revenue",
+     "floor": "10000000",
+     "id": "1",
+     "missing_seller_bp": 5000,
+     "period": 0,
+     "period_end": "2026-11-18 21:35",
+     "period_end_ts": 1795037700,
+     "reading_closes": "2026-11-18 22:10",
+     "report_id": "1",
+     "seller": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+     "state": "OFFERED",
+     "target": "20000000",
+     "terms_digest": "ac8a2c61dc843a1def0affffa86270ba1ceda33a489200a6f73a68de3ec118ca"
+    },
+    "ok": true
+   },
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "agree",
+    "0x4eeaD269a60bB89c98a23c1BCd0bd101CafD90E0": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "idle",
+    "0xE74a9088aD4d6dBf3C8cABcC0B91072d2a8c8afa": "idle"
+   }
+  },
+  {
+   "case": "accept of offer 1 by a stranger (refused)",
+   "at": "2026-11-18 21:13:24",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "accept",
+   "args": [
+    "1",
+    "ac8a2c61dc843a1def0affffa86270ba1ceda33a489200a6f73a68de3ec118ca"
+   ],
+   "value": "0",
+   "tx": "0xfd6591d26d3bbcbc7e550d13e1b8cffabb930d814cba5741b3403f18bae81190",
+   "status": "ACCEPTED",
+   "execution": "ERROR",
+   "result": "only the seller can accept",
+   "votes": {
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "idle",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree"
+   },
+   "expect": "error: only the seller"
+  },
+  {
+   "case": "seller accepts offer 1",
+   "at": "2026-11-18 21:13:37",
+   "from": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+   "fn": "accept",
+   "args": [
+    "1",
+    "ac8a2c61dc843a1def0affffa86270ba1ceda33a489200a6f73a68de3ec118ca"
+   ],
+   "value": "0",
+   "tx": "0xbf2a9c15af2d23aedc0fd46432c2bbdecbabadc2a1f786eb868344080cdbcc28",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "deal": {
+     "amount": "10000000000000000000",
+     "buyer": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+     "created_at": 1795036386,
+     "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+     "figure": "revenue",
+     "floor": "10000000",
+     "id": "1",
+     "missing_seller_bp": 5000,
+     "period": 0,
+     "period_end": "2026-11-18 21:35",
+     "period_end_ts": 1795037700,
+     "reading_closes": "2026-11-18 22:10",
+     "report_id": "1",
+     "result": {
+      "accepted_at": 1795036410
+     },
+     "seller": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+     "state": "OPEN",
+     "target": "20000000",
+     "terms_digest": "ac8a2c61dc843a1def0affffa86270ba1ceda33a489200a6f73a68de3ec118ca"
+    },
+    "ok": true
+   },
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "agree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "agree",
+    "0xE74a9088aD4d6dBf3C8cABcC0B91072d2a8c8afa": "idle"
+   },
+   "expect": "OPEN"
+  },
+  {
+   "case": "offer 2: LTM EBITDA of period 1, missing share 100% (the buyer runs the reporting)",
+   "at": "2026-11-18 21:13:51",
+   "from": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+   "fn": "create",
+   "args": [
+    "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+    "1",
+    "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+    1,
+    "ltm_ebitda",
+    "0",
+    "5000000",
+    10000
+   ],
+   "value": "5000000000000000000",
+   "tx": "0x399fc9370158d27f4471dac6d190c2472bdc3ea199d04f364ab792ac1ac2ba35",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "deal": {
+     "amount": "5000000000000000000",
+     "buyer": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+     "created_at": 1795036421,
+     "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+     "figure": "ltm_ebitda",
+     "floor": "0",
+     "id": "2",
+     "missing_seller_bp": 10000,
+     "period": 1,
+     "period_end": "2026-11-18 21:50",
+     "period_end_ts": 1795038600,
+     "reading_closes": "2026-11-18 22:25",
+     "report_id": "1",
+     "seller": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+     "state": "OFFERED",
+     "target": "5000000",
+     "terms_digest": "1e0a5992ba5ea021d50598a2be1a0baa2b7d3507de44862a50e608e0ae73e43c"
+    },
+    "ok": true
+   },
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "idle",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "agree",
+    "0xee46B9Dc4c860149B1d140840284e5374854e746": "agree"
+   }
+  },
+  {
+   "case": "seller accepts offer 2",
+   "at": "2026-11-18 21:14:02",
+   "from": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+   "fn": "accept",
+   "args": [
+    "2",
+    "1e0a5992ba5ea021d50598a2be1a0baa2b7d3507de44862a50e608e0ae73e43c"
+   ],
+   "value": "0",
+   "tx": "0x12f04509abc2ad5ba75472a779f94e77fa9e1955a0574f4541e0072e87d8f322",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "deal": {
+     "amount": "5000000000000000000",
+     "buyer": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+     "created_at": 1795036421,
+     "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+     "figure": "ltm_ebitda",
+     "floor": "0",
+     "id": "2",
+     "missing_seller_bp": 10000,
+     "period": 1,
+     "period_end": "2026-11-18 21:50",
+     "period_end_ts": 1795038600,
+     "reading_closes": "2026-11-18 22:25",
+     "report_id": "1",
+     "result": {
+      "accepted_at": 1795036436
+     },
+     "seller": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+     "state": "OPEN",
+     "target": "5000000",
+     "terms_digest": "1e0a5992ba5ea021d50598a2be1a0baa2b7d3507de44862a50e608e0ae73e43c"
+    },
+    "ok": true
+   },
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "idle",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree",
+    "0xee46B9Dc4c860149B1d140840284e5374854e746": "agree"
+   },
+   "expect": "OPEN"
+  },
+  {
+   "case": "offer 3: never accepted before the period end",
+   "at": "2026-11-18 21:14:12",
+   "from": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+   "fn": "create",
+   "args": [
+    "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+    "1",
+    "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+    0,
+    "revenue",
+    "10000000",
+    "20000000",
+    0
+   ],
+   "value": "1000000000000000000",
+   "tx": "0x1273f92006527564eefef1241f8d0d72dc9e3d4ccb6bcd0f50691c394c24e250",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "deal": {
+     "amount": "1000000000000000000",
+     "buyer": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+     "created_at": 1795036446,
+     "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+     "figure": "revenue",
+     "floor": "10000000",
+     "id": "3",
+     "missing_seller_bp": 0,
+     "period": 0,
+     "period_end": "2026-11-18 21:35",
+     "period_end_ts": 1795037700,
+     "reading_closes": "2026-11-18 22:10",
+     "report_id": "1",
+     "seller": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+     "state": "OFFERED",
+     "target": "20000000",
+     "terms_digest": "439685905eee186bcb719bcac3bac72f33427b15a9328bc0112888aac40e5164"
+    },
+    "ok": true
+   },
+   "votes": {
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "agree",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "idle",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "idle"
+   }
+  },
+  {
+   "case": "offer 4: cancelled by the buyer",
+   "at": "2026-11-18 21:14:22",
+   "from": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+   "fn": "create",
+   "args": [
+    "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+    "1",
+    "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+    0,
+    "revenue",
+    "10000000",
+    "20000000",
+    0
+   ],
+   "value": "1000000000000000000",
+   "tx": "0xfad2b3c22952206c632c2a79ca47b25257cbb08da773f6f03a980973242039b2",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "deal": {
+     "amount": "1000000000000000000",
+     "buyer": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+     "created_at": 1795036456,
+     "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+     "figure": "revenue",
+     "floor": "10000000",
+     "id": "4",
+     "missing_seller_bp": 0,
+     "period": 0,
+     "period_end": "2026-11-18 21:35",
+     "period_end_ts": 1795037700,
+     "reading_closes": "2026-11-18 22:10",
+     "report_id": "1",
+     "seller": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+     "state": "OFFERED",
+     "target": "20000000",
+     "terms_digest": "439685905eee186bcb719bcac3bac72f33427b15a9328bc0112888aac40e5164"
+    },
+    "ok": true
+   },
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "idle",
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "idle",
+    "0xE74a9088aD4d6dBf3C8cABcC0B91072d2a8c8afa": "agree"
+   }
+  },
+  {
+   "case": "buyer cancels offer 4",
+   "at": "2026-11-18 21:14:32",
+   "from": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+   "fn": "cancel",
+   "args": [
+    "4"
+   ],
+   "value": "0",
+   "tx": "0x6b3e5ed4a040e992202b598716e688d5443ed1312c99515959515fb02da5cc62",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "deal": {
+     "amount": "1000000000000000000",
+     "buyer": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+     "created_at": 1795036456,
+     "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+     "figure": "revenue",
+     "floor": "10000000",
+     "id": "4",
+     "missing_seller_bp": 0,
+     "period": 0,
+     "period_end": "2026-11-18 21:35",
+     "period_end_ts": 1795037700,
+     "reading_closes": "2026-11-18 22:10",
+     "report_id": "1",
+     "result": {
+      "cancelled_at": 1795036466,
+      "to_buyer": "1000000000000000000",
+      "to_seller": "0"
+     },
+     "seller": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+     "state": "CANCELLED",
+     "target": "20000000",
+     "terms_digest": "439685905eee186bcb719bcac3bac72f33427b15a9328bc0112888aac40e5164"
+    },
+    "ok": true
+   },
+   "votes": {
+    "0x240d2d7c8DF220110c26cfFFC532479319Cca0dC": "idle",
+    "0x4eeaD269a60bB89c98a23c1BCd0bd101CafD90E0": "idle",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "agree",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "agree"
+   },
+   "expect": "CANCELLED, buyer credited"
+  },
+  {
+   "case": "offer refused: wrong digest (value credited back)",
+   "at": "2026-11-18 21:14:46",
+   "from": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+   "fn": "create",
+   "args": [
+    "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+    "1",
+    "0000000000000000000000000000000000000000000000000000000000000000",
+    0,
+    "revenue",
+    "1",
+    "2",
+    0
+   ],
+   "value": "1000000000000000000",
+   "tx": "0xb2c2bf626da0527bfb56bbb7c8e9cefdff8f15daa7ff091418f231e3f072669e",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "error": "the report's digest is not the one pinned",
+    "ok": false,
+    "refunded": "1000000000000000000"
+   },
+   "votes": {
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "idle",
+    "0x4eeaD269a60bB89c98a23c1BCd0bd101CafD90E0": "idle",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "agree"
+   }
+  },
+  {
+   "case": "Tarnwick period 0: table page",
+   "at": "2026-11-18 21:42:56",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "read",
+   "args": [
+    "1",
+    0
+   ],
+   "value": "0",
+   "tx": "0x300e1910657d99dfe31ae920cc648bab56a48998552e3509c57b6d6e397864c4",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "attempt": 1,
+    "figures": {
+     "basic_eps": "42",
+     "ltm_ebitda": "4180000",
+     "net_finance_costs": "2150000",
+     "revenue": "15240000",
+     "total_debt": "48000000"
+    },
+    "kind": "READ",
+    "ok": true,
+    "period": 0,
+    "reason": "",
+    "report_id": "1"
+   },
+   "votes": {
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "idle",
+    "0x21e4F7ba6Ec0fbf70C019fbc0F9A797c3ed1F969": "idle",
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "agree",
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "agree"
+   },
+   "expect": "READ"
+  },
+  {
+   "case": "settle earn-out 1 at once (refused unless the reading is already marked finalized)",
+   "at": "2026-11-18 21:43:07",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "settle",
+   "args": [
+    "1"
+   ],
+   "value": "0",
+   "tx": "0x8799bbcd473091434e66b6a53a8888594f9f355ea263e86b6d9fd3deb82b1d70",
+   "status": "ACCEPTED",
+   "execution": "ERROR",
+   "result": "the reader's answer is final but its transaction is not finalized on the network yet: settle again after the finality window",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x4eeaD269a60bB89c98a23c1BCd0bd101CafD90E0": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "idle"
+   },
+   "expect": "error: not finalized on the network yet"
+  },
+  {
+   "case": "ostravelle-draft period 0",
+   "at": "2026-11-18 21:43:58",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "read",
+   "args": [
+    "2",
+    0
+   ],
+   "value": "0",
+   "tx": "0x35b858357310eaba3b565f668b62927fffff2902296745686107ed16f533d597",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "attempt": 1,
+    "kind": "NO_READING",
+    "ok": true,
+    "period": 0,
+    "reason": "N3_NOT_FINAL",
+    "report_id": "2"
+   },
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x21e4F7ba6Ec0fbf70C019fbc0F9A797c3ed1F969": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "idle",
+    "0xee46B9Dc4c860149B1d140840284e5374854e746": "agree"
+   },
+   "expect": "NO_READING N3_NOT_FINAL"
+  },
+  {
+   "case": "ostravelle-adjusted period 0",
+   "at": "2026-11-18 21:46:05",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "read",
+   "args": [
+    "3",
+    0
+   ],
+   "value": "0",
+   "tx": "0xef0600cb3878bad8c0a8647b513b51f0d265e4e08bda442e074a02166121d1c7",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "attempt": 1,
+    "kind": "NO_READING",
+    "ok": true,
+    "period": 0,
+    "reason": "N2_LABEL",
+    "report_id": "3"
+   },
+   "votes": {
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "agree",
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "disagree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "disagree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "agree",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "agree"
+   },
+   "expect": "NO_READING N2_LABEL or N2_NOT_ANCHORED"
+  },
+  {
+   "case": "ostravelle-comma period 0",
+   "at": "2026-11-18 21:46:28",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "read",
+   "args": [
+    "4",
+    0
+   ],
+   "value": "0",
+   "tx": "0xdfd2719e68c0992ec8915ea1ef5804ee80ad40225879b267facc0e4cca509c15",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "attempt": 1,
+    "kind": "NO_READING",
+    "ok": true,
+    "period": 0,
+    "reason": "N2_FORMAT",
+    "report_id": "4"
+   },
+   "votes": {
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "agree",
+    "0x240d2d7c8DF220110c26cfFFC532479319Cca0dC": "agree",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "idle",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "idle"
+   },
+   "expect": "NO_READING N2_FORMAT"
+  },
+  {
+   "case": "ostravelle-injection period 0",
+   "at": "2026-11-18 21:47:19",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "read",
+   "args": [
+    "5",
+    0
+   ],
+   "value": "0",
+   "tx": "0x3ab08b98be9949192b3ebf0cbd3d1cd40562011bfaa27ac3a2b26a00ebbfa61a",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "attempt": 1,
+    "figures": {
+     "ltm_ebitda": "2240000",
+     "net_finance_costs": "910000",
+     "revenue": "8315000",
+     "total_debt": "21400000"
+    },
+    "kind": "READ",
+    "ok": true,
+    "period": 0,
+    "reason": "",
+    "report_id": "5"
+   },
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "idle",
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "agree",
+    "0x240d2d7c8DF220110c26cfFFC532479319Cca0dC": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "agree"
+   },
+   "expect": "READ with the table's figures"
+  },
+  {
+   "case": "ostravelle-old period 0",
+   "at": "2026-11-18 21:47:50",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "read",
+   "args": [
+    "6",
+    0
+   ],
+   "value": "0",
+   "tx": "0x731ed5532bf8e272781984b4c70df8bce43e07aba3261cae7e89dbf9c5f62816",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "attempt": 1,
+    "kind": "NO_READING",
+    "ok": true,
+    "period": 0,
+    "reason": "N1_WRONG_PAGE",
+    "report_id": "6"
+   },
+   "votes": {
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x5744305308D62592B7De585e1999c4Ea51E03C29": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "idle",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "idle",
+    "0xE74a9088aD4d6dBf3C8cABcC0B91072d2a8c8afa": "agree"
+   },
+   "expect": "NO_READING N1_WRONG_PAGE or N2_WRONG_PERIOD"
+  },
+  {
+   "case": "Tarnwick period 0 read again (refused: one official reading)",
+   "at": "2026-11-18 21:47:58",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "read",
+   "args": [
+    "1",
+    0
+   ],
+   "value": "0",
+   "tx": "0xa270d2a99bb035932fea514b84c117c8480ba1f82d40be22f0029220bff3561d",
+   "status": "ACCEPTED",
+   "execution": "ERROR",
+   "result": "period 0 already has its official reading",
+   "votes": {
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "agree",
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "agree",
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "agree",
+    "0xee46B9Dc4c860149B1d140840284e5374854e746": "agree"
+   },
+   "expect": "error"
+  },
+  {
+   "case": "offer pinned after the period ended (refused, value credited back)",
+   "at": "2026-11-18 21:48:09",
+   "from": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+   "fn": "create",
+   "args": [
+    "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+    "1",
+    "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+    0,
+    "revenue",
+    "1",
+    "2",
+    0
+   ],
+   "value": "1000000000000000000",
+   "tx": "0xec4fa672bcaa1507cc50050ee8a532268cd756999dcccad24143a63780defc67",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "error": "the period has already ended (status READ): pin a period before it ends",
+    "ok": false,
+    "refunded": "1000000000000000000"
+   },
+   "votes": {
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "agree",
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "idle",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree"
+   }
+  },
+  {
+   "case": "seller accepts offer 3 after the period end (refused)",
+   "at": "2026-11-18 21:48:22",
+   "from": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+   "fn": "accept",
+   "args": [
+    "3",
+    "439685905eee186bcb719bcac3bac72f33427b15a9328bc0112888aac40e5164"
+   ],
+   "value": "0",
+   "tx": "0x12652447adcf950cbdd35317e9d9b20b0c42c2c772347b377f1f814537908366",
+   "status": "ACCEPTED",
+   "execution": "ERROR",
+   "result": "the period has already ended (status READ): pin a period before it ends: too late to accept",
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x21e4F7ba6Ec0fbf70C019fbc0F9A797c3ed1F969": "agree",
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "idle",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree"
+   },
+   "expect": "error: too late to accept"
+  },
+  {
+   "case": "settle earn-out 1 (reading marked finalized)",
+   "at": "2026-11-18 21:48:35",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "settle",
+   "args": [
+    "1"
+   ],
+   "value": "0",
+   "tx": "0x9c14618ba398e5267fc751dd3aed2a1582a357233026f7e7337aab1366d79a96",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "deal": {
+     "amount": "10000000000000000000",
+     "buyer": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+     "created_at": 1795036386,
+     "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+     "figure": "revenue",
+     "floor": "10000000",
+     "id": "1",
+     "missing_seller_bp": 5000,
+     "period": 0,
+     "period_end": "2026-11-18 21:35",
+     "period_end_ts": 1795037700,
+     "reading_closes": "2026-11-18 22:10",
+     "report_id": "1",
+     "result": {
+      "accepted_at": 1795036410,
+      "figures": {
+       "basic_eps": "42",
+       "ltm_ebitda": "4180000",
+       "net_finance_costs": "2150000",
+       "revenue": "15240000",
+       "total_debt": "48000000"
+      },
+      "note": "revenue read as 15240000",
+      "read_at": 1795038022,
+      "settled_at": 1795038506,
+      "status": "READ",
+      "to_buyer": "4760000000000000000",
+      "to_seller": "5240000000000000000"
+     },
+     "seller": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+     "state": "SETTLED",
+     "target": "20000000",
+     "terms_digest": "ac8a2c61dc843a1def0affffa86270ba1ceda33a489200a6f73a68de3ec118ca"
+    },
+    "ok": true
+   },
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "agree",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "idle",
+    "0xE74a9088aD4d6dBf3C8cABcC0B91072d2a8c8afa": "idle"
+   },
+   "expect": "seller paid on the straight line"
+  },
+  {
+   "case": "settle offer 3 (never accepted: back to the buyer)",
+   "at": "2026-11-18 21:48:42",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "settle",
+   "args": [
+    "3"
+   ],
+   "value": "0",
+   "tx": "0xee937a8011a584accb43bf89a833d41a785c2e8cfad876cb7da81958f73f8d2d",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "deal": {
+     "amount": "1000000000000000000",
+     "buyer": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+     "created_at": 1795036446,
+     "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+     "figure": "revenue",
+     "floor": "10000000",
+     "id": "3",
+     "missing_seller_bp": 0,
+     "period": 0,
+     "period_end": "2026-11-18 21:35",
+     "period_end_ts": 1795037700,
+     "reading_closes": "2026-11-18 22:10",
+     "report_id": "1",
+     "result": {
+      "expired_at": 1795038517,
+      "note": "not accepted before the period end",
+      "to_buyer": "1000000000000000000",
+      "to_seller": "0"
+     },
+     "seller": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+     "state": "EXPIRED",
+     "target": "20000000",
+     "terms_digest": "439685905eee186bcb719bcac3bac72f33427b15a9328bc0112888aac40e5164"
+    },
+    "ok": true
+   },
+   "votes": {
+    "0x21e4F7ba6Ec0fbf70C019fbc0F9A797c3ed1F969": "agree",
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "idle",
+    "0x5744305308D62592B7De585e1999c4Ea51E03C29": "idle",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "agree",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree"
+   },
+   "expect": "EXPIRED, buyer credited"
+  },
+  {
+   "case": "Tarnwick period 1: not yet published",
+   "at": "2026-11-18 21:55:49",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "read",
+   "args": [
+    "1",
+    1
+   ],
+   "value": "0",
+   "tx": "0x332a871ec3890bb49282e81f44716e6c10ad4eb30a1dc848be0ab7417acbd6cc",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "attempt": 1,
+    "kind": "NOT_PUBLISHED",
+    "ok": true,
+    "period": 1,
+    "reason": "",
+    "report_id": "1"
+   },
+   "votes": {
+    "0x19a02f95418A6c76091CDA37C4fc542CA82805c9": "idle",
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "agree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "agree"
+   },
+   "expect": "NOT_PUBLISHED"
+  },
+  {
+   "case": "settle earn-out 2 too early (refused)",
+   "at": "2026-11-18 21:55:59",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "settle",
+   "args": [
+    "2"
+   ],
+   "value": "0",
+   "tx": null,
+   "status": "SEND_FAILED",
+   "error": "Request to https://studio.genlayer.com/api failed: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+   "expect": "error: no final answer yet"
+  },
+  {
+   "case": "Tarnwick period 2: highlights page in millions",
+   "at": "2026-11-18 22:10:48",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "read",
+   "args": [
+    "1",
+    2
+   ],
+   "value": "0",
+   "tx": "0x5ed5b63f3c65f918fd89c027f8016b0f4012bd4655f817c56f4561391c94d083",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "attempt": 1,
+    "figures": {
+     "basic_eps": "45",
+     "ltm_ebitda": "4450000",
+     "net_finance_costs": "2100000",
+     "revenue": "16200000",
+     "total_debt": "47500000"
+    },
+    "kind": "READ",
+    "ok": true,
+    "period": 2,
+    "reason": "",
+    "report_id": "1"
+   },
+   "votes": {
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "idle",
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "agree",
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "idle",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "agree"
+   },
+   "expect": "READ"
+  },
+  {
+   "case": "ostravelle-draft read after its window closed",
+   "at": "2026-11-18 22:10:55",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "read",
+   "args": [
+    "2",
+    0
+   ],
+   "value": "0",
+   "tx": "0x57bc41c488e60207f22635468469aafe83a0560ce54ffb13507dd6728877f615",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "kind": "CLOSED",
+    "note": "the reading window closed at 2026-11-18 22:10 UTC with no READ",
+    "ok": true,
+    "period": 0,
+    "report_id": "2",
+    "status": "MISSING"
+   },
+   "votes": {
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "agree",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "agree",
+    "0xE74a9088aD4d6dBf3C8cABcC0B91072d2a8c8afa": "idle",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "agree"
+   },
+   "expect": "CLOSED, MISSING"
+  },
+  {
+   "case": "tick Tarnwick: period 1 settles as MISSING",
+   "at": "2026-11-18 22:25:26",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "tick",
+   "args": [
+    "1"
+   ],
+   "value": "0",
+   "tx": "0xaa4d8ffdad86a5af31a3ac8aa02d1f52958583eb431c8460dc24bc533c9f77d9",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "clock": 1795040722,
+    "missing": [
+     1
+    ],
+    "ok": true,
+    "report_id": "1"
+   },
+   "votes": {
+    "0x21e4F7ba6Ec0fbf70C019fbc0F9A797c3ed1F969": "agree",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "idle",
+    "0x6fe9DE3d0adc76D6416A13CD8107aaE49A3CF98F": "agree",
+    "0xBE58b43DF1d991e054F743Cc5571dD7029F3B888": "idle"
+   },
+   "expect": "missing [1]"
+  },
+  {
+   "case": "settle earn-out 2 (report missing: the pinned 100% to the seller)",
+   "at": "2026-11-18 22:26:08",
+   "from": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+   "fn": "settle",
+   "args": [
+    "2"
+   ],
+   "value": "0",
+   "tx": "0x50fa5b7496eb56ff54f41c8e99977c3c958c30f4f828d59a9e083984b523fead",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "deal": {
+     "amount": "5000000000000000000",
+     "buyer": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+     "created_at": 1795036421,
+     "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+     "figure": "ltm_ebitda",
+     "floor": "0",
+     "id": "2",
+     "missing_seller_bp": 10000,
+     "period": 1,
+     "period_end": "2026-11-18 21:50",
+     "period_end_ts": 1795038600,
+     "reading_closes": "2026-11-18 22:25",
+     "report_id": "1",
+     "result": {
+      "accepted_at": 1795036436,
+      "figures": {},
+      "note": "report missing: 10000 bp to the seller",
+      "read_at": null,
+      "settled_at": 1795040764,
+      "status": "MISSING",
+      "to_buyer": "0",
+      "to_seller": "5000000000000000000"
+     },
+     "seller": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+     "state": "SETTLED",
+     "target": "5000000",
+     "terms_digest": "1e0a5992ba5ea021d50598a2be1a0baa2b7d3507de44862a50e608e0ae73e43c"
+    },
+    "ok": true
+   },
+   "votes": {
+    "0x23A15A452F19D1B616276fedC5B8B51d69082959": "agree",
+    "0x240d2d7c8DF220110c26cfFFC532479319Cca0dC": "agree",
+    "0x725Ab89db6A9DD886Ba71Bc5E63a01070C325bE3": "idle",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "idle",
+    "0xee46B9Dc4c860149B1d140840284e5374854e746": "agree"
+   },
+   "expect": "seller gets everything"
+  },
+  {
+   "case": "withdraw (bob)",
+   "at": "2026-11-18 22:26:15",
+   "from": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+   "fn": "withdraw",
+   "args": [
+    0
+   ],
+   "value": "0",
+   "tx": "0xad77b747e5629df791a216f9278e932daecd18b89f95fbc468b14db4be67a424",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "amount": "10240000000000000000",
+    "left": "0",
+    "ok": true
+   },
+   "votes": {
+    "0x1B490819e040562a5fb40CD64B1c70D4419c38d1": "idle",
+    "0x534af64FFB6796Bc69aBf4C26c50788F1fFAfe56": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "agree",
+    "0x813890bC5bEDEB4F5437570962379F04738F18Cb": "idle",
+    "0x88E148Da14d45c5a5DD2DB25E776eBCBCe0Df539": "agree"
+   }
+  },
+  {
+   "case": "withdraw (alice)",
+   "at": "2026-11-18 22:26:22",
+   "from": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+   "fn": "withdraw",
+   "args": [
+    0
+   ],
+   "value": "0",
+   "tx": "0x3b950f186fbfea28ac0d85faf13b301b454974d6cc49202553fd81f91f50ec75",
+   "status": "ACCEPTED",
+   "execution": "SUCCESS",
+   "result": {
+    "amount": "8760000000000000000",
+    "left": "0",
+    "ok": true
+   },
+   "votes": {
+    "0x22Eda431B7fBC1216baE3b077a78c973a8719c58": "agree",
+    "0x5e880d85a70De78dDEf86236d57c42e73F560615": "agree",
+    "0x62718FbDf0509A398aA525C152D60c1F7A9d33D3": "agree",
+    "0x6DC61b906F74F44612c5545b0b79486133B3556d": "agree",
+    "0xe358f855C96d8E7243836cf986eb037175B9467e": "agree"
+   }
+  }
+ ],
+ "finality": {
+  "tarnwick_0_read_finalized_after_s": 1,
+  "tarnwick_0_marked_finalized_after_s": 327,
+  "tick_finalized_after_s": 33,
+  "tarnwick_1_missing_marked_finalized_after_s": 35
+ },
+ "final": {
+  "counts": {
+   "readings": 8,
+   "reports": 6
+  },
+  "readings": {
+   "tarnwick:0": {
+    "attempt": 1,
+    "attempts": 1,
+    "clock": 1795040722,
+    "closes": "2026-11-18 22:10",
+    "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+    "end": "2026-11-18 21:35",
+    "end_ts": 1795037700,
+    "figures": {
+     "basic_eps": "42",
+     "ltm_ebitda": "4180000",
+     "net_finance_costs": "2150000",
+     "revenue": "15240000",
+     "total_debt": "48000000"
+    },
+    "final": true,
+    "final_clock": 1795040722,
+    "finalized": true,
+    "has_official": true,
+    "opens": "2026-11-18 21:40",
+    "period": 0,
+    "read_at": 1795038022,
+    "read_by": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+    "report_id": "1",
+    "status": "READ",
+    "units": {
+     "basic_eps": {
+      "decimals": 2,
+      "per_share": true,
+      "rounding": "down",
+      "sign": "as_printed",
+      "step": "1"
+     },
+     "ltm_ebitda": {
+      "decimals": 0,
+      "per_share": false,
+      "rounding": "down",
+      "sign": "as_printed",
+      "step": "1000"
+     },
+     "net_finance_costs": {
+      "decimals": 0,
+      "per_share": false,
+      "rounding": "up",
+      "sign": "finance_cost",
+      "step": "1000"
+     },
+     "revenue": {
+      "decimals": 0,
+      "per_share": false,
+      "rounding": "down",
+      "sign": "as_printed",
+      "step": "1000"
+     },
+     "total_debt": {
+      "decimals": 0,
+      "per_share": false,
+      "rounding": "up",
+      "sign": "magnitude",
+      "step": "1000"
+     }
+    },
+    "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/tarnwick/q-0.html",
+    "attempts_kept": [
+     {
+      "at": 1795038022,
+      "by": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+      "kind": "READ",
+      "reason": ""
+     }
+    ]
+   },
+   "tarnwick:1": {
+    "attempts": 1,
+    "clock": 1795040722,
+    "closes": "2026-11-18 22:25",
+    "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+    "end": "2026-11-18 21:50",
+    "end_ts": 1795038600,
+    "final": true,
+    "final_clock": 1795040722,
+    "finalized": true,
+    "has_official": false,
+    "opens": "2026-11-18 21:55",
+    "period": 1,
+    "report_id": "1",
+    "status": "MISSING",
+    "attempts_kept": [
+     {
+      "at": 1795038922,
+      "by": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+      "kind": "NOT_PUBLISHED",
+      "reason": ""
+     }
+    ]
+   },
+   "tarnwick:2": {
+    "attempt": 1,
+    "attempts": 1,
+    "clock": 1795040722,
+    "closes": "2026-11-18 22:40",
+    "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+    "end": "2026-11-18 22:05",
+    "end_ts": 1795039500,
+    "figures": {
+     "basic_eps": "45",
+     "ltm_ebitda": "4450000",
+     "net_finance_costs": "2100000",
+     "revenue": "16200000",
+     "total_debt": "47500000"
+    },
+    "final": true,
+    "final_clock": 1795040722,
+    "finalized": true,
+    "has_official": true,
+    "opens": "2026-11-18 22:10",
+    "period": 2,
+    "read_at": 1795039822,
+    "read_by": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+    "report_id": "1",
+    "status": "READ",
+    "units": {
+     "basic_eps": {
+      "decimals": 2,
+      "per_share": true,
+      "rounding": "down",
+      "sign": "as_printed",
+      "step": "1"
+     },
+     "ltm_ebitda": {
+      "decimals": 0,
+      "per_share": false,
+      "rounding": "down",
+      "sign": "as_printed",
+      "step": "1000"
+     },
+     "net_finance_costs": {
+      "decimals": 0,
+      "per_share": false,
+      "rounding": "up",
+      "sign": "finance_cost",
+      "step": "1000"
+     },
+     "revenue": {
+      "decimals": 0,
+      "per_share": false,
+      "rounding": "down",
+      "sign": "as_printed",
+      "step": "1000"
+     },
+     "total_debt": {
+      "decimals": 0,
+      "per_share": false,
+      "rounding": "up",
+      "sign": "magnitude",
+      "step": "1000"
+     }
+    },
+    "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/tarnwick/q-2.html",
+    "attempts_kept": [
+     {
+      "at": 1795039822,
+      "by": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+      "kind": "READ",
+      "reason": ""
+     }
+    ]
+   },
+   "ostravelle-draft:0": {
+    "attempts": 1,
+    "clock": 1795039850,
+    "closes": "2026-11-18 22:10",
+    "digest": "f0c3aafe5bd1c06f3c57183d9bafea12c3e6126a1e24bd1ac7432b477f74b40f",
+    "end": "2026-11-18 21:35",
+    "end_ts": 1795037700,
+    "final": true,
+    "final_clock": 1795039850,
+    "finalized": true,
+    "has_official": false,
+    "opens": "2026-11-18 21:40",
+    "period": 0,
+    "report_id": "2",
+    "status": "MISSING",
+    "attempts_kept": [
+     {
+      "at": 1795038190,
+      "by": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+      "kind": "NO_READING",
+      "reason": "N3_NOT_FINAL"
+     }
+    ]
+   },
+   "ostravelle-adjusted:0": {
+    "attempts": 1,
+    "clock": 1795038241,
+    "closes": "2026-11-18 22:10",
+    "digest": "6da04ed263602426bda1196ca50a96f2a438e9f00eb651eebf70e10674597dcd",
+    "end": "2026-11-18 21:35",
+    "end_ts": 1795037700,
+    "final": false,
+    "final_clock": 0,
+    "finalized": false,
+    "has_official": false,
+    "opens": "2026-11-18 21:40",
+    "period": 0,
+    "report_id": "3",
+    "status": "CLOSING",
+    "attempts_kept": [
+     {
+      "at": 1795038241,
+      "by": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+      "kind": "NO_READING",
+      "reason": "N2_LABEL"
+     }
+    ]
+   },
+   "ostravelle-comma:0": {
+    "attempts": 1,
+    "clock": 1795038368,
+    "closes": "2026-11-18 22:10",
+    "digest": "f446e69eff8b3db1d3fe209989efa03909b82c3c3d16753f295256f97d38d508",
+    "end": "2026-11-18 21:35",
+    "end_ts": 1795037700,
+    "final": false,
+    "final_clock": 0,
+    "finalized": false,
+    "has_official": false,
+    "opens": "2026-11-18 21:40",
+    "period": 0,
+    "report_id": "4",
+    "status": "CLOSING",
+    "attempts_kept": [
+     {
+      "at": 1795038368,
+      "by": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+      "kind": "NO_READING",
+      "reason": "N2_FORMAT"
+     }
+    ]
+   },
+   "ostravelle-injection:0": {
+    "attempt": 1,
+    "attempts": 1,
+    "clock": 1795038390,
+    "closes": "2026-11-18 22:10",
+    "digest": "8c6f03923be32d2f838df8c0278375864dbf280d7ca0c28161483ebe429534cd",
+    "end": "2026-11-18 21:35",
+    "end_ts": 1795037700,
+    "figures": {
+     "ltm_ebitda": "2240000",
+     "net_finance_costs": "910000",
+     "revenue": "8315000",
+     "total_debt": "21400000"
+    },
+    "final": true,
+    "final_clock": 0,
+    "finalized": true,
+    "has_official": true,
+    "opens": "2026-11-18 21:40",
+    "period": 0,
+    "read_at": 1795038390,
+    "read_by": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+    "report_id": "5",
+    "status": "READ",
+    "units": {
+     "ltm_ebitda": {
+      "decimals": 0,
+      "per_share": false,
+      "rounding": "down",
+      "sign": "as_printed",
+      "step": "1000"
+     },
+     "net_finance_costs": {
+      "decimals": 0,
+      "per_share": false,
+      "rounding": "up",
+      "sign": "finance_cost",
+      "step": "1000"
+     },
+     "revenue": {
+      "decimals": 0,
+      "per_share": false,
+      "rounding": "down",
+      "sign": "as_printed",
+      "step": "1000"
+     },
+     "total_debt": {
+      "decimals": 0,
+      "per_share": false,
+      "rounding": "up",
+      "sign": "magnitude",
+      "step": "1000"
+     }
+    },
+    "url": "https://privatecredit.brilliantnodes.com/report-reader/s12/ostravelle-injection/q-0.html",
+    "attempts_kept": [
+     {
+      "at": 1795038390,
+      "by": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+      "kind": "READ",
+      "reason": ""
+     }
+    ]
+   },
+   "ostravelle-old:0": {
+    "attempts": 1,
+    "clock": 1795038442,
+    "closes": "2026-11-18 22:10",
+    "digest": "da955d13f716930479b7f18025e7085895d58dd0d2b958056a2b4f05bd561cbf",
+    "end": "2026-11-18 21:35",
+    "end_ts": 1795037700,
+    "final": false,
+    "final_clock": 0,
+    "finalized": false,
+    "has_official": false,
+    "opens": "2026-11-18 21:40",
+    "period": 0,
+    "report_id": "6",
+    "status": "CLOSING",
+    "attempts_kept": [
+     {
+      "at": 1795038442,
+      "by": "0x31d82Ab77D0d7618beE590D766dC215A63c82da6",
+      "kind": "NO_READING",
+      "reason": "N1_WRONG_PAGE"
+     }
+    ]
+   }
+  },
+  "deals": {
+   "1": {
+    "amount": "10000000000000000000",
+    "buyer": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+    "created_at": 1795036386,
+    "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+    "figure": "revenue",
+    "floor": "10000000",
+    "id": "1",
+    "missing_seller_bp": 5000,
+    "period": 0,
+    "period_end": "2026-11-18 21:35",
+    "period_end_ts": 1795037700,
+    "reading_closes": "2026-11-18 22:10",
+    "report_id": "1",
+    "result": {
+     "accepted_at": 1795036410,
+     "figures": {
+      "basic_eps": "42",
+      "ltm_ebitda": "4180000",
+      "net_finance_costs": "2150000",
+      "revenue": "15240000",
+      "total_debt": "48000000"
+     },
+     "note": "revenue read as 15240000",
+     "read_at": 1795038022,
+     "settled_at": 1795038506,
+     "status": "READ",
+     "to_buyer": "4760000000000000000",
+     "to_seller": "5240000000000000000"
+    },
+    "seller": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+    "state": "SETTLED",
+    "target": "20000000",
+    "terms_digest": "ac8a2c61dc843a1def0affffa86270ba1ceda33a489200a6f73a68de3ec118ca"
+   },
+   "2": {
+    "amount": "5000000000000000000",
+    "buyer": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+    "created_at": 1795036421,
+    "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+    "figure": "ltm_ebitda",
+    "floor": "0",
+    "id": "2",
+    "missing_seller_bp": 10000,
+    "period": 1,
+    "period_end": "2026-11-18 21:50",
+    "period_end_ts": 1795038600,
+    "reading_closes": "2026-11-18 22:25",
+    "report_id": "1",
+    "result": {
+     "accepted_at": 1795036436,
+     "figures": {},
+     "note": "report missing: 10000 bp to the seller",
+     "read_at": null,
+     "settled_at": 1795040764,
+     "status": "MISSING",
+     "to_buyer": "0",
+     "to_seller": "5000000000000000000"
+    },
+    "seller": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+    "state": "SETTLED",
+    "target": "5000000",
+    "terms_digest": "1e0a5992ba5ea021d50598a2be1a0baa2b7d3507de44862a50e608e0ae73e43c"
+   },
+   "3": {
+    "amount": "1000000000000000000",
+    "buyer": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+    "created_at": 1795036446,
+    "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+    "figure": "revenue",
+    "floor": "10000000",
+    "id": "3",
+    "missing_seller_bp": 0,
+    "period": 0,
+    "period_end": "2026-11-18 21:35",
+    "period_end_ts": 1795037700,
+    "reading_closes": "2026-11-18 22:10",
+    "report_id": "1",
+    "result": {
+     "expired_at": 1795038517,
+     "note": "not accepted before the period end",
+     "to_buyer": "1000000000000000000",
+     "to_seller": "0"
+    },
+    "seller": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+    "state": "EXPIRED",
+    "target": "20000000",
+    "terms_digest": "439685905eee186bcb719bcac3bac72f33427b15a9328bc0112888aac40e5164"
+   },
+   "4": {
+    "amount": "1000000000000000000",
+    "buyer": "0x03050228CAF962A1D73Af65a522ac6169FB60C4C",
+    "created_at": 1795036456,
+    "digest": "e7a5f430cfdfc8750718a0ef1e819ad035fe5c228e15c427ecf390bae9b1e3a0",
+    "figure": "revenue",
+    "floor": "10000000",
+    "id": "4",
+    "missing_seller_bp": 0,
+    "period": 0,
+    "period_end": "2026-11-18 21:35",
+    "period_end_ts": 1795037700,
+    "reading_closes": "2026-11-18 22:10",
+    "report_id": "1",
+    "result": {
+     "cancelled_at": 1795036466,
+     "to_buyer": "1000000000000000000",
+     "to_seller": "0"
+    },
+    "seller": "0x5aB91437d54e3a6CE96E69d2D8FF80Cd441499A9",
+    "state": "CANCELLED",
+    "target": "20000000",
+    "terms_digest": "439685905eee186bcb719bcac3bac72f33427b15a9328bc0112888aac40e5164"
+   }
+  },
+  "totals": {
+   "credited": "0",
+   "deals": 4,
+   "locked": "0",
+   "reader": "0xd2f8B46D5A325eF6E81476063DD1520c9EDD2029"
+  },
+  "consumer_balance": "19000000000000000000",
+  "claimable": {
+   "alice": "0",
+   "bob": "0",
+   "carol": "0"
+  }
+ }
+}

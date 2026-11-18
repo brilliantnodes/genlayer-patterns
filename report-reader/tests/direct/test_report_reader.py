@@ -65,6 +65,35 @@ FIG_ANSWERS = {
 EXPECTED = {"revenue": "15240000", "ltm_ebitda": "4180500", "net_finance_costs": "2150000", "total_debt": "48000000", "nav_per_share": "1234"}
 
 
+# The tests' own statement of the per-share wording rule, kept apart from the contract's: a share word within
+# five words after 'per', or EPS, DPS, NAVPS, BVPS, DPU, NAVPU, '/share', '/unit'.
+PER_SHARE_WORDS = ("share", "shares", "unit", "units", "ads", "adr", "adrs", "ordinary", "stapled", "security", "securities", "gdr", "gdrs",
+                   "depositary", "depository", "stock")
+PER_SHARE_ABBR = ("eps", "dps", "navps", "bvps", "dpu", "navpu")
+
+
+def reads_per_share(text) -> bool:
+    low = " ".join(str(text).lower().split())
+    words = "".join(ch if ch.isalnum() else " " for ch in low).split()
+    if any(x in words for x in PER_SHARE_ABBR) or "/share" in low or "/unit" in low:
+        return True
+    return any(w == "per" and any(x in PER_SHARE_WORDS for x in words[k + 1:k + 6]) for k, w in enumerate(words))
+
+
+def stated(figs):
+    """Each figure with per_share stated, as a report's author must: true if a label or the hint reads as per
+    share. A figure that already states it, or is not a figure at all (the malformed specs), is left as it is."""
+    if not isinstance(figs, list):
+        return figs
+    out = []
+    for f in figs:
+        if isinstance(f, dict) and "per_share" not in f:
+            texts = [x for x in list(f.get("labels") or []) + [f.get("label_hint", "")] if isinstance(x, str)] if isinstance(f.get("labels"), (list, type(None))) else []
+            f = {**f, "per_share": any(reads_per_share(x) for x in texts)}
+        out.append(f)
+    return out
+
+
 def spec(**over) -> dict:
     s = {
         "issuer_name": ISSUER,
@@ -76,6 +105,7 @@ def spec(**over) -> dict:
         "figures": [dict(f) for f in FIGURES],
     }
     s.update(over)
+    s["figures"] = stated(s["figures"])
     return s
 
 

@@ -187,7 +187,7 @@ def test_b6_the_page_is_always_cut_at_a_line_break(env, mod):
     pre = (head + "Highlights: " + "strong trading; " * 2000)[: mod.PAGE_CHARS - len("; Revenue EUR 16.2 ")]
     body = pre + "; Revenue EUR 16.2 million; more text " * 3
     cut = mod._clean_page(body)
-    assert "Revenue EUR 16.2" not in cut and cut.endswith("unless stated otherwise")
+    assert "Revenue EUR 16.2" not in cut and cut.endswith("unless stated otherwise.")  # the last whole line, untouched
     refused(run(env, live_spec(figs=REV), body, ans(TAR, {"revenue": fig("EUR 16.2", "Revenue", "thousands", "EUR thousands")})), "N2_NOT_ANCHORED")
 
 

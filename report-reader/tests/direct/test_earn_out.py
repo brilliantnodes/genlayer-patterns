@@ -63,6 +63,7 @@ class FakeReader:
         self.latest = reading()
         self._final = reading()
         self.calls = []  # (method, state)
+        self.ats = []  # the time each get_reading was asked for
         self.fail = False
 
     @property
@@ -87,6 +88,7 @@ class FakeReader:
 
             def get_reading(self, rid, period, at):
                 outer.calls.append(("get_reading", state))
+                outer.ats.append(at)
                 if outer.fail or rid != "1":
                     raise Exception("no such report")
                 out = dict(outer.latest)
@@ -476,3 +478,13 @@ def test_settlement_refuses_another_report_or_period(mod):
 def test_settlement_refuses_a_malformed_figure(mod):
     with pytest.raises(ValueError, match="figure must be a whole number"):
         mod._settlement(deal(), reading("READ", {"revenue": "15.2"}, finalized=True))
+
+
+def test_every_call_reads_the_reading_as_of_its_own_time(env):
+    """create, accept and settle ask the reader for the reading as of the call's own time, not a time of their choosing."""
+    create(env, 4 * ONE, at=END_TS - 600)
+    accept(env, at=END_TS - 300)
+    env.reader.final = reading("READ", {"revenue": "15240000", "ltm_ebitda": "1"}, official=True, clock=END_TS + 900)
+    env.reader.ats.clear()
+    settle(env, at=END_TS + 1000)
+    assert env.reader.ats == [END_TS + 1000]

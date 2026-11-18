@@ -71,6 +71,7 @@ ROWS_T0 = [
     ("EBITDA (last twelve months)", "4,180.5", "3,960.0"),
     ("Net finance costs", "(2,150)", "(2,040)"),
     ("Total borrowings", "(48,000)", "(49,500)"),
+    ("Basic earnings per share (EUR)", "0.42", "0.39"),
 ]
 
 
@@ -87,6 +88,7 @@ def tarnwick_pages(e0: int) -> dict:
 <li>LTM EBITDA: EUR 4.45 million</li>
 <li>Net finance costs: EUR 2.1 million</li>
 <li>Total borrowings: EUR 47.5 million</li>
+<li>Basic earnings per share: EUR 0.45</li>
 </ul>
 <p class="small">LTM means the last twelve months to the quarter end.</p>""")
     return {"tarnwick": {0: p0, 1: p1, 2: p2}}

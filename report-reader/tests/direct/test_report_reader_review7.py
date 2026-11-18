@@ -113,7 +113,7 @@ def test_b1_a_label_hint_that_reads_as_per_share_counts(env):
 @pytest.mark.parametrize("bad", [1, 0, "true", None, [True]])
 def test_b1_per_share_must_be_a_bool(env, bad):
     from tests.direct.test_report_reader import register
-    with pytest.raises(Exception, match="per_share must be true or false"):
+    with pytest.raises(Exception, match="per_share must be true .* or false"):
         register(env, live_spec(figs=one("eps", "Class A", decimals=2, per_share=bad)))
 
 
@@ -122,7 +122,7 @@ def test_b1_a_declared_per_share_figure_with_any_label(env):
     from tests.direct.test_report_reader import register
     p = page("euros (EUR)", "Statement of net assets (EUR thousands)", "Quarter ended 2026-11-18 08:15 UTC Prior quarter",
              "Total net assets 125,400 118,900", "Net asset value per share (EUR)", "Class A EUR 112.45 EUR 108.10")
-    figs = one("nav_a", "Class A", decimals=2, per_share=True)
+    figs = one("nav_a", "Class A", decimals=2, per_share=True, label_hint="Net asset value per share, Class A")
     assert register(env, live_spec(figs=figs))["spec"]["figures"][0]["per_share"] is True
     refused(run(env, live_spec(figs=figs), p, ans(TAR, {"nav_a": fig("112.45", "Class A", "thousands", "EUR thousands")})), "N2_UNITS_MISSING")
 
@@ -130,7 +130,7 @@ def test_b1_a_declared_per_share_figure_with_any_label(env):
 def test_b1_a_declared_per_share_figure_reads_in_units(env):
     p = page("euros (EUR)", "Statement of net assets (EUR thousands)", "Quarter ended 2026-11-18 08:15 UTC Prior quarter",
              "Total net assets 125,400 118,900", "Net asset value per share (EUR)", "Class A EUR 112.45 EUR 108.10")
-    figs = one("nav_a", "Class A", decimals=2, per_share=True)
+    figs = one("nav_a", "Class A", decimals=2, per_share=True, label_hint="Net asset value per share, Class A")
     read_ok(run(env, live_spec(figs=figs), p, ans(TAR, {"nav_a": fig("112.45", "Class A", "units", "EUR")})), "nav_a", "11245")
 
 
