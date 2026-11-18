@@ -6,24 +6,27 @@ Reusable GenLayer Intelligent Contracts built on one idea: **validators copy fac
 |---|---|---|
 | [MeterReader](meter-reader/) | Turns one finished window of a public per-interval statistics table (hashrate per minute, messages per minute, ...) into an on-chain reading: every slot stored (missing slots kept as missing), validators agree on every value exactly (after rounding down to the meter's resolution), and each window has one official reading, taken in a short read period after the window, so every consumer that agreed a meter, window and target gets the same share. A consumer contract pins a meter, window and target and pays by it on chain. | [`0xa0FE…209C`](https://explorer-studio.genlayer.com/address/0xa0FE27774c2f1F0d35bd83dA806cFB1F85F4209C) |
 | [RuleCheck](rule-check/) | Declarative fact rules over 1 to 3 public pages: anyone stores a template (facts with closed answer lists, plus an ordered rule table), validators settle the facts, code applies the first matching rule, and validators must agree on the facts that rule uses. A consumer contract acts on its verdicts on chain. | [`0x28BE…f21e`](https://explorer-studio.genlayer.com/address/0x28BEC7C9A99cd19c101fbaB1CaFe0b6e4Db3f21e) |
+| [ReportReader](report-reader/) | Turns a company's published periodic report into exact on-chain figures (revenue, EBITDA, debt, NAV per share...): anyone registers a frozen report with up to 8 figures, each with a closed list of line labels, a precision, a rounding direction and a sign rule. Validators copy each figure as printed; code checks every copy against its own rendering of the page (label printed, value right after it, scale words printed), converts with integers only, and validators agree on every figure exactly. Each period has one official reading; `get_reading` gives consumers `READ` or `MISSING`, both final. | see [report-reader](report-reader/#live-results-on-studio) |
 
-Consumer examples, each deployed and called live (another contract relying on a result without reading any page or calling any model):
+Consumer examples, each deployed and called live (another contract relying on a result without reading any page or calling any model; EarnOutExample also moves money on it):
 
 | Consumer | Relies on | What it shows | Studio address |
 |---|---|---|---|
 | [MeterConsumerExample](meter-reader/examples/consumer/meter_consumer_example.py) | MeterReader | pins a meter, a window that has not started yet and a target, then stores the share from the window's official reading through `gl.get_contract_at(...).view()` (60.14%); never takes a reading id from the caller; expires a job whose read period passes with no reading | [`0x035d…30fc`](https://explorer-studio.genlayer.com/address/0x035d9b2a531f84d3DB2235b634907c131d0d30fc) |
 | [ListingGateExample](rule-check/examples/consumer/listing_gate_example.py) | RuleCheck | admits, refuses or asks for a recheck by verdict; pins the one template it trusts, requires a recent check and the expected subject, uses each check once; refused another template's check, a stale check and a reused check on chain | [`0xA10A…00c4`](https://explorer-studio.genlayer.com/address/0xA10A7359fCFAe7643282994f02012b0e6C2500c4) |
+| [EarnOutExample](report-reader/examples/consumer/earn_out_example.py) | ReportReader | escrows a deferred payment, pins a report by id and digest, a period that has not ended, a figure, a floor and a target; on `READ` pays the seller on a straight line between floor and target and the buyer the rest, on `MISSING` refunds the buyer; pull payments | see [report-reader](report-reader/#live-results-on-studio) |
 
 Each folder has the contract, direct-mode tests, a command-line client, example inputs, the deployment record and a README covering the problem, the state design, why its equivalence check is shaped the way it is, failure modes, and live results with transaction links.
 
 ## What is new compared with the projects they came from
 
-The ideas were first used inside two Brilliant Nodes projects on GenLayer, [RigSettle](https://github.com/brilliantnodes/rigsettle) (hashrate rental escrow) and [Launch Claim Checker](https://github.com/brilliantnodes/launch-claim-checker). In both projects the reading and deciding are welded to one use case. The contracts here are separate, general primitives with their own code, tests and deployments:
+The ideas were first used inside Brilliant Nodes projects on GenLayer: [RigSettle](https://github.com/brilliantnodes/rigsettle) (hashrate rental escrow), [Launch Claim Checker](https://github.com/brilliantnodes/launch-claim-checker) and [PrivateCreditGate](https://github.com/brilliantnodes/privatecredit-gate) (a covenant-gated credit facility). In both projects the reading and deciding are welded to one use case. The contracts here are separate, general primitives with their own code, tests and deployments:
 
 | | Inside the project | Here |
 |---|---|---|
 | **Reading a stats page** | RigSettle reads one kind of page (a pool's accepted hashrate in GH/s) as part of settling a rental, and validators agree **exactly on the rule and share that decide the payout**. | **MeterReader** reads any per-interval table described by a frozen meter (source name, series, column, unit family, slot length, resolution, publishing lag). Validators agree **slot by slot, exactly**: the same listed slots and the same value in every slot, so a leader cannot move any value. Every slot is stored, and each window has one official reading, so every consumer that agreed the same meter, window and target gets the same share. |
 | **Checking facts against a rule** | Launch Claim Checker has a fixed set of claim types (four named ones and a free-text "other claim"), a fixed form and a rule table written in its code. | **RuleCheck** takes the facts and the rule table as **data**: anyone stores a template (1 to 3 pages, up to 8 facts with closed answers, up to 16 rules) and runs it on any pages. Consensus is **rule-scoped**: validators must reach the same verdict by the same rule with the same answers to the facts that rule uses, so a fact that decided nothing cannot stall agreement. |
+| **Reading a company report** | [PrivateCreditGate](https://github.com/brilliantnodes/privatecredit-gate) reads four fixed figures (LTM EBITDA, net finance costs, debt, cash) from a borrower's compliance report, welded to one credit facility. | **ReportReader** takes the report, its periods and up to 8 figures as **data**, each with a closed list of line labels, a precision, a rounding direction and a sign rule, and adds **anchored copying**: code checks each copied label and value against the validator's own rendering of the page before validators compare. Each period has one official reading, and a monotonic report clock makes `READ` and `MISSING` final for every consumer. |
 | **Using the result** | Each project uses its own result internally. | Both results are made for other contracts: the two consumer examples above run live on Studio. |
 
 ## Also on Testnet Bradbury Phase 2
@@ -48,9 +51,13 @@ python3 -m venv venv && venv/bin/pip install -r requirements.txt
 (cd meter-reader && PYTHONPATH=. ../venv/bin/python tools/mutate.py)   # 73 of 73 mutants caught
 (cd rule-check   && PYTHONPATH=. ../venv/bin/python tools/mutate.py)   # 45 of 45 mutants caught
 (cd rule-check   && PYTHONPATH=. ../venv/bin/python tools/mutate_gate.py)   # 20 of 20 consumer-gate mutants caught
+(cd report-reader && PYTHONPATH=. ../venv/bin/pytest tests/direct -q)   # 210 tests (168 ReportReader, 42 EarnOutExample)
+(cd report-reader && PYTHONPATH=. ../venv/bin/python tools/mutate.py)   # 85 of 85 mutants caught
 venv/bin/genvm-lint check meter-reader/contracts/meter_reader.py
 venv/bin/genvm-lint check rule-check/contracts/rule_check.py
 venv/bin/genvm-lint check rule-check/examples/consumer/listing_gate_example.py
+venv/bin/genvm-lint check report-reader/contracts/report_reader.py
+venv/bin/genvm-lint check report-reader/examples/consumer/earn_out_example.py
 ```
 
 The same tests against the Bradbury (GenVM v0.6) builds: see [`bradbury/README.md`](bradbury/README.md#why-a-separate-build).
